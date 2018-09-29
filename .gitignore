@@ -2,3 +2,4 @@
 build/
 cmake-build-debug/
 Makefile
+3rdparty/
