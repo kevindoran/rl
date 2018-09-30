@@ -126,19 +126,19 @@ private:
 class Transition {
 public:
     Transition(
-        const ID state_,
-        const ID next_state_,
-        const ID action_,
-        const ID reward_,
+        const State& state_,
+        const State& next_state_,
+        const Action& action_,
+        const Reward& reward_,
         const Weight prob_weight=1)
         : state_(state_), next_state_(next_state_), action_(action_), reward_(reward_),
           prob_weight_(prob_weight)
     {}
 
-    ID state() const            {return state_;}
-    ID next_state() const       {return next_state_;}
-    ID action() const           {return action_;}
-    ID reward() const           {return reward_;}
+    const State& state() const            {return state_;}
+    const State& next_state() const       {return next_state_;}
+    const Action& action() const           {return action_;}
+    const Reward& reward() const           {return reward_;}
     Weight prob_weight() const  {return prob_weight_;}
 
     bool operator==(const Transition& other) const {
@@ -154,10 +154,10 @@ public:
     }
 
 private:
-    ID state_;
-    ID next_state_;
-    ID action_;
-    ID reward_;
+    const State& state_;
+    const State& next_state_;
+    const Action& action_;
+    const Reward& reward_;
     Weight prob_weight_;
 };
 
@@ -168,16 +168,16 @@ private:
 struct cumulative_grouping_less {
     bool operator() (const Transition& a, const Transition& b)
     {
-        if(a.state() != b.state()) {
-            return a.state() < b.state();
+        if(a.state().id() != b.state().id()) {
+            return a.state().id() < b.state().id();
         }
-        if(a.action() != b.action()) {
-            return a.action() < b.action();
+        if(a.action().id() != b.action().id()) {
+            return a.action().id() < b.action().id();
         }
-        if(a.next_state() != b.next_state()) {
-            return a.next_state() < b.next_state();
+        if(a.next_state().id() != b.next_state().id()) {
+            return a.next_state().id() < b.next_state().id();
         }
-        return a.reward() < b.reward();
+        return a.reward().id() < b.reward().id();
     }
 };
 
@@ -221,8 +221,8 @@ public:
         return *s;
     }
 
-    void mark_as_end_state(ID state_id) {
-        end_states_.insert(state_id);
+    void mark_as_end_state(const State& state) {
+        end_states_.insert(state.id());
     }
 
     Action& add_action(const std::string& name) {
@@ -243,12 +243,12 @@ public:
         GSL_CONTRACT_CHECK("only max_value(ID) entries are supported.",
                            transitions_.size() <= std::numeric_limits<ID>::max());
         // We assert bounds for the array sizes, so the static cast is okay.
-        Expects(t.action()     < static_cast<ID>(actions_.size()));
-        Expects(t.next_state() < static_cast<ID>(states_.size()));
-        Expects(t.state()      < static_cast<ID>(states_.size()));
-        Expects(t.reward()     < static_cast<ID>(rewards_.size()));
+        Expects(t.action().id()     < static_cast<ID>(actions_.size()));
+        Expects(t.next_state().id() < static_cast<ID>(states_.size()));
+        Expects(t.state().id()      < static_cast<ID>(states_.size()));
+        Expects(t.reward().id()     < static_cast<ID>(rewards_.size()));
         // We can't have transitions from the end states.
-        Expects(end_states_.find(t.state()) == std::end(end_states_));
+        Expects(end_states_.find(t.state().id()) == std::end(end_states_));
         // Note: using copy ctr below.
         auto res = transitions_.emplace(t);
         bool was_added = res.second;
@@ -314,8 +314,8 @@ public:
         return end_states_.find(current_state_) != std::end(end_states_);
     }
 
-    void set_start_state(ID state) {
-        start_state_ = state;
+    void set_start_state(const State& state) {
+        start_state_ = state.id();
         if(!started_) {
             current_state_ = start_state_;
         }

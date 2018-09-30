@@ -26,14 +26,14 @@ public:
     ValueFunction& operator=(ValueFunction&&) = default;
     ~ValueFunction() = default;
 
-    double value(ID state_id) {
-        Expects(state_id < static_cast<ID>(state_values_.size()));
-        return state_values_[state_id];
+    double value(const State& state) {
+        Expects(state.id() < static_cast<ID>(state_values_.size()));
+        return state_values_[state.id()];
     }
 
-    void set_value(ID state_id, double value) {
-        Expects(state_id < static_cast<ID>(state_values_.size()));
-        state_values_[state_id] = value;
+    void set_value(const State& state, double value) {
+        Expects(state.id() < static_cast<ID>(state_values_.size()));
+        state_values_[state.id()] = value;
     }
 
 private:
