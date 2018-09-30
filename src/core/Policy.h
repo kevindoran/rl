@@ -9,23 +9,50 @@ namespace rl {
 
 
 
+
+
 class Policy {
 public:
-    // Return an action ID or Action?
-    virtual const Action& next_action(const Environment& e) = 0;
+    struct ActionDistribution {
+        using WeightMap = std::unordered_map<const Action*, int>;
+
+        static ActionDistribution single_action(const Action& a) {
+            static const int weight = 1;
+            WeightMap m{ {&a, weight} };
+            return {m, weight};
+        }
+
+        WeightMap weight_map;
+        int total_weight;
+    };
+
+public:
+    virtual const Action& next_action(const Environment& e, const State& from_state) const = 0;
+
+    virtual ActionDistribution possible_actions(const Environment& e,
+                                                const State& from_state) const = 0;
+
+
     // Should we make this pure? If it is not pure, Policy might not be considered a virtual class.
     // Is there issues with that?
     virtual ~Policy() = default;
 };
 
-class LambdaPolicy : public Policy {
+class DeterministicLambdaPolicy : public Policy {
 public:
-    using Callback = std::function<const Action&(const Environment&)>;
+    using Callback = std::function<const Action&(const Environment&, const State&)>;
 
-    explicit LambdaPolicy(Callback fctn) : fctn_(fctn)
+    explicit DeterministicLambdaPolicy(Callback fctn) : fctn_(std::move(fctn))
     {}
-    const Action& next_action(const Environment& e) override {
-        return fctn_(e);
+
+    const Action& next_action(const Environment& e, const State& from_state) const override {
+        return fctn_(e, from_state);
+    }
+
+    ActionDistribution possible_actions(const Environment& e,
+                                        const State& from_state) const override {
+        const Action& a = next_action(e, from_state);
+        return ActionDistribution::single_action(next_action(e, from_state));
     }
 
 private:
