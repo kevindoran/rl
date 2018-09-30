@@ -321,6 +321,20 @@ public:
         started_ = false;
     }
 
+    std::vector<std::reference_wrapper<const State>> end_states() {
+        std::vector<std::reference_wrapper<const State>> ans;
+        std::transform(end_states_.begin(), end_states_.end(), ans.begin(),
+            [this](ID id) {
+                return std::cref(state(id));
+            });
+        return ans;
+    }
+
+    bool is_end_state(const State& s) const {
+        auto finder = std::find(end_states_.begin(), end_states_.end(), s.id());
+        bool is_an_end_state = finder != std::end(end_states_);
+        return is_an_end_state;
+    }
 
     StateIterator states_begin() {
         return util::DereferenceIterator(states_.cbegin());
