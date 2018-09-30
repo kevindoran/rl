@@ -19,7 +19,7 @@ public:
     // Core guidelines C21:
     // If you define or delete any default operations, define or delete them all.
     ValueFunction() = delete;
-    explicit ValueFunction(ID state_count) : state_values_(state_count) {}
+    explicit ValueFunction(ID state_count) : state_values_(state_count, 0) {}
     ValueFunction(const ValueFunction&) = default;
     ValueFunction& operator=(const ValueFunction&) = default;
     ValueFunction(ValueFunction&&) = default;
