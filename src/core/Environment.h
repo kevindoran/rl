@@ -181,6 +181,12 @@ struct cumulative_grouping_less {
     }
 };
 
+struct TransitionDistribution {
+    using Transitions = std::vector<std::reference_wrapper<const Transition>>;
+    Transitions transitions;
+    long total_weight = 0;
+};
+
 
 
 class Environment {
@@ -313,6 +319,7 @@ public:
             p_reward->set_value(value);
         }
     }
+
     double accumulated_reward() {
         return accumulated_reward_;
     }
@@ -406,20 +413,22 @@ public:
     // The methods below provide access to properties of an environment that are not typically
     // available directly.
 
-    // We could make this return copies or references.
-    std::vector<std::reference_wrapper<const Transition>> transition_list(const State& from_state,
-            const Action& action) {
-        std::vector<std::reference_wrapper<const Transition>> ans;
-        DistNode& n = dist_tree_.root_node()
-                .child_with_id(from_state.id())
-                .child_with_id(action.id());
+    TransitionDistribution transition_list(const State& from_state, const Action& action) {
+        TransitionDistribution ans;
+        Expects(dist_tree_.root_node().has_child_with_id(from_state.id()));
+        DistNode& state_node = dist_tree_.root_node().child_with_id(from_state.id());
+        Expects(state_node.has_child_with_id(action.id()));
+        DistNode& action_node = state_node.child_with_id(action.id());
         auto append_fctn =
              [&ans](const DistNode& node) {
-                 std::reference_wrapper<const Transition> t =
-                         std::cref(*CHECK_NOTNULL(node.data()));
-                 ans.emplace_back(t);
+                 if(node.child_count()) {
+                     return;
+                 }
+                 const Transition& t = *CHECK_NOTNULL(node.data());
+                 ans.transitions.emplace_back(t);
              };
-        dist_tree_.dfs(append_fctn, n);
+        dist_tree_.dfs(append_fctn, action_node);
+        ans.total_weight = action_node.weight();
         return ans;
     }
 
