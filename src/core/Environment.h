@@ -300,6 +300,12 @@ public:
         return *rewards_[id];
     }
 
+
+    void set_all_rewards_to(double value) {
+        for(auto& p_reward : rewards_) {
+            p_reward->set_value(value);
+        }
+    }
     double accumulated_reward() {
         return accumulated_reward_;
     }
