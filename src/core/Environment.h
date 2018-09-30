@@ -263,12 +263,11 @@ public:
         started_ = true;
         if(needs_rebuilding_) {
             build_distribution_tree();
-            needs_rebuilding_ = false;
         }
         DistNode& n{get_dist_node(current_state_, action.id())};
         const Transition& random_transition{*CHECK_NOTNULL(n.random_leaf().data())};
-        accumulated_reward_+= reward(random_transition.reward()).value();
-        current_state_= random_transition.next_state();
+        accumulated_reward_+= random_transition.reward().value();
+        current_state_= random_transition.next_state().id();
         return random_transition;
     }
 
