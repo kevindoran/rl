@@ -364,7 +364,31 @@ public:
         return util::DereferenceIterator(rewards_.cend());
     }
 
+    void build_distribution_tree() {
+        dist_tree_ = std::move(DistTree());
+        DistNode& root = dist_tree_.root_node();
 
+        std::size_t added_count = 0;
+        for(const Transition& t : transitions_) {
+            if(!root.has_child_with_id(t.state().id())) {
+                root.add_child_with_id(t.state().id());
+            }
+            DistNode& state_node = root.child_with_id(t.state().id());
+            if(!state_node.has_child_with_id(t.action().id())) {
+                state_node.add_child_with_id(t.action().id());
+            }
+            DistNode& action_node = state_node.child_with_id(t.action().id());
+            if(!action_node.has_child_with_id(t.next_state().id())) {
+                action_node.add_child_with_id(t.next_state().id());
+            }
+            DistNode& next_state_node = action_node.child_with_id(t.next_state().id());
+            DistNode& reward = next_state_node.add_child_with_id(t.reward().id(), t.prob_weight(), &t);
+            added_count++;
+        }
+        Ensures(added_count == transitions_.size());
+        dist_tree_.update_weights();
+        needs_rebuilding_ = false;
+    }
 
     // The methods below provide access to properties of an environment that are not typically
     // available directly.
@@ -406,31 +430,6 @@ private:
 
     DistNode& get_dist_node(ID state, ID action, ID next_state, ID reward) {
         return get_dist_node(state, action, next_state).child_with_id(reward);
-    }
-
-    void build_distribution_tree() {
-        dist_tree_ = std::move(DistTree());
-        DistNode& root = dist_tree_.root_node();
-
-        std::size_t added_count = 0;
-        for(const Transition& t : transitions_) {
-            if(!root.has_child_with_id(t.state())) {
-                root.add_child_with_id(t.state());
-            }
-            DistNode& state_node = root.child_with_id(t.state());
-            if(!state_node.has_child_with_id(t.action())) {
-                state_node.add_child_with_id(t.action());
-            }
-            DistNode& action_node = state_node.child_with_id(t.action());
-            if(!action_node.has_child_with_id(t.next_state())) {
-                action_node.add_child_with_id(t.next_state());
-            }
-            DistNode& next_state_node = action_node.child_with_id(t.next_state());
-            DistNode& reward = next_state_node.add_child_with_id(t.reward(), t.prob_weight(), &t);
-            added_count++;
-        }
-        Ensures(added_count == transitions_.size());
-        dist_tree_.update_weights();
     }
 
     /*
