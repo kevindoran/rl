@@ -520,4 +520,34 @@ private:
 
 } // namespace rl
 
+// Following the examples here:
+// https://en.cppreference.com/w/cpp/utility/hash
+// Place the hash struct in the "std" namespace so that it is automatically chosen when creating
+// maps.
+namespace std {
+
+template<> struct hash<rl::State>
+{
+    // Mark them as inline and we can keep them in the header.
+    inline std::size_t operator()(const rl::State& s) const {
+        return s.id();
+    }
+};
+
+template<> struct hash<rl::Action>
+{
+    inline std::size_t operator()(const rl::Action& a) const {
+        return a.id();
+    }
+};
+
+template<> struct hash<rl::Reward>
+{
+    inline std::size_t operator()(const rl::Reward& r) const {
+        return r.id();
+    }
+};
+
+} // namespace std
+
 #endif //REINFORCEMENT_ENVIRONMENT_H
