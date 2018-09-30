@@ -114,7 +114,7 @@ public:
      * faster comparisons and slightly lower memory footprint. It's worth profiling with different
      * optimization levels.
      */
-    inline const Position& to_position(int tile_id) {
+    inline const Position& to_position(int tile_id) const {
         Expects(tile_id >= 0);
         Expects(tile_id < TILE_COUNT);
         return pos_map[tile_id];
@@ -190,7 +190,7 @@ public:
      * \param t   get the neighbours of this tile.
      * \return    the tile's neighbours: a \c vector of between 2 to 4 tile ids.
      */
-    inline std::vector<int> neighbours(int t) const  {
+    inline std::vector<int> neighbours(int t) const {
         std::vector<int> ans;
         if(t % WIDTH != 0) {
             ans.push_back(t - 1);

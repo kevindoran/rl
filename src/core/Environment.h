@@ -117,7 +117,7 @@ public:
     ID reward() const           {return reward_;}
     Weight prob_weight() const  {return prob_weight_;}
 
-    bool operator==(const Transition& other) {
+    bool operator==(const Transition& other) const {
         return  state_       == other.state_ and
                 next_state_  == other.next_state_ and
                 action_      == other.action_ and
@@ -125,7 +125,7 @@ public:
                 prob_weight_ == other.prob_weight_;
     }
 
-    bool operator!=(const Transition& other) {
+    bool operator!=(const Transition& other) const {
         return !(*this == other);
     }
 
