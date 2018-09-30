@@ -292,14 +292,22 @@ public:
         return const_cast<State&>(static_cast<const Environment*>(this)->state(id));
     }
 
-    Action& action(ID id) {
+
+    const Action& action(ID id) const {
         return *actions_[id];
     }
 
-    Reward& reward(ID id) {
+    Action& action(ID id) {
+        return const_cast<Action&>(static_cast<const Environment*>(this)->action(id));
+    }
+
+    const Reward& reward(ID id) const {
         return *rewards_[id];
     }
 
+    Reward& reward(ID id) {
+        return const_cast<Reward&>(static_cast<const Environment*>(this)->reward(id));
+    }
 
     void set_all_rewards_to(double value) {
         for(auto& p_reward : rewards_) {

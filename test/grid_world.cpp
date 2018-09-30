@@ -29,7 +29,7 @@ TEST(GridWorldTest, basic_example) {
     // 1. Start at (0, 1) and move to the right edge.
     grid::Position pos{0, 1};
     environment.set_start_state(grid_world.pos_to_state(pos));
-    Action& move_right_action = grid_world.dir_to_action(grid::Direction::RIGHT);
+    const Action& move_right_action = grid_world.dir_to_action(grid::Direction::RIGHT);
     while(pos.x < WIDTH-1) {
         environment.execute_action(move_right_action);
         pos = pos.adj(grid::Direction::RIGHT);
@@ -46,7 +46,7 @@ TEST(GridWorldTest, basic_example) {
         ID reward_at_t = grid_world.reward_id(grid.to_position(t));
         environment.reward(reward_at_t).set_value(1.0);
     }
-    Action& move_down_action = grid_world.dir_to_action(grid::Direction::DOWN);
+    const Action& move_down_action = grid_world.dir_to_action(grid::Direction::DOWN);
     environment.execute_action(move_down_action);
     pos = pos.adj(grid::Direction::DOWN);
     ASSERT_EQ(pos, grid_world.current_pos()) << "We should have moved down by 1.";
