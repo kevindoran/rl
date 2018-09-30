@@ -50,6 +50,7 @@ add_subdirectory(3rdparty/googletest)
 add_executable(runTests
         test/distribution_tree.cpp
         test/grid_world.cpp
+        test/range_wrapper.cpp
         test/iterative_policy_evaluation.cpp)
 target_link_libraries(runTests gtest gtest_main)
 target_link_libraries(runTests reinforcement)
