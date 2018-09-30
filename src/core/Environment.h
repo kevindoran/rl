@@ -44,6 +44,14 @@ public:
     const std::string& name() const {return name_;}
     ID id() const {return id_;}
 
+    bool operator==(const State& other) const {
+        return id_ == other.id_;
+    }
+
+    bool operator!=(const State& other) const {
+        return !(*this == other);
+    }
+
 private:
     ID id_;
     std::string name_{};
@@ -61,6 +69,14 @@ public:
 
     const std::string& name() const {return name_;}
     ID id() const {return id_;}
+
+    bool operator==(const Action& other) const {
+        return id_ == other.id_;
+    }
+
+    bool operator!=(const Action& other) const {
+        return !(*this == other);
+    }
 
 private:
     ID id_;
@@ -85,6 +101,14 @@ public:
 
     void set_value(double value) {
         value_ = value;
+    }
+
+    bool operator==(const Reward& other) const {
+        return id_ == other.id_;
+    }
+
+    bool operator!=(const Reward& other) const {
+        return !(*this == other);
     }
 
 private:
