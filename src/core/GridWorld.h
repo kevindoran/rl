@@ -35,13 +35,20 @@ namespace rl {
  * One or more grid positions can be marked as end states.
  *
  */
+
+// This enum exists outside the GridWorld class template so that each template instance doesn't
+// get a different enum.
+enum class GridWorldBoundsBehaviour {NO_OUT_OF_BOUNDS, TRANSITION_TO_CURRENT, LOOP};
+
 template<int HEIGHT, int WIDTH>
 class GridWorld {
 
 public:
     using GridType = grid::Grid<HEIGHT, WIDTH>;
 
-    GridWorld() {
+    GridWorld(GridWorldBoundsBehaviour bounds_behaviour=
+                  GridWorldBoundsBehaviour::TRANSITION_TO_CURRENT)
+           : bounds_behaviour_(bounds_behaviour) {
         // Add states and rewards (rewards are 1-1 with states).
         for (int y = 0; y < HEIGHT; y++) {
             for (int x = 0; x < WIDTH; x++) {
@@ -71,7 +78,17 @@ public:
                 for (grid::Direction d : grid::directions) {
                     grid::Position to_pos = from_pos.adj(d);
                     if (!grid_.is_valid(to_pos)) {
-                        continue;
+                        switch (bounds_behaviour) {
+                            case GridWorldBoundsBehaviour::NO_OUT_OF_BOUNDS:
+                                // Skip this tile.
+                                continue;
+                            case GridWorldBoundsBehaviour::TRANSITION_TO_CURRENT:
+                                to_pos = from_pos;
+                                break;
+                            case GridWorldBoundsBehaviour::LOOP:
+                                to_pos = grid_.modulo(to_pos);
+                                break;
+                        }
                     }
                     const State& to_state = pos_to_state(to_pos);
                     const Action& action = dir_to_action(d);
@@ -100,6 +117,26 @@ public:
     ID dir_to_action_id(grid::Direction d) const {
         // Making some assumptions on the ids and enum values matching. Could use a map instead.
         return d;
+    }
+
+    /**
+     * Determines if the action of moving in direction \c dir from position \from is allowed.
+     *
+     * An action is not allowed if the bounds behaviour is set to NO_OUT_OF_BOUNDS and the movement
+     * from \c from in direction \c dir would transition past the grid boundaries.
+     *
+     * \param from   moving from this position.
+     * \param dir    moving in this direction.
+     *
+     * \returns true if the action is allowed, false otherwise.
+     */
+    bool is_movement_valid(const grid::Position& from, grid::Direction dir) const {
+        Expects(GridType::is_valid(from));
+        grid::Position to = from.adj(dir);
+        bool out_of_bounds = !GridType::is_valid(to);
+        bool invalid = out_of_bounds and
+             bounds_behaviour_ == GridWorldBoundsBehaviour::NO_OUT_OF_BOUNDS;
+        return !invalid;
     }
 
     /**
@@ -134,12 +171,17 @@ public:
         return state_to_pos(environment_.current_state());
     }
 
+    GridWorldBoundsBehaviour bounds_behaviour() const {
+        return bounds_behaviour_;
+    }
+
 public:
     const int DEFAULT_REWARD = 0;
 
 private:
     Environment environment_;
     GridType grid_;
+    GridWorldBoundsBehaviour bounds_behaviour_;
 };
 
 } // namespace rl

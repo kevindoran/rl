@@ -16,7 +16,7 @@ TEST(GridWorldTest, basic_example) {
      */
     const int HEIGHT = 4;
     const int WIDTH = 4;
-    GridWorld<HEIGHT, WIDTH> grid_world;
+    GridWorld<HEIGHT, WIDTH> grid_world(GridWorldBoundsBehaviour::NO_OUT_OF_BOUNDS);
     Environment& environment = grid_world.environment();
     auto& grid = grid_world.grid();
     // Make top-left and bottom-right tiles the end states.
@@ -39,6 +39,7 @@ TEST(GridWorldTest, basic_example) {
     }
 
     // 2. An exception should be thrown trying to move off the grid.
+    //    This occurs due to our NO_OUT_OF_BOUNDS option.
     ASSERT_ANY_THROW(environment.execute_action(move_right_action));
 
     // 3. Set all rewards to 1.0. Then move down.
