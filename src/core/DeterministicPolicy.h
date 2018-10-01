@@ -5,6 +5,7 @@
 #include <glog/logging.h>
 
 #include "core/Policy.h"
+#include "Policy.h"
 
 namespace rl {
 
@@ -49,6 +50,26 @@ private:
     //    Environments use the same state, action and policy objects.
     using StateToActionMap = std::unordered_map<State, Action>;
     StateToActionMap state_to_action_{};
+};
+
+class DeterministicLambdaPolicy : public rl::Policy {
+public:
+    using Callback = std::function<const rl::Action&(const rl::Environment&, const rl::State&)>;
+
+    explicit DeterministicLambdaPolicy(Callback fctn) : fctn_(move(fctn))
+    {}
+
+    const rl::Action& next_action(const rl::Environment& e, const rl::State& from_state) const override {
+        return fctn_(e, from_state);
+    }
+
+    ActionDistribution possible_actions(const rl::Environment& e,
+                                        const rl::State& from_state) const override {
+        return ActionDistribution::single_action(next_action(e, from_state));
+    }
+
+private:
+    Callback fctn_;
 };
 
 } // namespace rl

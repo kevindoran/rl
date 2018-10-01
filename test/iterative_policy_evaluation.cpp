@@ -5,6 +5,7 @@
 #include "core/Grid.h"
 #include "core/IterativePolicyEvaluation.h"
 #include "core/Policy.h"
+#include "core/DeterministicPolicy.h"
 
 namespace {
 // note: We can make GridWord inherit from an abstract class allowing methods to use the interface

@@ -42,25 +42,6 @@ public:
     virtual ~Policy() = default;
 };
 
-class DeterministicLambdaPolicy : public Policy {
-public:
-    using Callback = std::function<const Action&(const Environment&, const State&)>;
-
-    explicit DeterministicLambdaPolicy(Callback fctn) : fctn_(std::move(fctn))
-    {}
-
-    const Action& next_action(const Environment& e, const State& from_state) const override {
-        return fctn_(e, from_state);
-    }
-
-    ActionDistribution possible_actions(const Environment& e,
-                                        const State& from_state) const override {
-        return ActionDistribution::single_action(next_action(e, from_state));
-    }
-
-private:
-    Callback fctn_;
-};
 
 class PolicyEvaluation {
 public:
