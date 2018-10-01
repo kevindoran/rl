@@ -117,12 +117,16 @@ public:
         return const_cast<Reward&>(static_cast<const GridWorld*>(this)->reward_at(target_state));
     }
 
-    Environment &environment() {
+    Environment& environment() {
         return environment_;
     }
 
-    GridType &grid() {
+    const GridType& grid() const {
         return grid_;
+    }
+
+    GridType& grid() {
+        return const_cast<GridType&>(static_cast<const GridWorld*>(this)->grid());
     }
 
     /// Some conveniences:
