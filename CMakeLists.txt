@@ -29,7 +29,9 @@ add_library(reinforcement
         src/core/ValueFunction.h
         src/core/IterativePolicyEvaluation.h
         src/util/DereferenceIterator.h
-        src/util/RangeWrapper.h)
+        src/util/RangeWrapper.h
+        src/util/Random.h
+        )
 target_include_directories(reinforcement
         PUBLIC
         ${PROJECT_SOURCE_DIR}/src)
