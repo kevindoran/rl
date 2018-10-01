@@ -49,6 +49,8 @@ std::string to_string(Direction dir);
 
 Direction from_string(const std::string& dir_str);
 
+Direction random_direction();
+
 
 /**
  * Represents a 2D coordinate (y, x) in ZxZ.

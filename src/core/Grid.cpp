@@ -1,4 +1,5 @@
 #include "Grid.h"
+#include "util/Random.h"
 
 namespace grid {
 
@@ -18,6 +19,12 @@ Direction from_string(const std::string& dir_str) {
     GSL_CONTRACT_CHECK("The given string doesn't match any direction.",
                        it != std::end(string_to_dir_map));
     return it->second;
+}
+
+Direction random_direction() {
+    int random_ordinal = rl::util::random_in_range(0, grid::DIR_COUNT);
+    Direction d = directions[random_ordinal];
+    return d;
 }
 
 } // namespace

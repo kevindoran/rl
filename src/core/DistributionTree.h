@@ -2,31 +2,13 @@
 #define REINFORCEMENT_DISTRIBUTIONTREE_H
 
 #include <vector>
-#include <random>
 #include <gsl/gsl>
 #include <stack>
 #include <glog/logging.h>
 
+#include "util/Random.h"
+
 namespace rl {
-
-namespace {
-std::random_device random_device;
-std::mt19937 random_gen{random_device()};
-
-long random_in_range(long from_inclusive, long to_inclusive) {
-    Expects(from_inclusive <= to_inclusive);
-    if(from_inclusive == to_inclusive) {
-        return from_inclusive;
-    }
-    std::uniform_int_distribution<long> dist(from_inclusive, to_inclusive);
-    long ans = dist(random_gen);
-    Ensures(ans >= from_inclusive);
-    Ensures(ans <= to_inclusive);
-    return ans;
-}
-
-} // namespace
-
 
 template<typename T>
 class DistributionTree {
@@ -90,7 +72,7 @@ public:
 
         Node& random_child() {
             Expects(!children_.empty());
-            long cumulative_pos = random_in_range(cumulative_begin_, cumulative_begin_ + weight_-1);
+            long cumulative_pos = util::random_in_range<>(cumulative_begin_, cumulative_begin_ + weight_);
             return child_at_cumulative_pos(cumulative_pos);
         }
 
