@@ -10,7 +10,7 @@ namespace rl {
 class IterativePolicyEvaluation : public PolicyEvaluation {
 public:
 
-    static constexpr double DEFAULT_DELTA_THRESHOLD = 0.01;
+    static constexpr double DEFAULT_DELTA_THRESHOLD = 0.001;
     static constexpr double DEFAULT_DISCOUNT_RATE = 1.0;
 
     ValueFunction evaluate(Environment& e, const Policy& p) override {
