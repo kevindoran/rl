@@ -155,6 +155,19 @@ public:
     }
 
     /**
+     * Loops a position back into the grid if it is outside the grid boundary.
+     *
+     * For example, in a 2x2 grid, (0, 3) will produce (0, 1) with this method.
+     *
+     * \param p    the position to have looped.
+     * \return     a Position within the grid. Hm... a bit of inconsistency here. Returning by value
+     *             instead of by const ref.
+     */
+    static const Position modulo(const Position& p) {
+        return Position{p.y % HEIGHT, p.x % WIDTH};
+    }
+
+    /**
      * Determines if the given position exists on this grid.
      *
      * \return \c true if \c p is a valid position on the grid, \c false otherwise.
@@ -170,7 +183,6 @@ public:
     static inline int dist(int a, int b) {
         return abs(a % WIDTH - b % WIDTH) + abs(a / WIDTH - b / WIDTH);
     }
-
 
     static inline int to_id(const Position& pos) {
         return pos.x + WIDTH * pos.y;
