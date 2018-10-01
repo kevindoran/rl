@@ -51,7 +51,6 @@ public:
 
     ActionDistribution possible_actions(const Environment& e,
                                         const State& from_state) const override {
-        const Action& a = next_action(e, from_state);
         return ActionDistribution::single_action(next_action(e, from_state));
     }
 
