@@ -1,6 +1,8 @@
 #ifndef REINFORCEMENT_POLICY_H
 #define REINFORCEMENT_POLICY_H
 
+#include <memory>
+
 #include "core/Environment.h"
 #include "core/ValueFunction.h"
 
@@ -42,11 +44,28 @@ public:
     virtual ~Policy() = default;
 };
 
+// TODO: edit the methods evaluate() and improve() to accept some options that allow stopping
+// conditions to be controlled. It would also be nice to be able to interact with the in-progress
+// results after a certain number of loops or units of time.
 
 class PolicyEvaluation {
 public:
     virtual ValueFunction evaluate(Environment& e, const Policy& p) = 0;
     virtual ~PolicyEvaluation() = default;
+};
+
+class PolicyImprovement {
+public:
+    // A conclusion based on the logic from:
+    // https://en.wikipedia.org/wiki/One-shot_deviation_principle, and
+    // https://mathoverflow.net/a/44685
+    // is that if there is an optimal policy, then there is a deterministic optimal policy.
+    // Therefore, we could choose to update this return type to be a DeterministicPolicy rather than
+    // the abstract super type, Policy. I'll leave it as it unless it becomes troublesome. A more
+    // flexible return type might allow for a more efficient policy representation than what is
+    // possible with the map used by DeterministicPolicy.
+    virtual std::unique_ptr<Policy> improve(const Policy& policy) const = 0;
+    virtual ~PolicyImprovement() = default;
 };
 
 } // namespace rl
