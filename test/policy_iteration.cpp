@@ -5,13 +5,13 @@
 #include "core/GridWorld.h"
 #include "core/Grid.h"
 #include "core/Policy.h"
-#include "common/SutonBartoExercises.h"
+#include "common/SuttonBartoExercises.h"
 #include "core/PolicyIteration.h"
 #include "core/RandomGridPolicy.h"
 
 /**
  * This test calculates the optimum policy for the gridworld described in exercise 4.1 in
- * (Suton & Barto, 2018). The initial policy is the random grid policy.
+ * (Sutton & Barto, 2018). The initial policy is the random grid policy.
  *
  * The optimum policy is:
  * (actions available: U = up, D = down, L = left, R = right)

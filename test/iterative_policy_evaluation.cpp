@@ -6,7 +6,7 @@
 #include "core/IterativePolicyEvaluation.h"
 #include "core/Policy.h"
 #include "core/DeterministicPolicy.h"
-#include "common/SutonBartoExercises.h"
+#include "common/SuttonBartoExercises.h"
 #include "core/RandomGridPolicy.h"
 
 namespace {
@@ -100,7 +100,7 @@ TEST(IterativePolicyEvaluationTest, basic_example) {
 
 /**
  * This test recreates the square grid and random policy described in exercise 4.1 of
- * (Suton & Barto, 2018).
+ * (Sutton & Barto, 2018).
  *
  *  E  1  2  3
  *  4  5  6  7
