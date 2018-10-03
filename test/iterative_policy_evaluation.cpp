@@ -6,6 +6,7 @@
 #include "core/IterativePolicyEvaluation.h"
 #include "core/Policy.h"
 #include "core/DeterministicPolicy.h"
+#include "core/RandomGridPolicy.h"
 
 namespace {
 // note: We can make GridWord inherit from an abstract class allowing methods to use the interface
@@ -49,35 +50,7 @@ rl::DeterministicLambdaPolicy create_random_policy_broken(const rl::GridWorld<W,
     return rl::DeterministicLambdaPolicy(fctn);
 }
 
-template<int H, int W>
-class RandomGridPolicy : public rl::Policy {
-public:
-    explicit RandomGridPolicy(const rl::GridWorld<H, W>& grid_world) : grid_world_(grid_world)
-    {}
 
-    const rl::Action&
-    next_action(const rl::Environment& e, const rl::State& from_state) const override {
-        // We don't need this for the test. We can implement it later if the class becomes useful
-        // elsewhere.
-        throw std::runtime_error("Not implemented");
-    }
-
-    ActionDistribution
-    possible_actions(const rl::Environment& e, const rl::State& from_state) const override {
-        ActionDistribution dist;
-        grid::Position from = grid_world_.state_to_pos(from_state);
-        for(grid::Direction dir : grid::directions) {
-            if(!grid_world_.is_movement_valid(from, dir)) {
-                continue;
-            }
-            dist.add_action(grid_world_.dir_to_action(dir));
-        }
-        return dist;
-    }
-
-    private:
-        const rl::GridWorld<H, W>& grid_world_;
-};
 
 } // namespace
 
