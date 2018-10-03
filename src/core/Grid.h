@@ -100,6 +100,9 @@ public:
     static const int INVALID_TILE = -1;
     static const int TILE_COUNT = WIDTH * HEIGHT;
 
+    static int width() {return WIDTH; }
+    static int height() {return HEIGHT; }
+
     Grid() {
         for(int i = 0; i < TILE_COUNT; i++) {
             pos_map[i] = Position{i / WIDTH, i % WIDTH};

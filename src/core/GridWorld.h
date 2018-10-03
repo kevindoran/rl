@@ -46,6 +46,12 @@ class GridWorld {
 public:
     using GridType = grid::Grid<HEIGHT, WIDTH>;
 
+    // GridWord() = implemented below
+    GridWorld(const GridWorld&) = delete;
+    GridWorld(GridWorld&&) = default;
+    GridWorld& operator=(const GridWorld&) = delete;
+    GridWorld& operator=(GridWorld&&) = default;
+
     GridWorld(GridWorldBoundsBehaviour bounds_behaviour=
                   GridWorldBoundsBehaviour::TRANSITION_TO_CURRENT)
            : bounds_behaviour_(bounds_behaviour) {
@@ -117,6 +123,11 @@ public:
     ID dir_to_action_id(grid::Direction d) const {
         // Making some assumptions on the ids and enum values matching. Could use a map instead.
         return d;
+    }
+
+    grid::Direction action_to_dir(const Action& a) const {
+        // Making some assumptions on the ids and enum values matching. Could use a map instead.
+        return static_cast<grid::Direction>(a.id());
     }
 
     /**

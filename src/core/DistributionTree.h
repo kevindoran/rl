@@ -70,10 +70,14 @@ public:
             return *added;
         }
 
-        Node& random_child() {
+        const Node& random_child() const {
             Expects(!children_.empty());
-            long cumulative_pos = util::random_in_range<>(cumulative_begin_, cumulative_begin_ + weight_);
+            long cumulative_pos = util::random_in_range(cumulative_begin_, cumulative_begin_ + weight_);
             return child_at_cumulative_pos(cumulative_pos);
+        }
+
+        Node& random_child() {
+            return const_cast<Node&>(static_cast<const Node*>(this)->random_child());
         }
 
         Node& random_leaf() {
@@ -86,7 +90,7 @@ public:
         /**
          * This method is likely to have subtle bugs.
          */
-        Node& child_at_cumulative_pos(long cumulative_pos) {
+        const Node& child_at_cumulative_pos(long cumulative_pos) const {
             Ensures(cumulative_pos < (cumulative_begin_ + weight_));
             Ensures(!children_.empty());
             std::size_t lower = 0;
@@ -119,6 +123,10 @@ public:
 
         long weight() const {
             return weight_;
+        }
+
+        long cumulative_end() const {
+            return cumulative_begin_ + weight_;
         }
 
         T* data() {
@@ -177,7 +185,11 @@ public:
 
 public:
 
-    Node& root_node() {return root_node_;}
+    const Node& root_node() const {return root_node_;}
+
+    Node& root_node() {
+        return const_cast<Node&>(static_cast<const DistributionTree*>(this)->root_node());
+    }
 
     void update_weights() {
         update_weights(root_node_, 0);

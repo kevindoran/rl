@@ -183,7 +183,7 @@ struct cumulative_grouping_less {
 
 struct TransitionDistribution {
     using Transitions = std::vector<std::reference_wrapper<const Transition>>;
-    Transitions transitions;
+    Transitions transitions{};
     long total_weight = 0;
 };
 
@@ -214,6 +214,7 @@ public:
     using ActionIterator = util::DereferenceIterator<std::vector<std::unique_ptr<Action>>::const_iterator>;
     using RewardIterator = util::DereferenceIterator<std::vector<std::unique_ptr<Reward>>::const_iterator>;
     using States = util::RangeWrapper<StateIterator>;
+    using Actions = util::RangeWrapper<ActionIterator>;
 
     State& add_state(const std::string& name, bool end_state=false) {
         GSL_CONTRACT_CHECK("only max_value(ID) entries are supported.",
@@ -356,31 +357,35 @@ public:
         return is_an_end_state;
     }
 
-    StateIterator states_begin() {
+    StateIterator states_begin() const {
         return util::DereferenceIterator(states_.cbegin());
     }
 
-    StateIterator states_end() {
+    StateIterator states_end() const {
         return util::DereferenceIterator(states_.cend());
     }
 
-    States states() {
+    States states() const {
         return States(states_begin(), states_end());
     }
 
-    ActionIterator actions_begin() {
+    ActionIterator actions_begin() const {
         return util::DereferenceIterator(actions_.cbegin());
     }
 
-    ActionIterator actions_end() {
+    ActionIterator actions_end() const {
         return util::DereferenceIterator(actions_.cend());
     }
 
-    RewardIterator rewards_begin() {
+    Actions actions() const {
+        return Actions(actions_begin(), actions_end());
+    }
+
+    RewardIterator rewards_begin() const {
         return util::DereferenceIterator(rewards_.cbegin());
     }
 
-    RewardIterator rewards_end() {
+    RewardIterator rewards_end() const {
         return util::DereferenceIterator(rewards_.cend());
     }
 
@@ -413,12 +418,15 @@ public:
     // The methods below provide access to properties of an environment that are not typically
     // available directly.
 
-    TransitionDistribution transition_list(const State& from_state, const Action& action) {
-        TransitionDistribution ans;
+    TransitionDistribution transition_list(const State& from_state, const Action& action) const {
+        TransitionDistribution ans{};
         Expects(dist_tree_.root_node().has_child_with_id(from_state.id()));
-        DistNode& state_node = dist_tree_.root_node().child_with_id(from_state.id());
+        if(is_end_state(from_state)) {
+            return ans;
+        }
+        const DistNode& state_node = dist_tree_.root_node().child_with_id(from_state.id());
         Expects(state_node.has_child_with_id(action.id()));
-        DistNode& action_node = state_node.child_with_id(action.id());
+        const DistNode& action_node = state_node.child_with_id(action.id());
         auto append_fctn =
              [&ans](const DistNode& node) {
                  if(node.child_count()) {
