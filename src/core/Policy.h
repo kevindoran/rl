@@ -2,9 +2,11 @@
 #define REINFORCEMENT_POLICY_H
 
 #include <memory>
+#include <glog/logging.h>
 
 #include "core/Environment.h"
 #include "core/ValueFunction.h"
+#include "core/DistributionList.h"
 
 namespace rl {
 
@@ -13,24 +15,44 @@ class Policy {
 public:
     class ActionDistribution {
     public:
-        using WeightMap = std::unordered_map<const Action*, int>;
-        using Actions = std::vector<std::reference_wrapper<const Action>>;
+        using WeightMap = std::unordered_map<const Action*, long>;
 
         static ActionDistribution single_action(const Action& a) {
-            static const int weight = 1;
-            WeightMap m{ {&a, weight} };
-            return {m, weight};
+            ActionDistribution dist;
+            long weight = 1;
+            dist.add_action(a, weight);
+            return dist;
+
         }
 
-        void add_action(const Action& a, int weight=1) {
-            bool already_exists = static_cast<bool>(weight_map.count(&a));
-            Expects(!already_exists);
-            weight_map[&a] = weight;
-            total_weight += weight;
+        void add_action(const Action& a, long weight=1) {
+            action_list_.add(weight, &a);
         }
 
-        WeightMap weight_map{};
-        int total_weight = 0;
+        const Action& random_action() const {
+            const Action& result = *CHECK_NOTNULL(action_list_.random());
+            return result;
+        }
+
+        long total_weight() const {
+            return action_list_.total_weight();
+        }
+
+        WeightMap weight_map() const {
+            WeightMap ans;
+            std::transform(
+                    std::begin(action_list_.entries()), std::end(action_list_.entries()),
+                    std::inserter(ans, ans.end()),
+                    [](const auto& entry) {
+                        return WeightMap::value_type{entry.data(), entry.weight()};
+                    }
+                );
+            return ans;
+        }
+
+    private:
+        using ActionList = DistributionList<const Action>;
+        ActionList action_list_{};
     };
 
 public:
@@ -50,8 +72,12 @@ public:
 
 class PolicyEvaluation {
 public:
-    virtual ValueFunction evaluate(Environment& e, const Policy& p) = 0;
+    virtual ValueFunction evaluate(const Environment& e, const Policy& p) = 0;
     virtual ~PolicyEvaluation() = default;
+
+    virtual void set_discount_rate(double discount_rate) = 0;
+    virtual double discount_rate() const = 0;
+
 };
 
 class PolicyImprovement {
@@ -64,9 +90,12 @@ public:
     // the abstract super type, Policy. I'll leave it as it unless it becomes troublesome. A more
     // flexible return type might allow for a more efficient policy representation than what is
     // possible with the map used by DeterministicPolicy.
-    virtual std::unique_ptr<Policy> improve(const Policy& policy) const = 0;
+    virtual std::unique_ptr<Policy> improve(const Environment& env, const Policy& policy) const = 0;
+
     virtual ~PolicyImprovement() = default;
 };
+
+
 
 } // namespace rl
 
