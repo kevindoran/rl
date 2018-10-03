@@ -31,7 +31,9 @@ add_library(reinforcement
         src/util/DereferenceIterator.h
         src/util/RangeWrapper.h
         src/util/Random.h
-        )
+        src/core/PolicyIteration.h
+        src/core/StochasticPolicy.h
+        src/core/DistributionList.h src/core/RandomGridPolicy.h)
 target_include_directories(reinforcement
         PUBLIC
         ${PROJECT_SOURCE_DIR}/src)
@@ -53,13 +55,18 @@ add_executable(runTests
         test/distribution_tree.cpp
         test/grid_world.cpp
         test/range_wrapper.cpp
-        test/iterative_policy_evaluation.cpp)
+        test/iterative_policy_evaluation.cpp
+        test/policy_iteration.cpp)
 target_link_libraries(runTests gtest gtest_main)
 target_link_libraries(runTests reinforcement)
 target_include_directories(
         runTests
         PRIVATE
         ${GSL_INCLUDE_DIRS})
+target_include_directories(
+        runTests
+        PRIVATE
+        ${PROJECT_SOURCE_DIR}/test/common)
 target_link_libraries(runTests GSL::gsl GSL::gslcblas)
 # Why doesn't this work?
 #target_include_directories(runTests
