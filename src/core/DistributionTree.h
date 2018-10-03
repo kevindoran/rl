@@ -89,6 +89,8 @@ public:
 
         /**
          * This method is likely to have subtle bugs.
+         * It should be switched to using the STL binary_search method. Keeping it here as it's
+         * always nice to practice.
          */
         const Node& child_at_cumulative_pos(long cumulative_pos) const {
             Ensures(cumulative_pos < (cumulative_begin_ + weight_));
@@ -96,25 +98,23 @@ public:
             std::size_t lower = 0;
             std::size_t upper = children_.size() - 1;
             std::size_t mid;
-            while(lower <= upper) {
-                // Floor-ed mid.
+            auto bisect_condition = [](long cumulative_end, long target) {
+                return target < cumulative_end;
+            };
+            while(lower < upper) {
                 mid = lower + (upper - lower) / 2;
-                long at_mid = children_[mid]->cumulative_begin();
-                if(lower == upper) {
-                    std::size_t ans = (at_mid <= cumulative_pos) ? mid : mid-1;
-                    assert(ans >= 0);
-                    assert(ans < children_.size());
-                    return *children_[ans];
-                }
-                if(cumulative_pos < at_mid) {
+                if (bisect_condition(CHECK_NOTNULL(children_[mid])->cumulative_end(), cumulative_pos)) {
                     upper = mid;
-                } else if(at_mid < cumulative_pos) {
-                    lower = mid + 1;
                 } else {
-                    return *children_[mid];
+                    lower = mid + 1;
                 }
             }
-            assert(false);
+            Node& found = *CHECK_NOTNULL(children_[lower]);
+            Ensures(found.cumulative_begin() <= cumulative_pos);
+            long range_end = found.cumulative_begin() + found.weight();
+            Ensures(range_end > cumulative_pos);
+            return found;
+
         }
 
         long cumulative_begin() const {
