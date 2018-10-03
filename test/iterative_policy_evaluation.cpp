@@ -6,6 +6,7 @@
 #include "core/IterativePolicyEvaluation.h"
 #include "core/Policy.h"
 #include "core/DeterministicPolicy.h"
+#include "common/SutonBartoExercises.h"
 #include "core/RandomGridPolicy.h"
 
 namespace {
@@ -117,19 +118,12 @@ TEST(IterativePolicyEvaluationTest, basic_example) {
  *  -22  -20  -14  0.0
  */
 TEST(IterativePolicyEvaluationTest, sutton_barto_exercise_4_1) {
-    // Setup.
-    const int HEIGHT = 4;
-    const int WIDTH = HEIGHT;
-    const grid::Position top_left{0, 0};
-    const grid::Position bottom_right{HEIGHT-1, WIDTH-1};
-    const double allowed_error = 0.02;
-    rl::GridWorld<HEIGHT, WIDTH> grid_world;
-    grid_world.environment().mark_as_end_state(grid_world.pos_to_state(top_left));
-    grid_world.environment().mark_as_end_state(grid_world.pos_to_state(bottom_right));
-    grid_world.environment().set_all_rewards_to(-1.0);
-    grid_world.environment().build_distribution_tree();
+
     rl::IterativePolicyEvaluation evalator;
-    RandomGridPolicy random_policy(grid_world);
+    const int HEIGHT = 4;
+    rl::GridWorld<HEIGHT, HEIGHT> grid_world = rl::test::Exercise4_1::create_grid_world();
+    rl::RandomGridPolicy random_policy(grid_world);
+    const double allowed_error = 0.02;
 
     // Test.
     rl::ValueFunction v_fctn = evalator.evaluate(grid_world.environment(), random_policy);
