@@ -13,7 +13,7 @@ public:
     static constexpr double DEFAULT_DELTA_THRESHOLD = 0.001;
     static constexpr double DEFAULT_DISCOUNT_RATE = 1.0;
 
-    ValueFunction evaluate(Environment& e, const Policy& p) override {
+    ValueFunction evaluate(const Environment& e, const Policy& p) override {
         // pseudo-code:
         //
         // set_end_states_to_zero()
@@ -40,7 +40,7 @@ public:
                 }
                 double expected_value = 0;
                 Policy::ActionDistribution action_dist = p.possible_actions(e, s);
-                for(auto action_weight_pair : action_dist.weight_map) {
+                for(auto action_weight_pair : action_dist.weight_map()) {
                     const Action& action = *CHECK_NOTNULL(action_weight_pair.first);
                     int action_weight = action_weight_pair.second;
                     TransitionDistribution trans_dist = e.transition_list(s, action);
@@ -59,7 +59,7 @@ public:
                         */
                         double probability =
                                 (action_weight * (double) t.get().prob_weight()) /
-                                (action_dist.total_weight * (double) trans_dist.total_weight);
+                                (action_dist.total_weight() * (double) trans_dist.total_weight);
                         expected_value += transition_reward * probability;
                         expected_value += reward_from_target * discount_rate_ * probability;
 
@@ -77,9 +77,15 @@ public:
         delta_threshold_ = delta_threshold;
     }
 
-    void set_discount_rate(double discount_rate) {
+    void set_discount_rate(double discount_rate) override {
         discount_rate_ = discount_rate;
     }
+
+    double discount_rate() const override {
+        return discount_rate_;
+    }
+
+
 
 private:
     double delta_threshold_ = DEFAULT_DELTA_THRESHOLD;
