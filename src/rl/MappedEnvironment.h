@@ -74,10 +74,6 @@ public:
         return *s;
     }
 
-    void mark_as_end_state(const State& state) {
-        end_states_.insert(state.id());
-    }
-
     Action& add_action(const std::string& name) {
         GSL_CONTRACT_CHECK("only max_value(ID) entries are supported.",
                            actions_.size() <= std::numeric_limits<ID>::max());

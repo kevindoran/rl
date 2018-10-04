@@ -143,6 +143,10 @@ public:
         }
     }
 
+    void mark_as_end_state(const State& state) override {
+        end_states_.insert(state.id());
+    }
+
     void restart() override {
         current_state_ = start_state_;
         accumulated_reward_ = 0;
