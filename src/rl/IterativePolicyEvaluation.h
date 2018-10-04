@@ -1,9 +1,8 @@
-#ifndef REINFORCEMENT_ITERATIVEPOLICYEVALUATION_H
-#define REINFORCEMENT_ITERATIVEPOLICYEVALUATION_H
+#pragma once
 
 #include <limits>
 
-#include "core/Policy.h"
+#include "rl/Policy.h"
 
 namespace rl {
 
@@ -13,7 +12,7 @@ public:
     static constexpr double DEFAULT_DELTA_THRESHOLD = 0.001;
     static constexpr double DEFAULT_DISCOUNT_RATE = 1.0;
 
-    ValueFunction evaluate(const Environment& e, const Policy& p) override {
+    ValueFunction evaluate(const MappedEnvironment& e, const Policy& p) override {
         // pseudo-code:
         //
         // set_end_states_to_zero()
@@ -93,5 +92,3 @@ private:
 };
 
 } // namespace rl
-
-#endif //REINFORCEMENT_ITERATIVEPOLICYEVALUATION_H

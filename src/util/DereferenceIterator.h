@@ -1,5 +1,4 @@
-#ifndef REINFORCEMENT_DEREFERENCEITERATOR_H
-#define REINFORCEMENT_DEREFERENCEITERATOR_H
+#pragma once
 
 // Inspired from:
 // https://jonasdevlieghere.com/containers-of-unique-pointers/
@@ -36,5 +35,3 @@ public:
 
 } // namespace util
 } // namespace rl
-
-#endif //REINFORCEMENT_DEREFERENCEITERATOR_H

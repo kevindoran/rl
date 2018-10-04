@@ -1,12 +1,11 @@
-#ifndef REINFORCEMENT_POLICY_H
-#define REINFORCEMENT_POLICY_H
+#pragma once
 
 #include <memory>
 #include <glog/logging.h>
 
-#include "core/Environment.h"
-#include "core/ValueFunction.h"
-#include "core/DistributionList.h"
+#include "rl/MappedEnvironment.h"
+#include "rl/ValueFunction.h"
+#include "rl/DistributionList.h"
 
 namespace rl {
 
@@ -56,9 +55,9 @@ public:
     };
 
 public:
-    virtual const Action& next_action(const Environment& e, const State& from_state) const = 0;
+    virtual const Action& next_action(const MappedEnvironment& e, const State& from_state) const = 0;
 
-    virtual ActionDistribution possible_actions(const Environment& e,
+    virtual ActionDistribution possible_actions(const MappedEnvironment& e,
                                                 const State& from_state) const = 0;
 
     // Should we make this pure? If it is not pure, Policy might not be considered a virtual class.
@@ -72,7 +71,7 @@ public:
 
 class PolicyEvaluation {
 public:
-    virtual ValueFunction evaluate(const Environment& e, const Policy& p) = 0;
+    virtual ValueFunction evaluate(const MappedEnvironment& e, const Policy& p) = 0;
     virtual ~PolicyEvaluation() = default;
 
     virtual void set_discount_rate(double discount_rate) = 0;
@@ -90,13 +89,9 @@ public:
     // the abstract super type, Policy. I'll leave it as it unless it becomes troublesome. A more
     // flexible return type might allow for a more efficient policy representation than what is
     // possible with the map used by DeterministicPolicy.
-    virtual std::unique_ptr<Policy> improve(const Environment& env, const Policy& policy) const = 0;
+    virtual std::unique_ptr<Policy> improve(const MappedEnvironment& env, const Policy& policy) const = 0;
 
     virtual ~PolicyImprovement() = default;
 };
 
-
-
 } // namespace rl
-
-#endif //REINFORCEMENT_POLICY_H

@@ -1,5 +1,4 @@
-#ifndef REINFORCEMENT_RANGEWRAPPER_H
-#define REINFORCEMENT_RANGEWRAPPER_H
+#pragma once
 
 /**
  * Wraps two iterators so that the Wapper can be used in a for-each loop.
@@ -30,5 +29,3 @@ private:
 
 } // namespace util
 } // namespace rl
-
-#endif //REINFORCEMENT_RANGEWRAPPER_H

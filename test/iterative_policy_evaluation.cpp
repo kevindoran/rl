@@ -1,13 +1,13 @@
 #include "gtest/gtest.h"
 
-#include "core/Environment.h"
-#include "core/GridWorld.h"
-#include "core/Grid.h"
-#include "core/IterativePolicyEvaluation.h"
-#include "core/Policy.h"
-#include "core/DeterministicPolicy.h"
+#include "rl/MappedEnvironment.h"
+#include "rl/GridWorld.h"
+#include "grid/Grid.h"
+#include "rl/IterativePolicyEvaluation.h"
+#include "rl/Policy.h"
+#include "rl/DeterministicPolicy.h"
 #include "common/SuttonBartoExercises.h"
-#include "core/RandomGridPolicy.h"
+#include "rl/RandomGridPolicy.h"
 
 namespace {
 // note: We can make GridWord inherit from an abstract class allowing methods to use the interface
@@ -16,7 +16,7 @@ template<int W, int H>
 rl::DeterministicLambdaPolicy create_down_up_policy(const rl::GridWorld<W,H>& grid_world) {
     // note: if the return type is not specified, the action gets returned by value, which
     // leads to an error later on when the reference is used.
-    auto fctn = [&grid_world](const rl::Environment& e, const rl::State& s) -> const rl::Action& {
+    auto fctn = [&grid_world](const rl::MappedEnvironment& e, const rl::State& s) -> const rl::Action& {
         grid::Position pos = grid_world.state_to_pos(s);
         // We can't just go down, as we will get an exception trying to go outside the grid.
         bool can_go_down = grid_world.grid().is_valid(pos.adj(grid::Direction::DOWN));
@@ -37,7 +37,7 @@ rl::DeterministicLambdaPolicy create_down_up_policy(const rl::GridWorld<W,H>& gr
 
 template<int W, int H>
 rl::DeterministicLambdaPolicy create_random_policy_broken(const rl::GridWorld<W, H>& grid_world) {
-    auto fctn = [&grid_world](const rl::Environment& e, const rl::State& s) -> const rl::Action& {
+    auto fctn = [&grid_world](const rl::MappedEnvironment& e, const rl::State& s) -> const rl::Action& {
         grid::Position from = grid_world.state_to_pos(s);
         grid::Direction d = grid::random_direction();
         grid::Position to = from.adj(d);

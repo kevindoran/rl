@@ -1,5 +1,4 @@
-#ifndef REINFORCEMENT_DISTRIBUTIONLIST_H
-#define REINFORCEMENT_DISTRIBUTIONLIST_H
+#pragma once
 
 #include <vector>
 
@@ -99,5 +98,3 @@ private:
 };
 
 } // namespace rl
-
-#endif //REINFORCEMENT_DISTRIBUTIONLIST_H

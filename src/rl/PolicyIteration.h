@@ -1,10 +1,9 @@
-#ifndef REINFORCEMENT_POLICYITERATION_H
-#define REINFORCEMENT_POLICYITERATION_H
+#pragma once
 
-#include "core/Policy.h"
-#include "core/DeterministicPolicy.h"
-#include "core/IterativePolicyEvaluation.h"
-#include "core/StochasticPolicy.h"
+#include "rl/Policy.h"
+#include "rl/DeterministicPolicy.h"
+#include "rl/IterativePolicyEvaluation.h"
+#include "rl/StochasticPolicy.h"
 
 namespace rl {
 
@@ -15,7 +14,7 @@ public:
         evaluator = evaluator;
     }
 
-    std::unique_ptr<Policy> improve(const Environment& env, const Policy &policy) const override {
+    std::unique_ptr<Policy> improve(const MappedEnvironment& env, const Policy &policy) const override {
         // We will use a StochasticPolicy object as our result.
         std::unique_ptr<StochasticPolicy> ans =
                 std::make_unique<StochasticPolicy>(StochasticPolicy::create_from(env, policy));
@@ -62,5 +61,3 @@ private:
 };
 
 } // namespace rl
-
-#endif //REINFORCEMENT_POLICYITERATION_H

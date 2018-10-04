@@ -1,0 +1,248 @@
+#pragma once
+
+#include <string>
+#include <vector>
+#include <memory>
+#include "util/DereferenceIterator.h"
+#include "util/RangeWrapper.h"
+
+namespace rl {
+
+
+/*
+ * Following the reasoning here and avoiding unsigned integer types.
+ * https://google.github.io/styleguide/cppguide.html#Integer_Types
+ */
+using ID = int;
+using Weight = int;
+
+
+class State {
+public:
+    // If you need a copy, do it in the interface.
+    State(ID id, std::string name)
+            : id_(id), name_(std::move(name))
+    {}
+
+    explicit State(ID id)
+            : id_(id)
+    {}
+
+    const std::string& name() const {return name_;}
+    ID id() const {return id_;}
+
+    bool operator==(const State& other) const {
+        return id_ == other.id_;
+    }
+
+    bool operator!=(const State& other) const {
+        return !(*this == other);
+    }
+
+private:
+    ID id_;
+    std::string name_{};
+};
+
+class Action {
+public:
+    Action(ID id, std::string name)
+            : id_(id), name_(std::move(name))
+    {}
+
+    explicit Action(ID id)
+            : id_(id)
+    {}
+
+    const std::string& name() const {return name_;}
+    ID id() const {return id_;}
+
+    bool operator==(const Action& other) const {
+        return id_ == other.id_;
+    }
+
+    bool operator!=(const Action& other) const {
+        return !(*this == other);
+    }
+
+private:
+    ID id_;
+    std::string name_{};
+};
+
+class Reward {
+public:
+    Reward(ID id, std::string name, double value)
+            : id_(id), name_(std::move(name)), value_(value)
+    {}
+
+    Reward(const ID id, double value)
+            : id_(id), value_(value)
+    {}
+
+    ID id() const {return id_;}
+
+    const std::string &name() const {return name_;}
+
+    double value() const {return value_;}
+
+    void set_value(double value) {
+        value_ = value;
+    }
+
+    bool operator==(const Reward& other) const {
+        return id_ == other.id_;
+    }
+
+    bool operator!=(const Reward& other) const {
+        return !(*this == other);
+    }
+
+private:
+    ID id_;
+    std::string name_{};
+    double value_;
+};
+
+/**
+ * Represents a transition and its probability of occuring.
+ *
+ * \prob is the probability of moving from \c state to \c next_state and getting reward \c reward
+ * when \c action is taken.
+ */
+class Transition {
+public:
+    // TODO: as we have declared a constructor, the default is not declared. We should specify
+    // the other types that we expect to be able to use (move, copy etc).
+    Transition(
+            const State& state_,
+            const State& next_state_,
+            const Action& action_,
+            const Reward& reward_,
+            const Weight prob_weight=1)
+            : state_(state_), next_state_(next_state_), action_(action_), reward_(reward_),
+              prob_weight_(prob_weight)
+    {}
+
+    const State& state() const            {return state_;}
+    const State& next_state() const       {return next_state_;}
+    const Action& action() const           {return action_;}
+    const Reward& reward() const           {return reward_;}
+    Weight prob_weight() const  {return prob_weight_;}
+
+    bool operator==(const Transition& other) const {
+        return  state_       == other.state_ and
+                next_state_  == other.next_state_ and
+                action_      == other.action_ and
+                reward_      == other.reward_ and
+                prob_weight_ == other.prob_weight_;
+    }
+
+    bool operator!=(const Transition& other) const {
+        return !(*this == other);
+    }
+
+private:
+    const State& state_;
+    const State& next_state_;
+    const Action& action_;
+    const Reward& reward_;
+    Weight prob_weight_;
+};
+
+
+
+struct TransitionDistribution {
+    using Transitions = std::vector<std::reference_wrapper<const Transition>>;
+    Transitions transitions{};
+    long total_weight = 0;
+};
+
+/**
+ * Environment interface.
+ *
+ * No member variables and all methods are pure virtual.
+ *
+ * This interface was extracted from a previously concrete class (now called MappedEnvironment). The
+ * interface was created so as to allow multiple implementations. The original implementation saved
+ * all transition probabilities in a tree (DistributionTree). Later, a problem was encountered
+ * (Jack's Car Rental) whereby the transition probabilities came from an analytical distribution
+ * (Poisson distribution). In this case, it seems wasteful to pre-generate a transition tree as
+ * opposed to creating transition lists on the fly.
+ */
+class Environment {
+
+public:
+    // Yuck. We still have std::unique_ptr and std::vector in the type. See DereferenceIterator.h
+    // for more thoughts.
+    // By using these types for our return values from methods such as states() we are imposing that
+    // any implementation of Environment will need to store these objects on the heap. At the
+    // moment this is an important requirement, as many classes pass around references/pointers to
+    // these objects. We could switch to passing everything by value and the requirements on the
+    // interface would be relaxed (although we would require more copying).
+    using StateIterator =  util::DereferenceIterator<std::vector<std::unique_ptr<State>>::const_iterator>;
+    using ActionIterator = util::DereferenceIterator<std::vector<std::unique_ptr<Action>>::const_iterator>;
+    using RewardIterator = util::DereferenceIterator<std::vector<std::unique_ptr<Reward>>::const_iterator>;
+    using States = util::RangeWrapper<StateIterator>;
+    using Actions = util::RangeWrapper<ActionIterator>;
+
+    //----------------------------------------------------------------------------------------------
+    // Modify the environment
+    //----------------------------------------------------------------------------------------------
+    virtual void restart() = 0;
+    virtual const Transition& execute_action(const Action& action) = 0;
+
+    //----------------------------------------------------------------------------------------------
+    // States
+    //----------------------------------------------------------------------------------------------
+    virtual ID state_count() const = 0;
+
+    virtual const State& state(ID id) const = 0;
+    virtual State& state(ID id) = 0;
+
+
+    virtual StateIterator states_begin() const = 0;
+    virtual StateIterator states_end() const = 0;
+
+    virtual States states() const = 0;
+
+    virtual State& current_state() = 0;
+    virtual const State& current_state() const = 0;
+
+    virtual std::vector<std::reference_wrapper<const State>> end_states() = 0;
+
+    virtual bool is_in_end_state() = 0;
+
+    virtual bool is_end_state(const State& s) const = 0;
+
+    //----------------------------------------------------------------------------------------------
+    // Actions
+    //----------------------------------------------------------------------------------------------
+    virtual const Action& action(ID id) const = 0;
+    virtual Action& action(ID id) = 0;
+
+    virtual ActionIterator actions_begin() const = 0;
+    virtual ActionIterator actions_end() const = 0;
+    virtual Actions actions() const = 0;
+
+    //----------------------------------------------------------------------------------------------
+    // Rewards
+    //----------------------------------------------------------------------------------------------
+    virtual const Reward& reward(ID id) const = 0;
+    virtual Reward& reward(ID id) = 0;
+
+    virtual RewardIterator rewards_begin() const = 0;
+    virtual RewardIterator rewards_end() const = 0;
+
+    virtual double accumulated_reward() = 0;
+
+    //----------------------------------------------------------------------------------------------
+    // Transition distributions
+    //
+    // The methods below provide access to properties of an environment that are not typically
+    // available directly.
+    //----------------------------------------------------------------------------------------------
+    virtual TransitionDistribution transition_list(const State& from_state, const Action& action) const = 0;
+};
+
+} // namespace rl

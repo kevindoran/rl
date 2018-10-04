@@ -1,7 +1,6 @@
-#ifndef REINFORCEMENT_STOCHASTICPOLICY_H
-#define REINFORCEMENT_STOCHASTICPOLICY_H
+#pragma once
 
-#include "core/Policy.h"
+#include "rl/Policy.h"
 #include "DeterministicPolicy.h"
 
 namespace rl {
@@ -12,14 +11,14 @@ public:
     // Our need for this method resulted in a refactor of ActionDistribution that saw the class get
     // a DistributionList member. We created the DistributionList because we couldn't use
     // DistributionTree- the latter is not copyable, and we want a copyable ActionDistribution.
-    const Action& next_action(const Environment &e, const State &from_state) const override {
+    const Action& next_action(const MappedEnvironment &e, const State &from_state) const override {
         auto finder = state_to_action_dist_.find(from_state);
         Expects(finder != std::end(state_to_action_dist_));
         return finder->second.random_action();
     }
 
     ActionDistribution
-    possible_actions(const Environment &e, const State &from_state) const override {
+    possible_actions(const MappedEnvironment &e, const State &from_state) const override {
         auto finder = state_to_action_dist_.find(from_state);
         // This could be either an Ensures or an Expects.
         if(finder == std::end(state_to_action_dist_)) {
@@ -57,7 +56,7 @@ public:
      * copy, move etc for the class hierarchy yet.
      */
     template<typename PolicyInType>
-    static StochasticPolicy create_from(const Environment& env, const PolicyInType& other) {
+    static StochasticPolicy create_from(const MappedEnvironment& env, const PolicyInType& other) {
         // note: using unique_ptr is probably better here. I'll leave it as move-return for now,
         // as I'm curious if it will ever become an issue.
         StochasticPolicy out;
@@ -73,5 +72,3 @@ public:
 };
 
 } // namespace rl
-
-#endif //REINFORCEMENT_STOCHASTICPOLICY_H

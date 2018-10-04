@@ -2,12 +2,12 @@
 
 #include <unordered_set>
 
-#include "core/GridWorld.h"
-#include "core/Grid.h"
-#include "core/Policy.h"
+#include "rl/GridWorld.h"
+#include "grid/Grid.h"
+#include "rl/Policy.h"
 #include "common/SuttonBartoExercises.h"
-#include "core/PolicyIteration.h"
-#include "core/RandomGridPolicy.h"
+#include "rl/PolicyIteration.h"
+#include "rl/RandomGridPolicy.h"
 
 /**
  * This test calculates the optimum policy for the gridworld described in exercise 4.1 in
@@ -25,7 +25,7 @@
  */
 TEST(PolicyIteration, sutton_barto_exercise_4_1) {
     auto grid_world = rl::test::Exercise4_1::create_grid_world();
-    const rl::Environment& env = grid_world.environment();
+    const rl::MappedEnvironment& env = grid_world.environment();
     rl::RandomGridPolicy random_policy(grid_world);
     rl::PolicyIteration policy_improver;
     std::unique_ptr<rl::Policy> p_policy = policy_improver.improve(env, random_policy);
@@ -59,4 +59,8 @@ TEST(PolicyIteration, sutton_barto_exercise_4_1) {
             ASSERT_TRUE(optimal_actions[i].count(grid_world.action_to_dir(policy_action)));
         }
     }
+}
+
+TEST(PolicyIteration, sutton_barto_exercise_4_2) {
+
 }

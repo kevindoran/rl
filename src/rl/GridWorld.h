@@ -1,8 +1,7 @@
-#ifndef REINFORCEMENT_GRIDWORLD_H
-#define REINFORCEMENT_GRIDWORLD_H
+#pragma once
 
-#include "core/Environment.h"
-#include "core/Grid.h"
+#include "rl/MappedEnvironment.h"
+#include "grid/Grid.h"
 
 namespace rl {
 
@@ -165,7 +164,7 @@ public:
         return const_cast<Reward&>(static_cast<const GridWorld*>(this)->reward_at(target_state));
     }
 
-    Environment& environment() {
+    MappedEnvironment& environment() {
         return environment_;
     }
 
@@ -190,11 +189,9 @@ public:
     const int DEFAULT_REWARD = 0;
 
 private:
-    Environment environment_;
+    MappedEnvironment environment_;
     GridType grid_;
     GridWorldBoundsBehaviour bounds_behaviour_;
 };
 
 } // namespace rl
-
-#endif //REINFORCEMENT_GRIDWORLD_H

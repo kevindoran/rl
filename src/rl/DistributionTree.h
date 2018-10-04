@@ -1,5 +1,4 @@
-#ifndef REINFORCEMENT_DISTRIBUTIONTREE_H
-#define REINFORCEMENT_DISTRIBUTIONTREE_H
+#pragma once
 
 #include <vector>
 #include <gsl/gsl>
@@ -242,5 +241,3 @@ private:
 };
 
 } // namespace rl
-
-#endif //REINFORCEMENT_DISTRIBUTIONTREE_H

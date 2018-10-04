@@ -1,9 +1,8 @@
-#ifndef REINFORCEMENT_VALUEFUNCTION_H
-#define REINFORCEMENT_VALUEFUNCTION_H
+#pragma once
 
 #include <vector>
 
-#include "core/Environment.h"
+#include "rl/MappedEnvironment.h"
 
 namespace rl {
 
@@ -41,5 +40,3 @@ private:
 };
 
 }
-
-#endif //REINFORCEMENT_VALUEFUNCTION_H

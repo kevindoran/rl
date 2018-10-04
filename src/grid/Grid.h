@@ -1,5 +1,4 @@
-#ifndef REINFORCEMENT_GRID_H
-#define REINFORCEMENT_GRID_H
+#pragma once
 
 #include <string>
 #include <unordered_map>
@@ -294,5 +293,3 @@ private:
 
 } // namespace grid
 
-
-#endif //REINFORCEMENT_GRID_H

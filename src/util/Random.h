@@ -1,5 +1,4 @@
-#ifndef REINFORCEMENT_RANDOM_H
-#define REINFORCEMENT_RANDOM_H
+#pragma once
 
 #include <random>
 #include <gsl/gsl>
@@ -25,4 +24,3 @@ NUM random_in_range(NUM from_inclusive, NUM to_exclusive) {
 } // namespace util
 } // namespace rl
 
-#endif //REINFORCEMENT_RANDOM_H

@@ -1,8 +1,7 @@
-#ifndef REINFORCEMENT_POLICYRUNNER_H
-#define REINFORCEMENT_POLICYRUNNER_H
+#pragma once
 
-#include "core/Policy.h"
-#include "core/Environment.h"
+#include "rl/Policy.h"
+#include "rl/MappedEnvironment.h"
 
 namespace rl {
 
@@ -16,7 +15,7 @@ public:
     };
 
     static const int NO_ACTION_LIMIT = -1;
-    static Results run(Environment& e, Policy& p, int action_limit=NO_ACTION_LIMIT) {
+    static Results run(MappedEnvironment& e, Policy& p, int action_limit=NO_ACTION_LIMIT) {
         e.restart();
         Results res{};
         while(true) {
@@ -34,5 +33,3 @@ public:
 };
 
 } // namespace rl
-
-#endif //REINFORCEMENT_POLICYRUNNER_H

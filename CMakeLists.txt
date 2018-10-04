@@ -19,21 +19,21 @@ find_package(GSL REQUIRED)
 
 # Library
 add_library(reinforcement
-        src/core/GridWorld.h
-        src/core/Grid.h
-        src/core/Grid.cpp
-        src/core/Policy.h
-        src/core/DistributionTree.h
-        src/core/DeterministicPolicy.h
-        src/core/PolicyRunner.h
-        src/core/ValueFunction.h
-        src/core/IterativePolicyEvaluation.h
+        src/rl/GridWorld.h
+        src/grid/Grid.h
+        src/grid/Grid.cpp
+        src/rl/Policy.h
+        src/rl/DistributionTree.h
+        src/rl/DeterministicPolicy.h
+        src/rl/PolicyRunner.h
+        src/rl/ValueFunction.h
+        src/rl/IterativePolicyEvaluation.h
         src/util/DereferenceIterator.h
         src/util/RangeWrapper.h
         src/util/Random.h
-        src/core/PolicyIteration.h
-        src/core/StochasticPolicy.h
-        src/core/DistributionList.h src/core/RandomGridPolicy.h)
+        src/rl/PolicyIteration.h
+        src/rl/StochasticPolicy.h
+        src/rl/DistributionList.h src/rl/RandomGridPolicy.h src/rl/Environment.h src/rl/impl/Environment.h)
 target_include_directories(reinforcement
         PUBLIC
         ${PROJECT_SOURCE_DIR}/src)

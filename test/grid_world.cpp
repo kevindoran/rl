@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
-#include "core/Environment.h"
-#include "core/GridWorld.h"
+#include "rl/MappedEnvironment.h"
+#include "rl/GridWorld.h"
 
 using namespace rl;
 
@@ -17,7 +17,7 @@ TEST(GridWorldTest, basic_example) {
     const int HEIGHT = 4;
     const int WIDTH = 4;
     GridWorld<HEIGHT, WIDTH> grid_world(GridWorldBoundsBehaviour::NO_OUT_OF_BOUNDS);
-    Environment& environment = grid_world.environment();
+    MappedEnvironment& environment = grid_world.environment();
     auto& grid = grid_world.grid();
     // Make top-left and bottom-right tiles the end states.
     grid::Position top_left{0, 0};

@@ -1,5 +1,4 @@
-#ifndef REINFORCEMENT_ENVIRONMENT_H
-#define REINFORCEMENT_ENVIRONMENT_H
+#pragma once
 
 #include <cstdlib>
 #include <string>
@@ -12,9 +11,8 @@
 #include <stdexcept>
 #include <glog/logging.h>
 
-#include "core/DistributionTree.h"
-#include "util/DereferenceIterator.h"
-#include "util/RangeWrapper.h"
+#include "rl/Environment.h"
+#include "rl/DistributionTree.h"
 
 
 // TODO: there isn't much being used in gsl/gsl. Swap out Expects and Ensures for google logging
@@ -22,144 +20,6 @@
 
 namespace rl {
 
-/*
- * Following the reasoning here and avoiding unsigned integer types.
- * https://google.github.io/styleguide/cppguide.html#Integer_Types
- */
-using ID = int;
-using Weight = int;
-
-
-class State {
-public:
-    // If you need a copy, do it in the interface.
-    State(ID id, std::string name)
-    : id_(id), name_(std::move(name))
-    {}
-
-    explicit State(ID id)
-    : id_(id)
-    {}
-
-    const std::string& name() const {return name_;}
-    ID id() const {return id_;}
-
-    bool operator==(const State& other) const {
-        return id_ == other.id_;
-    }
-
-    bool operator!=(const State& other) const {
-        return !(*this == other);
-    }
-
-private:
-    ID id_;
-    std::string name_{};
-};
-
-class Action {
-public:
-    Action(ID id, std::string name)
-    : id_(id), name_(std::move(name))
-    {}
-
-    explicit Action(ID id)
-    : id_(id)
-    {}
-
-    const std::string& name() const {return name_;}
-    ID id() const {return id_;}
-
-    bool operator==(const Action& other) const {
-        return id_ == other.id_;
-    }
-
-    bool operator!=(const Action& other) const {
-        return !(*this == other);
-    }
-
-private:
-    ID id_;
-    std::string name_{};
-};
-
-class Reward {
-public:
-    Reward(ID id, std::string name, double value)
-    : id_(id), name_(std::move(name)), value_(value)
-    {}
-
-    Reward(const ID id, double value)
-    : id_(id), value_(value)
-    {}
-
-    ID id() const {return id_;}
-
-    const std::string &name() const {return name_;}
-
-    double value() const {return value_;}
-
-    void set_value(double value) {
-        value_ = value;
-    }
-
-    bool operator==(const Reward& other) const {
-        return id_ == other.id_;
-    }
-
-    bool operator!=(const Reward& other) const {
-        return !(*this == other);
-    }
-
-private:
-    ID id_;
-    std::string name_{};
-    double value_;
-};
-
-/**
- * Represents a transition and its probability of occuring.
- *
- * \prob is the probability of moving from \c state to \c next_state and getting reward \c reward
- * when \c action is taken.
- */
-class Transition {
-public:
-    Transition(
-        const State& state_,
-        const State& next_state_,
-        const Action& action_,
-        const Reward& reward_,
-        const Weight prob_weight=1)
-        : state_(state_), next_state_(next_state_), action_(action_), reward_(reward_),
-          prob_weight_(prob_weight)
-    {}
-
-    const State& state() const            {return state_;}
-    const State& next_state() const       {return next_state_;}
-    const Action& action() const           {return action_;}
-    const Reward& reward() const           {return reward_;}
-    Weight prob_weight() const  {return prob_weight_;}
-
-    bool operator==(const Transition& other) const {
-        return  state_       == other.state_ and
-                next_state_  == other.next_state_ and
-                action_      == other.action_ and
-                reward_      == other.reward_ and
-                prob_weight_ == other.prob_weight_;
-    }
-
-    bool operator!=(const Transition& other) const {
-        return !(*this == other);
-    }
-
-private:
-    const State& state_;
-    const State& next_state_;
-    const Action& action_;
-    const Reward& reward_;
-    Weight prob_weight_;
-};
 
 /**
  * Order by sequence:
@@ -181,15 +41,7 @@ struct cumulative_grouping_less {
     }
 };
 
-struct TransitionDistribution {
-    using Transitions = std::vector<std::reference_wrapper<const Transition>>;
-    Transitions transitions{};
-    long total_weight = 0;
-};
-
-
-
-class Environment {
+class MappedEnvironment : public Environment {
 public:
 
     // https://stackoverflow.com/questions/32040426/expose-c-container-iterator-to-user
@@ -200,21 +52,15 @@ public:
     // And using the boost feature:
     // https://stackoverflow.com/questions/25669120/iterating-over-const-t-in-a-stdvectorstdunique-ptrt
 
-    explicit Environment() = default;
+    explicit MappedEnvironment() = default;
     // Can't have copy unless we manually treat out vector of unique pointers and our dist tree.
-    Environment(const Environment&) = delete;
-    Environment& operator=(const Environment&) = delete;
-    Environment(Environment&&) = default;
-    Environment& operator=(Environment&&) = default;
-    ~Environment() = default;
+    MappedEnvironment(const MappedEnvironment&) = delete;
+    MappedEnvironment& operator=(const MappedEnvironment&) = delete;
+    MappedEnvironment(MappedEnvironment&&) = default;
+    MappedEnvironment& operator=(MappedEnvironment&&) = default;
+    ~MappedEnvironment() = default;
 
-    // Yuck. We still have std::unique_ptr and std::vector in the type. See DereferenceIterator.h
-    // for more thoughts.
-    using StateIterator =  util::DereferenceIterator<std::vector<std::unique_ptr<State>>::const_iterator>;
-    using ActionIterator = util::DereferenceIterator<std::vector<std::unique_ptr<Action>>::const_iterator>;
-    using RewardIterator = util::DereferenceIterator<std::vector<std::unique_ptr<Reward>>::const_iterator>;
-    using States = util::RangeWrapper<StateIterator>;
-    using Actions = util::RangeWrapper<ActionIterator>;
+
 
     State& add_state(const std::string& name, bool end_state=false) {
         GSL_CONTRACT_CHECK("only max_value(ID) entries are supported.",
@@ -265,7 +111,7 @@ public:
         return added;
     }
 
-    const Transition& execute_action(const Action& action) {
+    const Transition& execute_action(const Action& action) override {
         Expects(!is_in_end_state());
         started_ = true;
         if(needs_rebuilding_) {
@@ -278,7 +124,7 @@ public:
         return random_transition;
     }
 
-    ID state_count() const {
+    ID state_count() const override {
         return static_cast<ID>(states_.size());
     }
 
@@ -287,7 +133,7 @@ public:
     }
 
     State& current_state() {
-        return const_cast<State&>(static_cast<const Environment*>(this)->current_state());
+        return const_cast<State&>(static_cast<const MappedEnvironment*>(this)->current_state());
     }
 
     const State& state(ID id) const {
@@ -295,7 +141,7 @@ public:
     }
 
     State& state(ID id) {
-        return const_cast<State&>(static_cast<const Environment*>(this)->state(id));
+        return const_cast<State&>(static_cast<const MappedEnvironment*>(this)->state(id));
     }
 
 
@@ -304,7 +150,7 @@ public:
     }
 
     Action& action(ID id) {
-        return const_cast<Action&>(static_cast<const Environment*>(this)->action(id));
+        return const_cast<Action&>(static_cast<const MappedEnvironment*>(this)->action(id));
     }
 
     const Reward& reward(ID id) const {
@@ -312,7 +158,7 @@ public:
     }
 
     Reward& reward(ID id) {
-        return const_cast<Reward&>(static_cast<const Environment*>(this)->reward(id));
+        return const_cast<Reward&>(static_cast<const MappedEnvironment*>(this)->reward(id));
     }
 
     void set_all_rewards_to(double value) {
@@ -573,5 +419,3 @@ template<> struct hash<rl::Reward>
 };
 
 } // namespace std
-
-#endif //REINFORCEMENT_ENVIRONMENT_H

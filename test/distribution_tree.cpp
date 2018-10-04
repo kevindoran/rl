@@ -6,7 +6,7 @@
 #include "gsl/gsl_randist.h"
 #include "gsl/gsl_cdf.h"
 
-#include "core/DistributionTree.h"
+#include "rl/DistributionTree.h"
 
 
 /**

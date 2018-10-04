@@ -1,9 +1,9 @@
 #ifndef REINFORCEMENT_SUTONBARTOEXERCISES_H
 #define REINFORCEMENT_SUTONBARTOEXERCISES_H
 
-#include "core/Environment.h"
-#include "core/GridWorld.h"
-#include "core/Grid.h"
+#include "rl/MappedEnvironment.h"
+#include "rl/GridWorld.h"
+#include "grid/Grid.h"
 
 namespace rl {
 namespace test {
@@ -26,6 +26,22 @@ public:
         grid_world.environment().build_distribution_tree();
         return grid_world;
     }
+};
+
+/**
+ * Exercise 4.2: Jack's Car Rental.
+ *
+ *
+ *  Location1             Location2
+ *   - car_count            - car_count
+ */
+class Exercise4_2 {
+public:
+
+    void create_environment() {
+
+    }
+
 };
 
 } // namespace test

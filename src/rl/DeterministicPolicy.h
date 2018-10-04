@@ -1,10 +1,9 @@
-#ifndef REINFORCEMENT_DETERMINISTICPOLICY_H
-#define REINFORCEMENT_DETERMINISTICPOLICY_H
+#pragma once
 
 #include <gsl/gsl>
 #include <glog/logging.h>
 
-#include "core/Policy.h"
+#include "rl/Policy.h"
 #include "Policy.h"
 
 namespace rl {
@@ -12,7 +11,7 @@ namespace rl {
 class DeterministicPolicy : public Policy {
 
 public:
-    const Action& next_action(const Environment &e, const State& from_state) const override {
+    const Action& next_action(const MappedEnvironment &e, const State& from_state) const override {
         auto it = state_to_action_.find(from_state);
         Ensures(it != std::end(state_to_action_));
         const Action& matching_action = it->second;
@@ -20,7 +19,7 @@ public:
         return action_in_env;
     }
 
-    ActionDistribution possible_actions(const Environment &e,
+    ActionDistribution possible_actions(const MappedEnvironment &e,
                                         const State &from_state) const override {
         return ActionDistribution::single_action(next_action(e, from_state));
     }
@@ -54,16 +53,16 @@ private:
 
 class DeterministicLambdaPolicy : public rl::Policy {
 public:
-    using Callback = std::function<const rl::Action&(const rl::Environment&, const rl::State&)>;
+    using Callback = std::function<const rl::Action&(const rl::MappedEnvironment&, const rl::State&)>;
 
     explicit DeterministicLambdaPolicy(Callback fctn) : fctn_(move(fctn))
     {}
 
-    const rl::Action& next_action(const rl::Environment& e, const rl::State& from_state) const override {
+    const rl::Action& next_action(const rl::MappedEnvironment& e, const rl::State& from_state) const override {
         return fctn_(e, from_state);
     }
 
-    ActionDistribution possible_actions(const rl::Environment& e,
+    ActionDistribution possible_actions(const rl::MappedEnvironment& e,
                                         const rl::State& from_state) const override {
         return ActionDistribution::single_action(next_action(e, from_state));
     }
@@ -74,4 +73,3 @@ private:
 
 } // namespace rl
 
-#endif //REINFORCEMENT_DETERMINISTICPOLICY_H
