@@ -189,8 +189,9 @@ public:
     //----------------------------------------------------------------------------------------------
     // Modify the environment
     //----------------------------------------------------------------------------------------------
-    virtual void restart() = 0;
+    virtual void set_start_state(const State& state) = 0;
     virtual const Transition& execute_action(const Action& action) = 0;
+    virtual void restart() = 0;
 
     //----------------------------------------------------------------------------------------------
     // States

@@ -62,7 +62,6 @@ public:
     ~MappedEnvironment() = default;
 
 
-
     State& add_state(const std::string& name, bool end_state=false) {
         GSL_CONTRACT_CHECK("only max_value(ID) entries are supported.",
                            states_.size() <= std::numeric_limits<ID>::max());
@@ -129,19 +128,6 @@ public:
         for(auto& p_reward : rewards_) {
             p_reward->set_value(value);
         }
-    }
-
-    void set_start_state(const State& state) {
-        start_state_ = state.id();
-        if(!started_) {
-            current_state_ = start_state_;
-        }
-    }
-
-    void restart() override {
-        current_state_ = start_state_;
-        accumulated_reward_ = 0;
-        started_ = false;
     }
 
     void build_distribution_tree() {
@@ -219,8 +205,6 @@ private:
 
 private:
     DistTree dist_tree_;
-    bool started_ = false;
-    ID start_state_ = 0;
     bool needs_rebuilding_ = false;
 
     std::set<Transition, cumulative_grouping_less> transitions_{};

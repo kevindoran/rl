@@ -136,9 +136,24 @@ public:
         return util::DereferenceIterator(rewards_.cend());
     }
 
+    void set_start_state(const State& state) override {
+        start_state_ = state.id();
+        if(!started_) {
+            current_state_ = start_state_;
+        }
+    }
+
+    void restart() override {
+        current_state_ = start_state_;
+        accumulated_reward_ = 0;
+        started_ = false;
+    }
+
 protected:
     ID current_state_ = 0;
     double accumulated_reward_ = 0;
+    bool started_ = false;
+    ID start_state_ = 0;
 
     /* Using list vs vector.
      * We wish to be able to hold references/pointers to elements of the below containers. As the
