@@ -123,7 +123,7 @@ TEST(IterativePolicyEvaluationTest, sutton_barto_exercise_4_1) {
     const int HEIGHT = 4;
     rl::GridWorld<HEIGHT, HEIGHT> grid_world = rl::test::Exercise4_1::create_grid_world();
     rl::RandomGridPolicy random_policy(grid_world);
-    const double allowed_error = 0.02;
+    const double allowed_error_factor = 0.02;
 
     // Test.
     rl::ValueFunction v_fctn = evalator.evaluate(grid_world.environment(), random_policy);
@@ -135,7 +135,7 @@ TEST(IterativePolicyEvaluationTest, sutton_barto_exercise_4_1) {
     for(rl::ID state_id = 0; state_id < grid_world.environment().state_count(); state_id++) {
         ASSERT_NEAR(expected_values[state_id],
                     v_fctn.value(grid_world.environment().state(state_id)),
-                    allowed_error);
+                    allowed_error_factor * std::abs(expected_values[state_id]));
     }
 }
 
@@ -161,7 +161,7 @@ TEST(IterativePolicyEvaluationTest, sutton_barto_exercise_4_1_manual) {
     const double error_threshold = 0.001;
     // The stopping threshold doesn't correspond to the real error. 0.02 works well for a stopping
     // threshold of 0.001 (a threshold of 0.001 will produces some errors greater than 0.01).
-    const double allowed_error = 0.02;
+    const double allowed_error_factor = 0.02;
     const double transition_reward = -1.0;
     const double expected_values[] =
             {0.0, -14, -20, -22,
@@ -202,6 +202,7 @@ TEST(IterativePolicyEvaluationTest, sutton_barto_exercise_4_1_manual) {
     // Test.
     ASSERT_EQ(sizeof(expected_values), sizeof(ans)) << "The test is faulty if this fails.";
     for(int t = 0; t < tile_count; t++) {
-        ASSERT_NEAR(expected_values[t], ans[t], allowed_error);
+        ASSERT_NEAR(expected_values[t], ans[t],
+                    allowed_error_factor * std::abs(expected_values[t]));
     }
 }

@@ -9,7 +9,7 @@ namespace rl {
 class IterativePolicyEvaluation : public PolicyEvaluation {
 public:
 
-    static constexpr double DEFAULT_DELTA_THRESHOLD = 0.001;
+    static constexpr double DEFAULT_DELTA_THRESHOLD = 0.00001;
     static constexpr double DEFAULT_DISCOUNT_RATE = 1.0;
 
     ValueFunction evaluate(const Environment& e, const Policy& p) override {
@@ -64,11 +64,10 @@ public:
                         double probability = (action_weight * (double) r.prob_weight) / denominator;
                         expected_value += transition_reward * probability;
                         expected_value += reward_from_target * discount_rate_ * probability;
-
                     }
                 }
                 double prev = res.value(s);
-                error = std::max(error, std::abs(expected_value - prev));
+                error = std::max(error, error_as_factor(prev, expected_value));
                 res.set_value(s, expected_value);
             }
         }
