@@ -104,7 +104,8 @@ public:
 
     virtual void set_discount_rate(double discount_rate) = 0;
     virtual double discount_rate() const = 0;
-
+    virtual void set_delta_threshold(double min_delta) = 0;
+    virtual double delta_threshold() const = 0;
 };
 
 class PolicyImprovement {

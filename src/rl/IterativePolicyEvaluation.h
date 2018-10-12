@@ -75,8 +75,12 @@ public:
         return res;
     }
 
-    void set_delta_threshold(double delta_threshold) {
+    void set_delta_threshold(double delta_threshold) override {
         delta_threshold_ = delta_threshold;
+    }
+
+    double delta_threshold() const override {
+        return delta_threshold_;
     }
 
     void set_discount_rate(double discount_rate) override {
