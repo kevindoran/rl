@@ -37,6 +37,10 @@ public:
             return action_list_.total_weight();
         }
 
+        ID action_count() const {
+            return static_cast<ID>(action_list_.entries().size());
+        }
+
         WeightMap weight_map() const {
             WeightMap ans;
             std::transform(

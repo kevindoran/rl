@@ -120,6 +120,14 @@ public:
         return random_transition;
     }
 
+    bool is_action_allowed(const Action& a, const State& from_state) const override {
+        Expects(!needs_rebuilding_);
+        const DistNode& root = dist_tree_.root_node();
+        Expects(root.has_child_with_id(from_state.id()));
+        bool action_allowed = root.child_with_id(from_state.id()).has_child_with_id(a.id());
+        return action_allowed;
+    }
+
     void set_all_rewards_to(double value) {
         for(auto& p_reward : rewards_) {
             p_reward->set_value(value);

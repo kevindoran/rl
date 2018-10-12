@@ -45,6 +45,14 @@ public:
         return static_cast<ID>(states_.size());
     }
 
+    ID action_count() const override {
+        return static_cast<ID>(actions_.size());
+    }
+
+    ID reward_count() const override {
+        return static_cast<ID>(rewards_.size());
+    }
+
     const State& current_state() const override {
         Ensures(current_state_ < static_cast<ID>(states_.size()));
         return *CHECK_NOTNULL(states_[current_state_]);

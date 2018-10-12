@@ -261,6 +261,7 @@ public:
     //----------------------------------------------------------------------------------------------
     // Actions
     //----------------------------------------------------------------------------------------------
+    virtual ID action_count() const = 0;
     virtual const Action& action(ID id) const = 0;
     virtual Action& action(ID id) = 0;
 
@@ -268,9 +269,12 @@ public:
     virtual ActionIterator actions_end() const = 0;
     virtual Actions actions() const = 0;
 
+    virtual bool is_action_allowed(const Action& a, const State& from_state) const = 0;
+
     //----------------------------------------------------------------------------------------------
     // Rewards
     //----------------------------------------------------------------------------------------------
+    virtual ID reward_count() const = 0;
     virtual const Reward& reward(ID id) const = 0;
     virtual Reward& reward(ID id) = 0;
 
