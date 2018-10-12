@@ -14,7 +14,7 @@ public:
         evaluator = evaluator;
     }
 
-    std::unique_ptr<Policy> improve(const MappedEnvironment& env, const Policy &policy) const override {
+    std::unique_ptr<Policy> improve(const Environment& env, const Policy &policy) const override {
         // We will use a StochasticPolicy object as our result.
         std::unique_ptr<StochasticPolicy> ans =
                 std::make_unique<StochasticPolicy>(StochasticPolicy::create_from(env, policy));

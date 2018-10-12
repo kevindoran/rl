@@ -1,6 +1,6 @@
 #pragma once
 
-#include "rl/MappedEnvironment.h"
+#include "rl/Environment.h"
 #include "rl/GridWorld.h"
 #include "grid/Grid.h"
 #include "rl/Policy.h"
@@ -18,12 +18,12 @@ class RandomGridPolicy : public Policy {
 public:
     explicit RandomGridPolicy(const GridWorld<H, W> &grid_world) : grid_world_(grid_world) {}
 
-    const Action & next_action(const MappedEnvironment &e, const State &from_state) const override {
+    const Action & next_action(const Environment &e, const State &from_state) const override {
         return possible_actions(e, from_state).random_action();
     }
 
     ActionDistribution
-    possible_actions(const MappedEnvironment &e, const State &from_state) const override {
+    possible_actions(const Environment &e, const State &from_state) const override {
         ActionDistribution dist;
         grid::Position from = grid_world_.state_to_pos(from_state);
         for (grid::Direction dir : grid::directions) {
