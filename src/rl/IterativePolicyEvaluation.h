@@ -84,8 +84,6 @@ public:
         return discount_rate_;
     }
 
-
-
 private:
     double delta_threshold_ = DEFAULT_DELTA_THRESHOLD;
     double discount_rate_ = DEFAULT_DISCOUNT_RATE;

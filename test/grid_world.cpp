@@ -43,10 +43,7 @@ TEST(GridWorldTest, basic_example) {
     ASSERT_ANY_THROW(environment.execute_action(move_right_action));
 
     // 3. Set all rewards to 1.0. Then move down.
-    for(int t = 0; t < grid.TILE_COUNT; t++) {
-        Reward& reward_at_t = grid_world.reward_at(grid.to_position(t));
-        reward_at_t.set_value(1.0);
-    }
+    grid_world.environment().set_all_rewards_to(1.0);
     const Action& move_down_action = grid_world.dir_to_action(grid::Direction::DOWN);
     environment.execute_action(move_down_action);
     pos = pos.adj(grid::Direction::DOWN);

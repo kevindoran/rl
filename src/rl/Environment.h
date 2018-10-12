@@ -115,20 +115,20 @@ public:
     // TODO: as we have declared a constructor, the default is not declared. We should specify
     // the other types that we expect to be able to use (move, copy etc).
     Transition(
-            const State& state_,
-            const State& next_state_,
-            const Action& action_,
-            const Reward& reward_,
+            const State& state,
+            const State& next_state,
+            const Action& action,
+            const Reward& reward,
             const Weight prob_weight=1)
-            : state_(state_), next_state_(next_state_), action_(action_), reward_(reward_),
+            : state_(state), next_state_(next_state), action_(action), reward_(reward),
               prob_weight_(prob_weight)
     {}
 
-    const State& state() const            {return state_;}
-    const State& next_state() const       {return next_state_;}
-    const Action& action() const           {return action_;}
-    const Reward& reward() const           {return reward_;}
-    Weight prob_weight() const  {return prob_weight_;}
+    const State& state() const      {return state_;}
+    const State& next_state() const {return next_state_;}
+    const Action& action() const    {return action_;}
+    const Reward& reward() const    {return reward_;}
+    Weight prob_weight() const      {return prob_weight_;}
 
     bool operator==(const Transition& other) const {
         return  state_       == other.state_ and
