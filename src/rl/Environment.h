@@ -4,6 +4,7 @@
 #include <vector>
 #include <memory>
 #include "util/DereferenceIterator.h"
+#include <gsl/gsl>
 #include "util/RangeWrapper.h"
 
 namespace rl {
@@ -150,12 +151,52 @@ private:
     Weight prob_weight_;
 };
 
+/**
+ * Represents part of a transition, the next state & reward.
+ *
+ * Reward is stored by-value to allow fake/proxy rewards to be used.
+ */
+struct Response {
+
+    /**
+     * Create a Response from a Transition.
+     *
+     * This is made static as opposed to being a constructor so that we can maintain the
+     * brace initialization.
+     */
+    static Response from_transition(const Transition& t) {
+        Expects(t.prob_weight() >= 0);
+        return Response{t.next_state(), t.reward(), t.prob_weight()};
+    }
+
+    const State& next_state;
+    Reward reward;
+    Weight prob_weight;
+};
 
 
-struct TransitionDistribution {
-    using Transitions = std::vector<std::reference_wrapper<const Transition>>;
-    Transitions transitions{};
-    long total_weight = 0;
+
+// note: I made Reward be taken by value. This allows a Reward to be given that isn't a _real_
+// reward. This is an experimental approach to try and group transitions that differ only in
+// their reward into a summary transition that has a reward equal to the expected value of
+// the transitions being grouped.
+
+
+class ResponseDistribution {
+public:
+    using Responses = std::vector<Response>;
+
+    const Responses responses() const {return responses_;}
+    Weight total_weight() const {return total_weight_;}
+
+    void add_response(Response r) {
+        Expects(r.prob_weight >= 0);
+        total_weight_ += r.prob_weight;
+        responses_.emplace_back(std::move(r));
+    }
+private:
+    Responses responses_{};
+    Weight total_weight_ = 0;
 };
 
 /**
@@ -244,7 +285,7 @@ public:
     // The methods below provide access to properties of an environment that are not typically
     // available directly.
     //----------------------------------------------------------------------------------------------
-    virtual TransitionDistribution transition_list(const State& from_state, const Action& action) const = 0;
+    virtual ResponseDistribution transition_list(const State& from_state, const Action& action) const = 0;
 };
 
 } // namespace rl

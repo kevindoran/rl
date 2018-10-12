@@ -155,8 +155,9 @@ public:
     // The methods below provide access to properties of an environment that are not typically
     // available directly.
 
-    TransitionDistribution transition_list(const State& from_state, const Action& action) const {
-        TransitionDistribution ans{};
+    ResponseDistribution transition_list(const State& from_state, const Action& action) const {
+        ResponseDistribution ans{};
+        // The following will fail if the distribution tree hasn't been built.
         Expects(dist_tree_.root_node().has_child_with_id(from_state.id()));
         if(is_end_state(from_state)) {
             return ans;
@@ -170,10 +171,9 @@ public:
                      return;
                  }
                  const Transition& t = *CHECK_NOTNULL(node.data());
-                 ans.transitions.emplace_back(t);
+                 ans.add_response(Response::from_transition(t));
              };
         dist_tree_.dfs(append_fctn, action_node);
-        ans.total_weight = action_node.weight();
         return ans;
     }
 

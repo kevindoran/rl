@@ -41,11 +41,13 @@ public:
                 Policy::ActionDistribution action_dist = p.possible_actions(e, s);
                 for(auto action_weight_pair : action_dist.weight_map()) {
                     const Action& action = *CHECK_NOTNULL(action_weight_pair.first);
-                    int action_weight = action_weight_pair.second;
-                    TransitionDistribution trans_dist = e.transition_list(s, action);
-                    for(std::reference_wrapper<const Transition> t : trans_dist.transitions) {
-                        double transition_reward = t.get().reward().value();
-                        double reward_from_target = res.value(t.get().next_state());
+                    long action_weight = action_weight_pair.second;
+                    // A policy's actions can't have zero weight.
+                    Expects(action_weight);
+                    ResponseDistribution response_dist = e.transition_list(s, action);
+                    for(const Response& r : response_dist.responses()) {
+                        double transition_reward = r.reward.value();
+                        double reward_from_target = res.value(r.next_state);
                         // Looking at Compiler Explorer for the following computation it seems that
                         // compilers will not optimize (a / b) * (c / d) into (a * c) / (b * d).
                         // It looks like it can't as there will be differences due to rounding etc.
@@ -54,11 +56,12 @@ public:
                         /*
                         double probability =
                                 (action_weight / (double) action_dist.total_weight) *
-                                (t.get().prob_weight() / (double) trans_dist.total_weight);
+                                (t.get().prob_weight() / (double) response_dist.total_weight);
                         */
-                        double probability =
-                                (action_weight * (double) t.get().prob_weight()) /
-                                (action_dist.total_weight() * (double) trans_dist.total_weight);
+                        double denominator =
+                                (action_dist.total_weight() * (double) response_dist.total_weight());
+                        Ensures(denominator != 0);
+                        double probability = (action_weight * (double) r.prob_weight) / denominator;
                         expected_value += transition_reward * probability;
                         expected_value += reward_from_target * discount_rate_ * probability;
 

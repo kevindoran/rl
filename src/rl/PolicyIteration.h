@@ -24,18 +24,18 @@ public:
             ValueFunction value_fctn = evaluator.evaluate(env, *ans);
             for(const State& s : env.states()) {
                 for(const Action& a : env.actions()) {
-                    TransitionDistribution transitions = env.transition_list(s, a);
                     // If the action is not possible, clear actions and continue.
                     if(!transitions.total_weight) {
                         ans->clear_actions_for_state(s);
                         continue;
                     }
+                    ResponseDistribution transitions = env.transition_list(s, a);
                     double expect_value_sum = 0;
-                    for(const Transition& t : transitions.transitions) {
+                    for(const Response& r : transitions.responses()) {
                         double value_from_next_state =
-                                evaluator.discount_rate() * value_fctn.value(t.next_state());
+                                evaluator.discount_rate() * value_fctn.value(r.next_state);
                         expect_value_sum +=
-                                t.prob_weight() * (t.reward().value() + value_from_next_state);
+                                r.prob_weight * (r.reward.value() + value_from_next_state);
                     }
                     double expected_value = expect_value_sum / transitions.total_weight;
                     double v_current = value_fctn.value(s);
