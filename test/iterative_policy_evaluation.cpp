@@ -7,6 +7,7 @@
 #include "rl/Policy.h"
 #include "rl/DeterministicPolicy.h"
 #include "common/SuttonBartoExercises.h"
+#include "common/ExamplePolicies.h"
 #include "rl/RandomGridPolicy.h"
 
 namespace {
@@ -51,6 +52,16 @@ rl::DeterministicLambdaPolicy create_random_policy_broken(const rl::GridWorld<W,
     return rl::DeterministicLambdaPolicy(fctn);
 }
 
+rl::MappedEnvironment single_state_action_env(std::string state_name="State 1",
+        std::string action_name="Action 1", double reward_value=1.0) {
+    rl::MappedEnvironment env;
+    const rl::State& state = env.add_state(state_name);
+    const rl::Action& action = env.add_action(action_name);
+    const rl::Reward& reward = env.add_reward(reward_value, "Reward 1");
+    env.add_transition(rl::Transition(state, state, action, reward));
+    env.build_distribution_tree();
+    return env;
+}
 
 
 } // namespace
@@ -205,4 +216,64 @@ TEST(IterativePolicyEvaluationTest, sutton_barto_exercise_4_1_manual) {
         ASSERT_NEAR(expected_values[t], ans[t],
                     allowed_error_factor * std::abs(expected_values[t]));
     }
+}
+
+/**
+ * Tests that the policy evaluation correctly converges for a simple continuous task.
+ *
+ * Tests that the single state, single action environment is evaluated correctly with different
+ * discount rates.
+ *
+ *       state1__
+ *        ^      | (action1) reward = 5.
+ *        |______|
+ *
+ *  Tests discount rates from 0.1 to 0.9 (inclusive). Asserts that the value assigned to the single
+ *  state is given by:
+ *
+ *      state_value = reward_value / (1 - discount_rate)
+ */
+TEST(IterativePolicyEvaluationTest, continuous_task) {
+    // Setup
+    double reward_value = 5;
+    rl::MappedEnvironment env = single_state_action_env("State 1", "Action 1", reward_value);
+    const rl::State& state = *env.states_begin();
+    rl::IterativePolicyEvaluation evaluation;
+    rl::test::FirstActionPolicy policy;
+
+    // Test
+    for(int discount_rate_tenth = 1; discount_rate_tenth <= 9; discount_rate_tenth++) {
+        double discount_rate = discount_rate_tenth / 10.0;
+        double denom = 1 - discount_rate;
+        ASSERT_FALSE(denom == 0) << "The test implementation is broken if this fails.";
+        double correct_value = reward_value / denom;
+        evaluation.set_discount_rate(discount_rate);
+        rl::ValueFunction value_fctn = evaluation.evaluate(env, policy);
+        // We could be more exact here with out bounds.
+        double bounds = 0.01 * correct_value;
+        ASSERT_NEAR(correct_value, value_fctn.value(state), bounds);
+    }
+}
+
+/**
+ * An exception should be thrown during policy evaluation if:
+ *    1. the policy does not have an action for a state.
+ *    2. the policy has an action that has zero weight.
+ */
+TEST(IterativePolicyEvaluationTest, broken_policy) {
+    // Setup
+    rl::MappedEnvironment env = single_state_action_env();
+    rl::IterativePolicyEvaluation evaluation;
+    // Set a discount rate so that the test doesn't go on forever in the case where the behaviour is
+    // broken.
+    evaluation.set_discount_rate(0.9);
+    rl::test::NoActionPolicy no_action_policy;
+    rl::test::ZeroWeightActionPolicy zero_weight_policy;
+
+    // Test
+    // 1. Exception expected for a policy with no action for a state.
+    EXPECT_ANY_THROW(evaluation.evaluate(env, no_action_policy));
+
+    // 2. Exception expected for a policy with an action of zero weight.
+    EXPECT_ANY_THROW(evaluation.evaluate(env, zero_weight_policy));
 }
