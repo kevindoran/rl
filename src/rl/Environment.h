@@ -14,7 +14,7 @@ namespace rl {
  * https://google.github.io/styleguide/cppguide.html#Integer_Types
  */
 using ID = int;
-using Weight = int;
+using Weight = double;
 
 
 class State {
