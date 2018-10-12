@@ -14,6 +14,10 @@ public:
         evaluator = evaluator;
     }
 
+    PolicyEvaluation& policy_evaluation() {
+        return evaluator;
+    }
+
     std::unique_ptr<Policy> improve(const Environment& env, const Policy &policy) const override {
         // We will use a StochasticPolicy object as our result.
         std::unique_ptr<StochasticPolicy> ans =
