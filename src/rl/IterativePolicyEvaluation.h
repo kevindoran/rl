@@ -39,6 +39,10 @@ public:
                 }
                 double expected_value = 0;
                 Policy::ActionDistribution action_dist = p.possible_actions(e, s);
+                // A policy must have an action for every non-end state.
+                Expects(action_dist.action_count());
+                // The action_dist can't have zero weight in total.
+                Expects(action_dist.total_weight());
                 for(auto action_weight_pair : action_dist.weight_map()) {
                     const Action& action = *CHECK_NOTNULL(action_weight_pair.first);
                     long action_weight = action_weight_pair.second;
