@@ -33,7 +33,10 @@ add_library(reinforcement
         src/util/Random.h
         src/rl/PolicyIteration.h
         src/rl/StochasticPolicy.h
-        src/rl/DistributionList.h src/rl/RandomGridPolicy.h src/rl/Environment.h src/rl/impl/Environment.h)
+        src/rl/DistributionList.h
+        src/rl/RandomGridPolicy.h
+        src/rl/Environment.h
+        src/rl/impl/Environment.h)
 target_include_directories(reinforcement
         PUBLIC
         ${PROJECT_SOURCE_DIR}/src)
@@ -56,7 +59,8 @@ add_executable(runTests
         test/grid_world.cpp
         test/range_wrapper.cpp
         test/iterative_policy_evaluation.cpp
-        test/policy_iteration.cpp)
+        test/policy_iteration.cpp
+        test/common/ExamplePolicies.h)
 target_link_libraries(runTests gtest gtest_main)
 target_link_libraries(runTests reinforcement)
 target_include_directories(
