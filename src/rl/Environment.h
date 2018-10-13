@@ -190,6 +190,8 @@ struct Response {
  */
 class ResponseDistribution {
 public:
+    // It seems likely that this type should become a DistributionList so that a random response
+    // can be obtained easily from a ResponseDistribution.
     using Responses = std::vector<Response>;
 
     const Responses responses() const {return responses_;}
@@ -238,8 +240,6 @@ public:
     //----------------------------------------------------------------------------------------------
     virtual void set_start_state(const State& state) = 0;
     virtual void mark_as_end_state(const State& state) = 0;
-    virtual const Transition& execute_action(const Action& action) = 0;
-    virtual void restart() = 0;
 
     //----------------------------------------------------------------------------------------------
     // States
@@ -255,12 +255,9 @@ public:
 
     virtual States states() const = 0;
 
-    virtual State& current_state() = 0;
-    virtual const State& current_state() const = 0;
-
     virtual std::vector<std::reference_wrapper<const State>> end_states() = 0;
 
-    virtual bool is_in_end_state() = 0;
+    virtual const State& start_state() const = 0;
 
     virtual bool is_end_state(const State& s) const = 0;
 
@@ -287,14 +284,13 @@ public:
     virtual RewardIterator rewards_begin() const = 0;
     virtual RewardIterator rewards_end() const = 0;
 
-    virtual double accumulated_reward() = 0;
+    //----------------------------------------------------------------------------------------------
+    // Transitions
+    //----------------------------------------------------------------------------------------------
+    // Random sample.
+    virtual Response next_state(const State& from_state, const Action& action) const = 0;
 
-    //----------------------------------------------------------------------------------------------
-    // Transition distributions
-    //
-    // The methods below provide access to properties of an environment that are not typically
-    // available directly.
-    //----------------------------------------------------------------------------------------------
+    // Full MDP info.
     virtual ResponseDistribution transition_list(const State& from_state, const Action& action) const = 0;
 };
 

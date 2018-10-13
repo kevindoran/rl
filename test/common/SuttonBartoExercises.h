@@ -152,10 +152,6 @@ public:
             return allowed;
         }
 
-        const Transition &execute_action(const Action& action) override {
-            throw std::runtime_error("Not implemented.");
-        }
-
         struct TransitionPart {
             double probability = 0;
             double revenue = 0;
@@ -241,6 +237,12 @@ public:
             }
             Ensures(ans.total_weight() >= 0);
             return ans;
+        }
+
+        Response next_state(const State& from_state, const Action& action) const override {
+            // If ResponseDistribution used a DistributionList as it's storage type, then this
+            // method would be trivial to implement.
+            throw std::runtime_error("Not implemented.");
         }
     };
 };

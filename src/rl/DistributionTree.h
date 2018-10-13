@@ -79,11 +79,15 @@ public:
             return const_cast<Node&>(static_cast<const Node*>(this)->random_child());
         }
 
-        Node& random_leaf() {
+        const Node& random_leaf() const {
             if(children_.empty()) {
                 return *this;
             }
             return random_child().random_leaf();
+        }
+
+        Node& random_leaf() {
+            return const_cast<Node&>(static_cast<const Node*>(this)->random_leaf());
         }
 
         /**

@@ -38,7 +38,8 @@ add_library(reinforcement
         src/rl/RandomGridPolicy.h
         src/rl/Environment.h
         src/rl/impl/Environment.h
-        )
+        src/rl/FirstVisitMCValuePrediction.h
+        src/rl/Trial.h)
 target_include_directories(reinforcement
         PUBLIC
         ${PROJECT_SOURCE_DIR}/src)

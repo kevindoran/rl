@@ -177,9 +177,13 @@ public:
     }
 
     /// Some conveniences:
-    grid::Position current_pos() {
+    // Removed. If we want convenience fctns like this, we need to contain a Trial, rather than
+    // just an environment.
+    /*
+     * grid::Position current_pos() {
         return state_to_pos(environment_.current_state());
     }
+    */
 
     GridWorldBoundsBehaviour bounds_behaviour() const {
         return bounds_behaviour_;

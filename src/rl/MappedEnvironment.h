@@ -107,17 +107,12 @@ public:
         return added;
     }
 
-    const Transition& execute_action(const Action& action) override {
-        Expects(!is_in_end_state());
-        started_ = true;
-        if(needs_rebuilding_) {
-            build_distribution_tree();
-        }
-        DistNode& n{get_dist_node(current_state_, action.id())};
+    Response next_state(const State& current_state, const Action& action) const override {
+        Expects(!needs_rebuilding_);
+        const DistNode& n{get_dist_node(current_state.id(), action.id())};
         const Transition& random_transition{*CHECK_NOTNULL(n.random_leaf().data())};
-        accumulated_reward_+= random_transition.reward().value();
-        current_state_= random_transition.next_state().id();
-        return random_transition;
+        Response response = Response::from_transition(random_transition);
+        return response;
     }
 
     bool is_action_allowed(const Action& a, const State& from_state) const override {
@@ -160,9 +155,6 @@ public:
         needs_rebuilding_ = false;
     }
 
-    // The methods below provide access to properties of an environment that are not typically
-    // available directly.
-
     ResponseDistribution transition_list(const State& from_state, const Action& action) const {
         ResponseDistribution ans{};
         // The following will fail if the distribution tree hasn't been built.
@@ -185,18 +177,26 @@ public:
         return ans;
     }
 
-    // end
-
 private:
     using DistTree = DistributionTree<const Transition>;
     using DistNode = DistTree::Node;
 
-    DistNode& get_dist_node(ID state) {
+    const DistNode& get_dist_node(ID state) const {
         return dist_tree_.root_node().child_with_id(state);
     }
 
-    DistNode& get_dist_node(ID state, ID action) {
+    DistNode& get_dist_node(ID state) {
+        return const_cast<DistNode&>(static_cast<const MappedEnvironment*>(this)
+            ->get_dist_node(state));
+    }
+
+    const DistNode& get_dist_node(ID state, ID action) const {
         return get_dist_node(state).child_with_id(action);
+    }
+
+    DistNode& get_dist_node(ID state, ID action) {
+        return const_cast<DistNode&>(static_cast<const MappedEnvironment*>(this)
+            ->get_dist_node(state, action));
     }
 
     DistNode& get_dist_node(ID state, ID action, ID next_state) {

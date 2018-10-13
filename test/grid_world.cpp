@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
-#include "rl/MappedEnvironment.h"
 #include "rl/GridWorld.h"
+#include "rl/Trial.h"
 
 using namespace rl;
 
@@ -18,6 +18,7 @@ TEST(GridWorldTest, basic_example) {
     const int WIDTH = 4;
     GridWorld<HEIGHT, WIDTH> grid_world(GridWorldBoundsBehaviour::NO_OUT_OF_BOUNDS);
     MappedEnvironment& environment = grid_world.environment();
+    rl::Trial grid_trial(grid_world.environment());
     auto& grid = grid_world.grid();
     // Make top-left and bottom-right tiles the end states.
     grid::Position top_left{0, 0};
@@ -31,22 +32,23 @@ TEST(GridWorldTest, basic_example) {
     environment.set_start_state(grid_world.pos_to_state(pos));
     const Action& move_right_action = grid_world.dir_to_action(grid::Direction::RIGHT);
     while(pos.x < WIDTH-1) {
-        environment.execute_action(move_right_action);
+        grid_trial.execute_action(move_right_action);
         pos = pos.adj(grid::Direction::RIGHT);
-        ASSERT_EQ(pos, grid_world.current_pos());
-        ASSERT_EQ(0, environment.accumulated_reward())
+        ASSERT_EQ(pos, grid_world.state_to_pos(grid_trial.current_state()));
+        ASSERT_EQ(0, grid_trial.accumulated_reward())
             << "The rewards should all be zero by default.";
     }
 
     // 2. An exception should be thrown trying to move off the grid.
     //    This occurs due to our NO_OUT_OF_BOUNDS option.
-    ASSERT_ANY_THROW(environment.execute_action(move_right_action));
+    ASSERT_ANY_THROW(grid_trial.execute_action(move_right_action));
 
     // 3. Set all rewards to 1.0. Then move down.
     grid_world.environment().set_all_rewards_to(1.0);
     const Action& move_down_action = grid_world.dir_to_action(grid::Direction::DOWN);
-    environment.execute_action(move_down_action);
+    grid_trial.execute_action(move_down_action);
     pos = pos.adj(grid::Direction::DOWN);
-    ASSERT_EQ(pos, grid_world.current_pos()) << "We should have moved down by 1.";
-    ASSERT_EQ(1.0, environment.accumulated_reward()) << "We should now have 1.0 rewarded.";
+    ASSERT_EQ(pos, grid_world.state_to_pos(grid_trial.current_state()))
+        << "We should have moved down by 1.";
+    ASSERT_EQ(1.0, grid_trial.accumulated_reward()) << "We should now have 1.0 rewarded.";
 }

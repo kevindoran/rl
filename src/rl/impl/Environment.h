@@ -53,15 +53,6 @@ public:
         return static_cast<ID>(rewards_.size());
     }
 
-    const State& current_state() const override {
-        Ensures(current_state_ < static_cast<ID>(states_.size()));
-        return *CHECK_NOTNULL(states_[current_state_]);
-    }
-
-    State& current_state() override {
-        return const_cast<State&>(static_cast<const impl::Environment*>(this)->current_state());
-    }
-
     const State& state(ID id) const override {
         Expects(id < static_cast<ID>(states_.size()));
         return *CHECK_NOTNULL(states_[id]);
@@ -87,14 +78,6 @@ public:
 
     Reward& reward(ID id) override {
         return const_cast<Reward&>(static_cast<const impl::Environment*>(this)->reward(id));
-    }
-
-    double accumulated_reward() override {
-        return accumulated_reward_;
-    }
-
-    bool is_in_end_state() override {
-        return end_states_.find(current_state_) != std::end(end_states_);
     }
 
     std::vector<std::reference_wrapper<const State>> end_states() override {
@@ -146,25 +129,17 @@ public:
 
     void set_start_state(const State& state) override {
         start_state_ = state.id();
-        if(!started_) {
-            current_state_ = start_state_;
-        }
+    }
+
+    const State& start_state() const override {
+        return state(start_state_);
     }
 
     void mark_as_end_state(const State& state) override {
         end_states_.insert(state.id());
     }
 
-    void restart() override {
-        current_state_ = start_state_;
-        accumulated_reward_ = 0;
-        started_ = false;
-    }
-
 protected:
-    ID current_state_ = 0;
-    double accumulated_reward_ = 0;
-    bool started_ = false;
     ID start_state_ = 0;
 
     /* Using list vs vector.
