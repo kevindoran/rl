@@ -10,6 +10,10 @@
 namespace rl {
 
 
+
+/**
+ * For every state in an Environment, Policy defines actions to be taken (with probability).
+ */
 class Policy {
 public:
     class ActionDistribution {
@@ -97,17 +101,25 @@ inline int compare(double val1, double val2, double error_factor) {
     return (val1 > val2) ? 1 : -1;
 }
 
+/**
+ * Calculates the (state) value function for a Policy.
+ */
 class PolicyEvaluation {
 public:
     virtual ValueFunction evaluate(const Environment& e, const Policy& p) = 0;
-    virtual ~PolicyEvaluation() = default;
 
     virtual void set_discount_rate(double discount_rate) = 0;
     virtual double discount_rate() const = 0;
     virtual void set_delta_threshold(double min_delta) = 0;
     virtual double delta_threshold() const = 0;
+
+    virtual ~PolicyEvaluation() = default;
 };
 
+
+/**
+ * Calculates the optimal policy (or approximation to it) for an environment.
+ */
 class PolicyImprovement {
 public:
     // A conclusion based on the logic from:

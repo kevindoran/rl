@@ -20,7 +20,6 @@ using Weight = double;
 
 class State {
 public:
-    // If you need a copy, do it in the interface.
     State(ID id, std::string name)
             : id_(id), name_(std::move(name))
     {}
@@ -174,18 +173,21 @@ struct Response {
     }
 
     const State& next_state;
+    // note: I made Reward be stored by-value. This allows a Reward to be given that isn't a _real_
+    // reward. This is an approach used group transitions that differ only in their reward into a
+    // summary transition that has a reward equal to the expected value of the transitions being
+    // grouped.
     Reward reward;
     Weight prob_weight;
 };
 
 
-
-// note: I made Reward be taken by value. This allows a Reward to be given that isn't a _real_
-// reward. This is an experimental approach to try and group transitions that differ only in
-// their reward into a summary transition that has a reward equal to the expected value of
-// the transitions being grouped.
-
-
+/**
+ * A container of Responses along with a weight total (sum of all response weights).
+ *
+ * Environment returns an object of this class to represent all possible transitions possible as a
+ * result of an action in a state.
+ */
 class ResponseDistribution {
 public:
     using Responses = std::vector<Response>;

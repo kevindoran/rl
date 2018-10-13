@@ -62,7 +62,7 @@ public:
                         ans->clear_actions_for_state(s);
                         ans->add_action_for_state(s, a, weight);
                         policy_updated = true;
-                        // Note: we don't override the official map for policy iteration, but we
+                        // We don't override the official map for policy iteration, but we
                         // still wish to choose the best action.
                         v_current = expected_value;
                     } else {
