@@ -113,8 +113,6 @@ private:
  */
 class Transition {
 public:
-    // TODO: as we have declared a constructor, the default is not declared. We should specify
-    // the other types that we expect to be able to use (move, copy etc).
     Transition(
             const State& state,
             const State& next_state,
@@ -124,6 +122,12 @@ public:
             : state_(state), next_state_(next_state), action_(action), reward_(reward),
               prob_weight_(prob_weight)
     {}
+
+    Transition(const Transition& other) = default;
+    // Delete the following constructors until needed.
+    Transition& operator=(const Transition& other) = delete;
+    Transition(Transition&& other) = delete;
+    Transition& operator=(Transition&& other) = delete;
 
     const State& state() const      {return state_;}
     const State& next_state() const {return next_state_;}

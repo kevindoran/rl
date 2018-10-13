@@ -88,7 +88,7 @@ public:
         return *rewards_.emplace_back(std::make_unique<Reward>(rewards_.size(), name, value));
     }
 
-    const Transition& add_transition(Transition t) {
+    const Transition& add_transition(const Transition& t) {
         GSL_CONTRACT_CHECK("only max_value(ID) entries are supported.",
                            transitions_.size() <= std::numeric_limits<ID>::max());
         // We assert bounds for the array sizes, so the static cast is okay.
