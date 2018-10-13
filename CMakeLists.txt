@@ -22,6 +22,7 @@ add_library(reinforcement
         src/rl/GridWorld.h
         src/grid/Grid.h
         src/grid/Grid.cpp
+        src/rl/Policy.cpp
         src/rl/Policy.h
         src/rl/DistributionTree.h
         src/rl/DeterministicPolicy.h
@@ -36,7 +37,8 @@ add_library(reinforcement
         src/rl/DistributionList.h
         src/rl/RandomGridPolicy.h
         src/rl/Environment.h
-        src/rl/impl/Environment.h)
+        src/rl/impl/Environment.h
+        )
 target_include_directories(reinforcement
         PUBLIC
         ${PROJECT_SOURCE_DIR}/src)
