@@ -59,3 +59,8 @@ we need to return collections of references.
 For the moment, I will go with using references and reference_wrappers.
 It may be desirable to switch to using pass by value in future.
 
+# TODO List
+
+* Setup glog properly.
+* Consider removing usages of Expects and Ensures in favour of using glog methods directly. Or 
+  define our own macro that wraps glog. glog has better reporting on asserts.
