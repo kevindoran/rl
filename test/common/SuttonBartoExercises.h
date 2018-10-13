@@ -82,16 +82,6 @@ public:
         static constexpr double MIN_PROB = 1e-15;
 
         CarRentalEnvironment() : rl::impl::Environment() {
-            // note: move away from procomputing states, rewards and actions?
-            // all this pre-creation isn't really necessary for this problem in question- we
-            // could just pre-compute everything and return it as needed. A way to allow this would
-            // be to change the signatures of methods such as Environment::states() to return
-            // either:
-            //    a) by value
-            //    b) by shared_ptr
-            // A counter-argument to this is that the creation of the name strings might become a
-            // bottle-neck. This could be mitigated easily by creating a cache.
-
             // Create the 441 states.
             for (int i = 0; i <= MAX_CAR_COUNT; i++) {
                 for (int j = 0; j <= MAX_CAR_COUNT; j++) {
@@ -111,19 +101,6 @@ public:
                 }
                 actions_.emplace_back(std::make_unique<Action>(action_id(i), action_name.str()));
             }
-            // Create the 211 rewards.
-            // We don't actually use these.
-            const int min_reward = -MAX_CAR_TRANSFERS * TRANSFER_COST;
-            const int max_reward = LOCATION_COUNT * MAX_CAR_COUNT * INCOME_PER_RENTAL;
-            for (int i = min_reward; i <= max_reward; i++) {
-                std::stringstream reward_name;
-                bool negative = i < 0;
-                if (negative) {
-                    reward_name << "-";
-                }
-                reward_name << "$" << i;
-                rewards_.emplace_back(std::make_unique<Reward>(reward_id(i), reward_name.str(), i));
-            }
         }
 
         ID state_id(int cars_in_loc1, int cars_in_loc2) const {
@@ -137,20 +114,10 @@ public:
             return *CHECK_NOTNULL(states_[state_id(cars_in_loc1, cars_in_loc2)]);
         }
 
-        ID reward_id(int income) const {
-            static const int min_income = -10;
-            ID ans = (income - min_income);
-            return ans;
-        }
-
         ID action_id(int transferred) const {
             Expects(transferred >= -MAX_CAR_TRANSFERS);
             Expects(transferred <= MAX_CAR_TRANSFERS);
             return transferred + MAX_CAR_TRANSFERS;
-        }
-
-        const Reward &income_to_reward(int income) const {
-            return reward(reward_id(income));
         }
 
         int cars_in_loc_1(const State& state) const {
@@ -203,7 +170,6 @@ public:
             }
         }
 
-        //std::vector<TransitionPart>
         TransitionPart
         possibilities(int prev_car_count, int new_car_count, int rent_mean, int return_mean) const {
             //std::vector<TransitionPart> ans;
@@ -239,9 +205,6 @@ public:
                 }
                 Ensures(returned >= 0 and rented >= 0);
                 double probability = rented_prob * returned_prob;
-
-                // Prevent transition explosion by grouping the transitions:
-                // ans.emplace_back(TransitionPart{probability, rented * INCOME_PER_RENTAL});
                 ans.probability += probability;
                 ans.revenue += probability * (rented * INCOME_PER_RENTAL);
             }
@@ -274,22 +237,6 @@ public:
                     // TODO: where should this logic be defined for creating proxy rewards?
                     const Reward proxy_reward(-1, income);
                     ans.add_response(Response{next_state, proxy_reward, probability});
-                    /*auto loc1_transitions = possibilities(
-                            loc1_start, loc1_end, LOC1_RENTAL_MEAN, LOC1_RETURN_MEAN);
-                    auto loc2_transitions = possibilities(
-                            loc2_start, loc2_end, LOC2_RENTAL_MEAN, LOC2_RETURN_MEAN);
-                    for (TransitionPart &t1 : loc1_transitions) {
-                        for (TransitionPart &t2 : loc2_transitions) {
-                            const State &next_state = state(loc1_end, loc2_end);
-                            double probability = t1.probability * t2.probability;
-                            int weight = prob_to_weight(probability);
-                            int income = t1.revenue + t2.revenue - transfer_cost;
-                            const Reward &reward = income_to_reward(income);
-                            ans.transitions.emplace_back(
-                                    Transition{from_state, next_state, action, reward, weight});
-                            ans.total_weight += weight;
-                        }
-                    }*/
                 }
             }
             Ensures(ans.total_weight() >= 0);
