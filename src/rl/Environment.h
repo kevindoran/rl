@@ -288,6 +288,11 @@ public:
     // Transitions
     //----------------------------------------------------------------------------------------------
     // Random sample.
+    /**
+     *
+     * \throws runtime_error if from_state is an end state. It is not possible to carry out any
+     *         action in an end state.
+     */
     virtual Response next_state(const State& from_state, const Action& action) const = 0;
 
     // Full MDP info.

@@ -109,6 +109,7 @@ public:
 
     Response next_state(const State& current_state, const Action& action) const override {
         Expects(!needs_rebuilding_);
+        Expects(!is_end_state(current_state));
         const DistNode& n{get_dist_node(current_state.id(), action.id())};
         const Transition& random_transition{*CHECK_NOTNULL(n.random_leaf().data())};
         Response response = Response::from_transition(random_transition);
@@ -156,6 +157,7 @@ public:
     }
 
     ResponseDistribution transition_list(const State& from_state, const Action& action) const {
+        Expects(!is_end_state(from_state));
         ResponseDistribution ans{};
         // The following will fail if the distribution tree hasn't been built.
         Expects(dist_tree_.root_node().has_child_with_id(from_state.id()));
