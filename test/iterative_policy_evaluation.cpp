@@ -11,24 +11,7 @@
 #include "rl/RandomGridPolicy.h"
 
 namespace {
-// note: We can make GridWord inherit from an abstract class allowing methods to use the interface
-// instead of having to become templated to deal with the W & H params.
-template<int W, int H>
-rl::DeterministicLambdaPolicy create_down_up_policy(const rl::GridWorld<W,H>& grid_world) {
-    // note: if the return type is not specified, the action gets returned by value, which
-    // leads to an error later on when the reference is used.
-    auto fctn = [&grid_world](const rl::Environment& e, const rl::State& s) -> const rl::Action& {
-        grid::Position pos = grid_world.state_to_pos(s);
-        // We can't just go down, as we will get an exception trying to go outside the grid.
-        bool can_go_down = grid_world.grid().is_valid(pos.adj(grid::Direction::DOWN));
-        if (can_go_down) {
-            return grid_world.dir_to_action(grid::Direction::DOWN);
-        } else {
-            return grid_world.dir_to_action(grid::Direction::UP);
-        }
-    };
-    return rl::DeterministicLambdaPolicy(fctn);
-}
+
 
 /**
  * Leaving the below here as an example of what _not_ to do.
@@ -90,7 +73,7 @@ TEST(IterativePolicyEvaluationTest, basic_example) {
     grid_world.environment().set_all_rewards_to(-1.0);
     grid_world.environment().build_distribution_tree();
     rl::IterativePolicyEvaluation e;
-    rl::DeterministicLambdaPolicy down_up_policy = create_down_up_policy(grid_world);
+    rl::DeterministicLambdaPolicy down_up_policy = rl::test::create_down_up_policy(grid_world);
 
     // Test
     rl::ValueFunction v_fctn = e.evaluate(grid_world.environment(), down_up_policy);
@@ -118,7 +101,7 @@ TEST(IterativePolicyEvaluationTest, basic_example) {
  *  8  9  10 11
  *  12 13 14 E
  *
- *  R = -1, for all transitoins.
+ *  R = -1, for all transitions.
  *
  *  The test checks that our policy evaluation routine correctly calculates the value function for
  *  the random policy as being:
@@ -129,24 +112,18 @@ TEST(IterativePolicyEvaluationTest, basic_example) {
  *  -22  -20  -14  0.0
  */
 TEST(IterativePolicyEvaluationTest, sutton_barto_exercise_4_1) {
-
-    rl::IterativePolicyEvaluation evalator;
-    const int HEIGHT = 4;
-    rl::GridWorld<HEIGHT, HEIGHT> grid_world = rl::test::Exercise4_1::create_grid_world();
+    using TestInfo = rl::test::Exercise4_1;
+    rl::IterativePolicyEvaluation evaluator;
+    auto grid_world = TestInfo::create_grid_world();
     rl::RandomGridPolicy random_policy(grid_world);
     const double allowed_error_factor = 0.02;
 
     // Test.
-    rl::ValueFunction v_fctn = evalator.evaluate(grid_world.environment(), random_policy);
-    double expected_values[] =
-            {0.0, -14, -20, -22,
-             -14, -18, -20, -20,
-             -20, -20, -18, -14,
-             -22, -20, -14, 0.0};
+    rl::ValueFunction v_fctn = evaluator.evaluate(grid_world.environment(), random_policy);
     for(rl::ID state_id = 0; state_id < grid_world.environment().state_count(); state_id++) {
-        ASSERT_NEAR(expected_values[state_id],
+        ASSERT_NEAR(TestInfo::expected_values[state_id],
                     v_fctn.value(grid_world.environment().state(state_id)),
-                    allowed_error_factor * std::abs(expected_values[state_id]));
+                    allowed_error_factor * std::abs(TestInfo::expected_values[state_id]));
     }
 }
 
@@ -164,6 +141,7 @@ TEST(IterativePolicyEvaluationTest, sutton_barto_exercise_4_1) {
  * Grid. If just this test fails, then this test is probably implemented incorrectly.
  */
 TEST(IterativePolicyEvaluationTest, sutton_barto_exercise_4_1_manual) {
+    using TestInfo = rl::test::Exercise4_1;
     const int HEIGHT = 4;
     const int WIDTH = HEIGHT;
     const grid::Position top_left{0, 0};
@@ -174,11 +152,6 @@ TEST(IterativePolicyEvaluationTest, sutton_barto_exercise_4_1_manual) {
     // threshold of 0.001 (a threshold of 0.001 will produces some errors greater than 0.01).
     const double allowed_error_factor = 0.02;
     const double transition_reward = -1.0;
-    const double expected_values[] =
-            {0.0, -14, -20, -22,
-             -14, -18, -20, -20,
-             -20, -20, -18, -14,
-             -22, -20, -14, 0.0};
     grid::Grid<HEIGHT, WIDTH> grid;
     double ans[tile_count] = {0};
 
@@ -211,10 +184,11 @@ TEST(IterativePolicyEvaluationTest, sutton_barto_exercise_4_1_manual) {
     }
 
     // Test.
-    ASSERT_EQ(sizeof(expected_values), sizeof(ans)) << "The test is faulty if this fails.";
+    ASSERT_EQ(sizeof(TestInfo::expected_values), sizeof(ans))
+        << "The test is faulty if this fails.";
     for(int t = 0; t < tile_count; t++) {
-        ASSERT_NEAR(expected_values[t], ans[t],
-                    allowed_error_factor * std::abs(expected_values[t]));
+        ASSERT_NEAR(TestInfo::expected_values[t], ans[t],
+                    allowed_error_factor * std::abs(TestInfo::expected_values[t]));
     }
 }
 

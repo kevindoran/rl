@@ -1,6 +1,8 @@
 #pragma once
 
 #include "rl/Policy.h"
+#include "rl/DeterministicPolicy.h"
+#include "rl/GridWorld.h"
 
 namespace rl {
 namespace test {
@@ -55,6 +57,25 @@ class ZeroWeightActionPolicy : public rl::Policy {
         return ans;
     }
 };
+
+// note: We can make GridWord inherit from an abstract class allowing methods to use the interface
+// instead of having to become templated to deal with the W & H params.
+template<int W, int H>
+rl::DeterministicLambdaPolicy create_down_up_policy(const rl::GridWorld<W,H>& grid_world) {
+    // note: if the return type is not specified, the action gets returned by value, which
+    // leads to an error later on when the reference is used.
+    auto fctn = [&grid_world](const rl::Environment& e, const rl::State& s) -> const rl::Action& {
+        grid::Position pos = grid_world.state_to_pos(s);
+        // We can't just go down, as we will get an exception trying to go outside the grid.
+        bool can_go_down = grid_world.grid().is_valid(pos.adj(grid::Direction::DOWN));
+        if (can_go_down) {
+            return grid_world.dir_to_action(grid::Direction::DOWN);
+        } else {
+            return grid_world.dir_to_action(grid::Direction::UP);
+        }
+    };
+    return rl::DeterministicLambdaPolicy(fctn);
+}
 
 } // namespace test
 } // namespace rl

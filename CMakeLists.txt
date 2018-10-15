@@ -63,7 +63,8 @@ add_executable(runTests
         test/range_wrapper.cpp
         test/iterative_policy_evaluation.cpp
         test/policy_iteration.cpp
-        test/common/ExamplePolicies.h)
+        test/common/ExamplePolicies.h
+        )
 target_link_libraries(runTests gtest gtest_main)
 target_link_libraries(runTests reinforcement)
 target_include_directories(

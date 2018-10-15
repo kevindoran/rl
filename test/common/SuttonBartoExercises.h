@@ -31,6 +31,12 @@ public:
         grid_world.environment().build_distribution_tree();
         return grid_world;
     }
+
+    static constexpr double expected_values[] =
+        {0.0, -14, -20, -22,
+         -14, -18, -20, -20,
+         -20, -20, -18, -14,
+         -22, -20, -14, 0.0};
 };
 
 
