@@ -104,6 +104,7 @@ public:
                 }
             }
         }
+        environment_.build_distribution_tree();
     }
 
     const State& pos_to_state(grid::Position p) const {
