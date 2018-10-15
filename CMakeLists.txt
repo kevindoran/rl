@@ -64,6 +64,7 @@ add_executable(runTests
         test/iterative_policy_evaluation.cpp
         test/policy_iteration.cpp
         test/common/ExamplePolicies.h
+        test/first_visit_mc_value_prediction.cpp
         )
 target_link_libraries(runTests gtest gtest_main)
 target_link_libraries(runTests reinforcement)
