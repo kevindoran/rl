@@ -81,11 +81,19 @@ public:
         static constexpr int MAX_CAR_TRANSFERS = 5;
         static constexpr int TRANSFER_COST = 2;
         static constexpr int INCOME_PER_RENTAL = 10;
+        // Note: the values of means below are depended upon for creating the poisson caches.
         static constexpr int LOC1_RETURN_MEAN = 3;
         static constexpr int LOC1_RENTAL_MEAN = 3;
         static constexpr int LOC2_RETURN_MEAN = 2;
         static constexpr int LOC2_RENTAL_MEAN = 4;
         static constexpr double MIN_PROB = 1e-15;
+
+        // Calculating the Poisson PDF and CDF values was the main CPU bottleneck. Pre-calculate
+        // all the needed values to speed things up.
+        static constexpr int MEAN_RANGE = 3;
+        static constexpr int MIN_MEAN = 2;
+        double poisson_pdf_cache [MEAN_RANGE][MAX_CAR_COUNT + 1];
+        double poisson_cdf_cache [MEAN_RANGE][MAX_CAR_COUNT + 1];
 
         CarRentalEnvironment() : rl::impl::Environment() {
             // Create the 441 states.
@@ -107,6 +115,7 @@ public:
                 }
                 actions_.emplace_back(std::make_unique<Action>(action_id(i), action_name.str()));
             }
+            init_poisson_cache();
         }
 
         ID state_id(int cars_in_loc1, int cars_in_loc2) const {
@@ -162,13 +171,18 @@ public:
             double probability = 0;
             double revenue = 0;
         };
+        double poisson_pdf(int x, int mean) const {
+            // return gsl_ran_poisson_pdf(x, mean);
+            return poisson_pdf_cache[mean-MIN_MEAN][x];
+        }
 
-        static double upper_poisson_cdf(int greater_equal_than, int mean) {
+        double upper_poisson_cdf(int greater_equal_than, int mean) const {
             Ensures(greater_equal_than >= 0);
             if(greater_equal_than == 0) {
                 return 1.0;
             } else {
-                return gsl_cdf_poisson_Q(greater_equal_than-1, mean);
+                // return gsl_cdf_poisson_Q(greater_equal_than-1, mean);
+                return poisson_cdf_cache[mean-MIN_MEAN][greater_equal_than-1];
             }
         }
 
@@ -196,14 +210,14 @@ public:
                     returned_prob = upper_poisson_cdf(returned, return_mean);
                 } else {
                     Ensures(returned >= 0);
-                    returned_prob = gsl_ran_poisson_pdf(returned, return_mean);
+                    returned_prob = poisson_pdf(returned, return_mean);
                 }
                 double rented_prob = 0;
                 if(rented == prev_car_count) {
                     rented_prob = upper_poisson_cdf(rented, rent_mean);
                 } else {
                     Ensures(rented >= 0);
-                    rented_prob = gsl_ran_poisson_pdf(rented, rent_mean);
+                    rented_prob = poisson_pdf(rented, rent_mean);
                 }
                 Ensures(returned >= 0 and rented >= 0);
                 double probability = rented_prob * returned_prob;
@@ -249,6 +263,16 @@ public:
             // If ResponseDistribution used a DistributionList as it's storage type, then this
             // method would be trivial to implement.
             throw std::runtime_error("Not implemented.");
+        }
+
+    private:
+        void init_poisson_cache() {
+            for(int mu = 0; mu < MEAN_RANGE; mu++) {
+                for(int j = 0; j <= MAX_CAR_COUNT; j++) {
+                    poisson_pdf_cache[mu][j] = gsl_ran_poisson_pdf(j, mu + MIN_MEAN);
+                    poisson_cdf_cache[mu][j] = gsl_cdf_poisson_Q(j, mu + MIN_MEAN);
+                }
+            }
         }
     };
 };
