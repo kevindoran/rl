@@ -255,7 +255,7 @@ public:
 
     virtual States states() const = 0;
 
-    virtual std::vector<std::reference_wrapper<const State>> end_states() = 0;
+    virtual std::vector<std::reference_wrapper<const State>> end_states() const = 0;
 
     virtual const State& start_state() const = 0;
 

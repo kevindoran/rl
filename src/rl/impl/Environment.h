@@ -80,9 +80,9 @@ public:
         return const_cast<Reward&>(static_cast<const impl::Environment*>(this)->reward(id));
     }
 
-    std::vector<std::reference_wrapper<const State>> end_states() override {
+    std::vector<std::reference_wrapper<const State>> end_states() const override {
         std::vector<std::reference_wrapper<const State>> ans;
-        std::transform(end_states_.begin(), end_states_.end(), ans.begin(),
+        std::transform(end_states_.begin(), end_states_.end(), std::back_inserter(ans),
                        [this](ID id) {
                            return std::cref(state(id));
                        });
