@@ -18,6 +18,8 @@ TEST(GridWorldTest, basic_example) {
     const int WIDTH = 4;
     GridWorld<HEIGHT, WIDTH> grid_world(GridWorldBoundsBehaviour::NO_OUT_OF_BOUNDS);
     MappedEnvironment& environment = grid_world.environment();
+    grid::Position pos{0, 1};
+    environment.set_start_state(grid_world.pos_to_state(pos));
     rl::Trial grid_trial(grid_world.environment());
     auto& grid = grid_world.grid();
     // Make top-left and bottom-right tiles the end states.
@@ -28,8 +30,6 @@ TEST(GridWorldTest, basic_example) {
 
     // Test
     // 1. Start at (0, 1) and move to the right edge.
-    grid::Position pos{0, 1};
-    environment.set_start_state(grid_world.pos_to_state(pos));
     const Action& move_right_action = grid_world.dir_to_action(grid::Direction::RIGHT);
     while(pos.x < WIDTH-1) {
         grid_trial.execute_action(move_right_action);
