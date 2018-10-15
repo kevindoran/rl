@@ -8,7 +8,11 @@ namespace rl {
 class Trial {
 
 public:
-    Trial(Environment& env) : env_(env), current_state_(&env.start_state()){}
+    explicit Trial(const Environment& env) :
+        env_(&env), current_state_(&env.start_state()) {}
+
+    Trial(const Environment& env, const State& start_state) :
+        env_(&env), current_state_(&start_state) {}
 
     // Deleted until needed.
     Trial(const Trial&) = delete;
@@ -16,15 +20,15 @@ public:
     Trial& operator=(const Trial&) = delete;
     Trial& operator=(Trial&&) = delete;
 
-    const State& execute_action(const Action& a) {
-        rl::Response response = env_.next_state(*CHECK_NOTNULL(current_state_), a);
+    Response execute_action(const Action& a) {
+        Response response = env().next_state(current_state(), a);
         accumulated_reward_ += response.reward.value();
-        current_state_ = &response.next_state;
-        return *current_state_;
+        current_state_ = &(response.next_state);
+        return response;
     }
 
     const State& current_state() const {
-        return *current_state_;
+        return *CHECK_NOTNULL(current_state_);
     }
 
     double accumulated_reward() const {
@@ -32,15 +36,20 @@ public:
     }
 
     const Environment& env() const {
-        return env_;
+        return *CHECK_NOTNULL(env_);
+    }
+
+    bool is_finished() const {
+        return env().is_end_state(current_state());
     }
 
 private:
-    Environment& env_;
     // Using a pointer (instead of reference) so that State object can be kept const and the pointer
     // variable can be still assignable. This is required for the class to allow copy & move.
+    // Could also use a reference wrapper.
+    const Environment* env_;
     const State* current_state_ = nullptr;
-    double accumulated_reward_;
+    double accumulated_reward_ = 0;
 };
 
 } // namespace
