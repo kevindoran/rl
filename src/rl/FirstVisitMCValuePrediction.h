@@ -2,15 +2,15 @@
 
 #include "rl/Policy.h"
 #include "rl/Trial.h"
+#include "rl/impl/PolicyEvaluation.h"
 
 #include <exception>
 #include <limits>
 
 namespace rl {
 
-class FirstVisitMCValuePrediction : public PolicyEvaluation {
+class FirstVisitMCValuePrediction : public impl::PolicyEvaluation {
 public:
-    static constexpr double DEFAULT_DELTA_THRESHOLD = 0.00001;
     static constexpr int MIN_VISITS = 100;
 
 private:
@@ -66,15 +66,6 @@ public:
     double discount_rate() const override {
         return 1.0;
     }
-
-    void set_delta_threshold(double delta_threshold) override {
-        delta_threshold_ = delta_threshold;
-    }
-
-    double delta_threshold() const override {
-        return delta_threshold_;
-    }
-
 
 private:
     static Trace run_trial(
@@ -132,9 +123,6 @@ private:
             retrn += step.reward;
         }
     }
-
-private:
-    double delta_threshold_ = DEFAULT_DELTA_THRESHOLD;
 };
 
 } // namespace rl

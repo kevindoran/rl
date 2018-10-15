@@ -39,7 +39,9 @@ add_library(reinforcement
         src/rl/Environment.h
         src/rl/impl/Environment.h
         src/rl/FirstVisitMCValuePrediction.h
-        src/rl/Trial.h)
+        src/rl/Trial.h
+        src/rl/impl/PolicyEvaluation.h
+        )
 target_include_directories(reinforcement
         PUBLIC
         ${PROJECT_SOURCE_DIR}/src)
