@@ -271,7 +271,7 @@ public:
     virtual ActionIterator actions_end() const = 0;
     virtual Actions actions() const = 0;
 
-    virtual bool is_action_allowed(const Action& a, const State& from_state) const = 0;
+    virtual bool is_action_allowed(const State& from_state, const Action& a) const = 0;
 
     //----------------------------------------------------------------------------------------------
     // Rewards

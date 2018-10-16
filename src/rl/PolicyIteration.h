@@ -38,7 +38,7 @@ public:
                     // If the action is not possible, continue.
                     // TODO: what if you get into a dead end? Should that be allowed without it
                     // being an end state?
-                    if(!env.is_action_allowed(a, s)) {
+                    if(!env.is_action_allowed(s, a)) {
                         continue;
                     }
                     auto weights = ans->possible_actions(env, s).weight_map();
