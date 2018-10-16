@@ -13,21 +13,6 @@ class FirstVisitMCValuePrediction : public impl::PolicyEvaluation {
 public:
     static constexpr int MIN_VISITS = 100;
 
-private:
-    /*
-     * A TimeStep represents, for some step tx:
-     *   * The reward value obtained at tx (entering the state at tx)
-     *   * The state at tx
-     *   * The action executed at tx (leaving the state at tx)
-     */
-    struct TimeStep {
-        const State& state;
-        // Action is nullable, as there is no action taken from an end state.
-        const Action* action;
-        const double reward;
-    };
-    using Trace = std::vector<TimeStep>;
-
 
 public:
     ValueFunction evaluate(const Environment& env, const Policy& p) override {
@@ -41,7 +26,7 @@ public:
             visit_count[end_state.id()] = std::numeric_limits<int>::max();
         }
         // This algorithm will use exploring starts (start states) in order to ensure we get
-        // value estimates for all states even if our policy is determ  inistic.
+        // value estimates for all states even if our policy is deterministic.
         double max_delta = std::numeric_limits<double>::max();
         int min_visit = 0;
         while(max_delta > delta_threshold_ or min_visit < MIN_VISITS) {
@@ -65,23 +50,6 @@ public:
 
     double discount_rate() const override {
         return 1.0;
-    }
-
-private:
-    static Trace run_trial(
-            const Environment& env, const Policy& policy, const State& custom_start_state) {
-        Trace trace;
-        Trial trial(env, custom_start_state);
-        double reward = 0;
-        while(!trial.is_finished()) {
-            const Action& action = policy.next_action(env, trial.current_state());
-            trace.emplace_back(TimeStep{trial.current_state(), &action, reward});
-            Response response = trial.execute_action(action);
-            reward = response.reward.value();
-        }
-        // Place the end state in the trace.
-        trace.emplace_back(TimeStep{trial.current_state(), nullptr, reward});
-        return trace;
     }
 
     static void update_value_fctn(

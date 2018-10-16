@@ -1,9 +1,24 @@
 #pragma once
 
 #include "rl/Environment.h"
+#include "rl/Policy.h"
 #include "glog/logging.h"
 
 namespace rl {
+
+/*
+ * A TimeStep represents, for some step tx:
+ *   * The reward value obtained at tx (entering the state at tx)
+ *   * The state at tx
+ *   * The action executed at tx (leaving the state at tx)
+ */
+struct TimeStep {
+    const State& state;
+    // Action is nullable, as there is no action taken from an end state.
+    const Action* action;
+    const double reward;
+};
+using Trace = std::vector<TimeStep>;
 
 class Trial {
 
@@ -51,5 +66,22 @@ private:
     const State* current_state_ = nullptr;
     double accumulated_reward_ = 0;
 };
+
+// TODO: move to .cc
+inline Trace run_trial(
+        const Environment& env, const Policy& policy, const State& custom_start_state) {
+    Trace trace;
+    Trial trial(env, custom_start_state);
+    double reward = 0;
+    while(!trial.is_finished()) {
+        const Action& action = policy.next_action(env, trial.current_state());
+        trace.emplace_back(TimeStep{trial.current_state(), &action, reward});
+        Response response = trial.execute_action(action);
+        reward = response.reward.value();
+    }
+    // Place the end state in the trace.
+    trace.emplace_back(TimeStep{trial.current_state(), nullptr, reward});
+    return trace;
+}
 
 } // namespace
