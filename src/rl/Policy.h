@@ -6,6 +6,7 @@
 #include "rl/Environment.h"
 #include "rl/ValueFunction.h"
 #include "rl/DistributionList.h"
+#include "rl/ActionValueFunction.h"
 
 namespace rl {
 
@@ -87,6 +88,22 @@ public:
     virtual double delta_threshold() const = 0;
 
     virtual ~PolicyEvaluation() = default;
+};
+
+
+/**
+ * Calculates the (action) value function for a Policy.
+ */
+class ActionValuePolicyEvaluation {
+public:
+    virtual ActionValueFunction evaluate(const Environment& e, const Policy& p) = 0;
+
+    virtual void set_discount_rate(double discount_rate) = 0;
+    virtual double discount_rate() const = 0;
+    virtual void set_delta_threshold(double max_delta) = 0;
+    virtual double delta_threshold() const = 0;
+
+    virtual ~ActionValuePolicyEvaluation() = default;
 };
 
 

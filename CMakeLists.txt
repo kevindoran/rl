@@ -41,7 +41,8 @@ add_library(reinforcement
         src/rl/FirstVisitMCValuePrediction.h
         src/rl/Trial.h
         src/rl/impl/PolicyEvaluation.h
-        )
+        src/rl/FirstVisitMCActionValuePrediction.h
+        src/rl/ActionValueFunction.h)
 target_include_directories(reinforcement
         PUBLIC
         ${PROJECT_SOURCE_DIR}/src)
@@ -67,7 +68,7 @@ add_executable(runTests
         test/policy_iteration.cpp
         test/common/ExamplePolicies.h
         test/first_visit_mc_value_prediction.cpp
-        )
+        test/first_visit_mc_action_value_prediction.cpp)
 target_link_libraries(runTests gtest gtest_main)
 target_link_libraries(runTests reinforcement)
 target_include_directories(
