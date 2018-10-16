@@ -25,7 +25,7 @@ public:
     ValueFunction& operator=(ValueFunction&&) = default;
     ~ValueFunction() = default;
 
-    double value(const State& state) {
+    double value(const State& state) const {
         Expects(state.id() < static_cast<ID>(state_values_.size()));
         return state_values_[state.id()];
     }
