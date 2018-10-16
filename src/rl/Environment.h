@@ -17,7 +17,6 @@ namespace rl {
 using ID = int;
 using Weight = double;
 
-
 class State {
 public:
     State(ID id, std::string name)

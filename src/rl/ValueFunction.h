@@ -12,6 +12,9 @@ namespace rl {
 //   * ValueFunction be given a virtual interface, and the implementation remains templated.
 //template<int STATE_COUNT>
 
+/**
+ * Represents a state-value function.
+ */
 class ValueFunction {
 
 public:
