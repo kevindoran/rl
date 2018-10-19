@@ -35,7 +35,7 @@ public:
                 if(env.is_end_state(start_state))   {
                     continue;
                 }
-                Trace trace = run_trial(env, p, start_state);
+                Trace trace = run_trial(env, p, &start_state);
                 update_value_fctn(ans, visit_count, delta, trace);
                 max_delta = *std::max_element(delta.begin(), delta.end());
                 min_visit = *std::min_element(visit_count.begin(), visit_count.end());

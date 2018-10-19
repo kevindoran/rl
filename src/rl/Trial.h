@@ -69,10 +69,24 @@ private:
 
 // TODO: move to .cc
 inline Trace run_trial(
-        const Environment& env, const Policy& policy, const State& custom_start_state) {
+        const Environment& env,
+        const Policy&      policy,
+        const State*       custom_start_state=nullptr,
+        const Action*      custom_start_action=nullptr) {
+    const State& start_state = custom_start_state ? *custom_start_state : env.start_state();
+    const Action& start_action =
+            custom_start_action ? *custom_start_action : policy.next_action(env, start_state);
     Trace trace;
-    Trial trial(env, custom_start_state);
+    Trial trial(env, start_state);
+    // Run the first loop with the start state and start action.
+    // This is duplication, but is required to insure we don't call policy.next_action() while in an
+    // end state. For this, execute_action() must be after policy.next_action() in the loop.
+    // TODO: clarify the API behaviour of policy.next_action(). Is it valid to call it when
+    //       from_state is an end state?
     double reward = 0;
+    trace.emplace_back(TimeStep{trial.current_state(), &start_action, reward});
+    Response response = trial.execute_action(start_action);
+    reward = response.reward.value();
     while(!trial.is_finished()) {
         const Action& action = policy.next_action(env, trial.current_state());
         trace.emplace_back(TimeStep{trial.current_state(), &action, reward});
