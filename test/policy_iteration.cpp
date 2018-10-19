@@ -127,12 +127,12 @@ TEST(PolicyIteration, sutton_barto_exercise_4_2_setup) {
             rl::test::Exercise4_2::CarRentalEnvironment::Location::LOC2));
 
     // Test is_action_allowed.
-    ASSERT_TRUE(env.is_action_allowed(move_3_from_loc_1, env.state(3, 10)));
-    ASSERT_TRUE(env.is_action_allowed(move_3_from_loc_1, env.state(4, 10)));
-    ASSERT_TRUE(env.is_action_allowed(move_3_from_loc_1, env.state(4, 0)));
-    ASSERT_FALSE(env.is_action_allowed(move_3_from_loc_1, env.state(2, 10)));
-    ASSERT_FALSE(env.is_action_allowed(move_3_from_loc_1, env.state(2, 3)));
-    ASSERT_FALSE(env.is_action_allowed(move_3_from_loc_1, env.state(3, 19)));
+    ASSERT_TRUE(env.is_action_allowed(env.state(3, 10), move_3_from_loc_1));
+    ASSERT_TRUE(env.is_action_allowed(env.state(4, 10), move_3_from_loc_1));
+    ASSERT_TRUE(env.is_action_allowed(env.state(4, 0), move_3_from_loc_1));
+    ASSERT_FALSE(env.is_action_allowed(env.state(2, 10), move_3_from_loc_1));
+    ASSERT_FALSE(env.is_action_allowed(env.state(2, 3), move_3_from_loc_1));
+    ASSERT_FALSE(env.is_action_allowed(env.state(3, 19), move_3_from_loc_1));
 
     // Test the response calculations.
     // a) 0 cars -> 20 cars

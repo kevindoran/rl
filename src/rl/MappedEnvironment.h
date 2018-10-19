@@ -116,11 +116,11 @@ public:
         return response;
     }
 
-    bool is_action_allowed(const Action& a, const State& from_state) const override {
+    bool is_action_allowed(const State& from_state, const Action& action) const override {
         Expects(!needs_rebuilding_);
         const DistNode& root = dist_tree_.root_node();
         Expects(root.has_child_with_id(from_state.id()));
-        bool action_allowed = root.child_with_id(from_state.id()).has_child_with_id(a.id());
+        bool action_allowed = root.child_with_id(from_state.id()).has_child_with_id(action.id());
         return action_allowed;
     }
 

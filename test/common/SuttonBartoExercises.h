@@ -157,7 +157,7 @@ public:
             }
         }
 
-        bool is_action_allowed(const Action& a, const State& from_state) const override {
+        bool is_action_allowed(const State& from_state, const Action& a) const override {
             int change_for_loc1 = change_in_car_count(a, Location::LOC1);
             int change_for_loc2 = change_in_car_count(a, Location::LOC2);
             int new_loc1_count = cars_in_loc_1(from_state) + change_for_loc1;
@@ -230,7 +230,7 @@ public:
 
         ResponseDistribution
         transition_list(const State &from_state, const Action &action) const override {
-            Expects(is_action_allowed(action, from_state));
+            Expects(is_action_allowed(from_state, action));
             ResponseDistribution ans{};
             int loc1_start = cars_in_loc_1(from_state) + change_in_car_count(action, Location::LOC1);
             int loc2_start = cars_in_loc_2(from_state) + change_in_car_count(action, Location::LOC2);
