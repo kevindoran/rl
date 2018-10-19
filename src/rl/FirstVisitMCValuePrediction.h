@@ -21,7 +21,6 @@ public:
         std::vector<double> delta(env.state_count(), std::numeric_limits<double>::max());
         // Set the value for all end states (zero).
         for(const State& end_state : env.end_states()) {
-            ans.set_value(end_state, 0.0);
             delta[end_state.id()] = 0.0;
             visit_count[end_state.id()] = std::numeric_limits<int>::max();
         }
@@ -37,9 +36,9 @@ public:
                 }
                 Trace trace = run_trial(env, p, &start_state);
                 update_value_fctn(ans, visit_count, delta, trace);
-                max_delta = *std::max_element(delta.begin(), delta.end());
-                min_visit = *std::min_element(visit_count.begin(), visit_count.end());
             }
+            max_delta = *std::max_element(delta.begin(), delta.end());
+            min_visit = *std::min_element(visit_count.begin(), visit_count.end());
         }
         return ans;
     }
@@ -62,7 +61,8 @@ public:
         // Track the first occurrence of a state so that we can implement first-visit (skip states
         // that have been visited already).
         std::unordered_map<ID, int> first_occurrence;
-        for(std::size_t i = 0; i < trace.size(); i++) {
+        // We can skip the last state, as you can't leave an end state.
+        for(std::size_t i = 0; i < trace.size()-1; i++) {
             const State& s = trace[i].state;
             if(!first_occurrence.count(s.id())) {
                 Ensures(i <= std::numeric_limits<int>::max());
@@ -78,13 +78,14 @@ public:
             TimeStep step = trace[i];
             // First visit check. Skip this step if the state occurs in an earlier step.
             // Without this check, we would be implementing every-visit.
-            if(first_occurrence[step.state.id()] < static_cast<int>(i)) {
+            if(first_occurrence[step.state.id()] < i) {
                 // We still need to maintain the correct return value.
                 retrn += step.reward;
                 continue;
             }
             double current_value = value_fctn.value(step.state);
             double n = ++visit_count[step.state.id()];
+            Ensures(n > 0);
             double updated_value = current_value + 1/n * (retrn - current_value);
             value_fctn.set_value(step.state, updated_value);
             delta[step.state.id()] = error_as_factor(current_value, updated_value);
