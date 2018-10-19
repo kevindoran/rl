@@ -33,51 +33,77 @@ public:
                     ans->clear_actions_for_state(s);
                     continue;
                 }
-                double v_current = value_fctn.value(s);
-                for(const Action& a : env.actions()) {
-                    // If the action is not possible, continue.
-                    // TODO: what if you get into a dead end? Should that be allowed without it
-                    // being an end state?
-                    if(!env.is_action_allowed(s, a)) {
-                        continue;
-                    }
-                    auto weights = ans->possible_actions(env, s).weight_map();
-                    if(weights.size() == 1 and weights.count(&a)) {
-                        continue;
-                    }
-                    ResponseDistribution transitions = env.transition_list(s, a);
-                    double expect_value_sum = 0;
-                    for(const Response& r : transitions.responses()) {
-                        double value_from_next_state =
-                                evaluator.discount_rate() * value_fctn.value(r.next_state);
-                        expect_value_sum +=
-                                r.prob_weight * (r.reward.value() + value_from_next_state);
-                    }
-                    Ensures(transitions.total_weight() != 0);
-                    double expected_value = expect_value_sum / transitions.total_weight();
-                    if(compare(expected_value, v_current, evaluator.delta_threshold()) == 1) {
-                        // We found a better action!
-                        // Clear all existing actions, and use the new one.
-                        const int weight = 1;
-                        ans->clear_actions_for_state(s);
-                        ans->add_action_for_state(s, a, weight);
-                        policy_updated = true;
-                        // We don't override the official map for policy iteration, but we
-                        // still wish to choose the best action.
-                        v_current = expected_value;
-                    } else {
-                        if(expected_value > v_current) {
-                            // Log a warning.
-                            // We have found a higher value, but can't rely on it due to the
-                            // value being to close to our existing value.
-                        }
-                    }
+                // Check if the current policy is deterministic in this state (used by
+                // calculate_best_action).
+                const Action* current_action = nullptr;
+                if(ans->possible_actions(env, s).action_count() == 1) {
+                    current_action = &ans->next_action(env, s);
+                }
+                const Action* improved_action = nullptr;
+                double reward = 0;
+                std::tie(improved_action, reward) = calculate_best_action(
+                        env, s, value_fctn, current_action);
+                if(improved_action) {
+                    // We found a better action!
+                    // Clear all existing actions, and use the new one.
+                    const int weight = 1;
+                    ans->clear_actions_for_state(s);
+                    ans->add_action_for_state(s, *CHECK_NOTNULL(improved_action), weight);
+                    policy_updated = true;
                 }
             }
             finished = !policy_updated;
         }
         return ans;
     }
+
+private:
+    const std::pair<const Action*, double> calculate_best_action(
+            const Environment& env,
+            const State& from_state,
+            const ValueFunction& value_fctn,
+            const Action* current_action) const {
+        std::pair<const Action*, double> ans{nullptr, 0};
+        for(const Action& a : env.actions()) {
+            // If the action is not possible, continue.
+            // TODO: what if you get into a dead end? Should that be allowed without it being an end
+            // state?
+            if(!env.is_action_allowed(from_state, a)) {
+                continue;
+            }
+            // We already know the value for this action: v_current.
+            if(current_action and *current_action == a) {
+                continue;
+            }
+            double expected_value = calculate_reward(env, from_state, a, value_fctn);
+            double v_current = value_fctn.value(from_state);
+            if(compare(expected_value, v_current, evaluator.delta_threshold()) == 1) {
+                // We found a better action!
+                ans = {&a, expected_value};
+            } else {
+                if(expected_value > v_current) {
+                    // Log a warning.
+                    // We have found a higher value, but can't rely on it due to the
+                    // value being to close to our existing value.
+                }
+            }
+        }
+        return ans;
+    }
+
+    double calculate_reward(const Environment& env, const State& from_state,
+            const Action& action, const ValueFunction& value_fctn) const {
+        ResponseDistribution transitions = env.transition_list(from_state, action);
+        double expect_value_sum = 0;
+        for(const Response& r : transitions.responses()) {
+            double next_state_value = evaluator.discount_rate() * value_fctn.value(r.next_state);
+            expect_value_sum += r.prob_weight * (r.reward.value() + next_state_value);
+        }
+        Ensures(transitions.total_weight() != 0);
+        double expected_value = expect_value_sum / transitions.total_weight();
+        return expected_value;
+    }
+
 
 
 private:

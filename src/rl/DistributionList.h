@@ -61,6 +61,10 @@ public:
 
     const T* random() const {
         Expects(!list_.empty());
+        // Short-cut return if there is only one element.
+        if(list_.size() == 1) {
+            return list_.front().data();
+        }
         long cumulative_pos = util::random_in_range(0l, total_weight());
         Ensures(cumulative_pos >= 0 and cumulative_pos < total_weight());
         std::size_t lower = 0;
