@@ -1,0 +1,10 @@
+# Steps to build and run
+
+1. Install Python 3.
+2. Install pip for Python 3.
+3. Install project's Python depedencies:
+    pip install -r requirements.txt
+4. Install C++ dependencies via Conan:
+    cd ./build
+    conan install .. -s compiler.libcxx=libstdc++11
+

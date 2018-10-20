@@ -1,0 +1,7 @@
+[requires]
+glog/0.3.5@bincrafters/stable
+gtest/1.8.1@bincrafters/stable
+gsl_microsoft/2.0.0@bincrafters/stable
+
+[generators]
+cmake

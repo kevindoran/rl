@@ -64,3 +64,6 @@ It may be desirable to switch to using pass by value in future.
 * Setup glog properly.
 * Consider removing usages of Expects and Ensures in favour of using glog methods directly. Or 
   define our own macro that wraps glog. glog has better reporting on asserts.
+* Remove 3rdParty libraries as cmake sub-projects in favour of using binaries directly. This
+  will speed-up compiling and improve code search.
+* 
