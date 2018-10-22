@@ -1,10 +1,14 @@
-# Steps to build and run
+# Setup
 
 1. Install Python 3.
 2. Install pip for Python 3.
 3. Install project's Python depedencies:
     pip install -r requirements.txt
 4. Install C++ dependencies via Conan:
-    cd ./build
+    cd ./cmake-build-debug
     conan install .. -s compiler.libcxx=libstdc++11
+
+# Build
+Run:
+    cmake --build ./cmake-build-debug
 
