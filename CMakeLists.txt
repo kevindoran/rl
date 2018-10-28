@@ -34,11 +34,11 @@ add_library(reinforcement
         src/rl/DeterministicPolicy.h
         src/rl/PolicyRunner.h
         src/rl/ValueFunction.h
-        src/rl/IterativePolicyEvaluation.h
+        src/rl/IterativePolicyEvaluator.h
         src/util/DereferenceIterator.h
         src/util/RangeWrapper.h
         src/util/Random.h
-        src/rl/PolicyIteration.h
+        src/rl/PolicyIterator.h
         src/rl/StochasticPolicy.h
         src/rl/DistributionList.h
         src/rl/RandomGridPolicy.h
@@ -46,7 +46,7 @@ add_library(reinforcement
         src/rl/impl/Environment.h
         src/rl/FirstVisitMCValuePrediction.h
         src/rl/Trial.h
-        src/rl/impl/PolicyEvaluation.h
+        src/rl/impl/PolicyEvaluator.h
         src/rl/FirstVisitMCActionValuePrediction.h
         src/rl/ActionValueFunction.h)
 target_include_directories(reinforcement

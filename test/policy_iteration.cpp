@@ -6,7 +6,7 @@
 #include "grid/Grid.h"
 #include "rl/Policy.h"
 #include "common/SuttonBartoExercises.h"
-#include "rl/PolicyIteration.h"
+#include "rl/PolicyIterator.h"
 #include "rl/RandomGridPolicy.h"
 
 namespace {
@@ -52,7 +52,7 @@ TEST(PolicyIteration, sutton_barto_exercise_4_1) {
     auto grid_world = rl::test::Exercise4_1::create_grid_world();
     const rl::MappedEnvironment& env = grid_world.environment();
     rl::RandomGridPolicy random_policy(grid_world);
-    rl::PolicyIteration policy_improver;
+    rl::PolicyIterator policy_improver;
     std::unique_ptr<rl::Policy> p_policy = policy_improver.improve(env, random_policy);
     ASSERT_TRUE(p_policy);
 
@@ -185,8 +185,8 @@ TEST(PolicyIteration, sutton_barto_exercise_4_2_setup) {
 TEST(PolicyIteration, DISABLED_sutton_barto_exercise_4_2) {
     // Setup
     rl::test::Exercise4_2::CarRentalEnvironment env;
-    rl::PolicyIteration policy_improver;
-    policy_improver.policy_evaluation().set_discount_rate(0.9);
+    rl::PolicyIterator policy_improver;
+    policy_improver.policy_evaluator().set_discount_rate(0.9);
     auto next_state_fctn = [&env](const rl::Environment& e, const rl::State& from_state) -> const rl::Action& {
         const rl::Action& a = e.action(env.action_id(0));
         return a;

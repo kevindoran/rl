@@ -2,14 +2,14 @@
 
 #include "rl/Policy.h"
 #include "rl/Trial.h"
-#include "rl/impl/PolicyEvaluation.h"
+#include "rl/impl/PolicyEvaluator.h"
 
 #include <exception>
 #include <limits>
 
 namespace rl {
 
-class FirstVisitMCValuePrediction : public impl::PolicyEvaluation {
+class FirstVisitMCValuePrediction : public impl::PolicyEvaluator {
 public:
     static constexpr int MIN_VISITS = 100;
 

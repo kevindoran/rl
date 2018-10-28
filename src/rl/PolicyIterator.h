@@ -2,19 +2,19 @@
 
 #include "rl/Policy.h"
 #include "rl/DeterministicPolicy.h"
-#include "rl/IterativePolicyEvaluation.h"
+#include "rl/IterativePolicyEvaluator.h"
 #include "rl/StochasticPolicy.h"
 
 namespace rl {
 
-class PolicyIteration : public PolicyImprovement {
+class PolicyIterator : public PolicyImprovement {
 public:
 
-    void set_policy_evaluation(PolicyEvaluation& evaluator) {
+    void set_policy_evaluator(PolicyEvaluator& evaluator) {
         evaluator = evaluator;
     }
 
-    PolicyEvaluation& policy_evaluation() {
+    PolicyEvaluator& policy_evaluator() {
         return evaluator;
     }
 
@@ -107,8 +107,8 @@ private:
 
 
 private:
-    IterativePolicyEvaluation default_evalutator;
-    PolicyEvaluation& evaluator = default_evalutator;
+    IterativePolicyEvaluator default_evalutator;
+    PolicyEvaluator& evaluator = default_evalutator;
 };
 
 } // namespace rl

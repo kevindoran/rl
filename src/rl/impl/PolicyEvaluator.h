@@ -4,7 +4,7 @@
 
 namespace rl {
 namespace impl {
-class PolicyEvaluation;
+class PolicyEvaluator;
 } // namespace impl
 
 /**
@@ -13,7 +13,7 @@ class PolicyEvaluation;
  * Handles the trivial handling of setting and getting delta_threshold
  * and discount_rate.
  */
-class impl::PolicyEvaluation : public rl::PolicyEvaluation {
+class impl::PolicyEvaluator : public rl::PolicyEvaluator {
 
 public:
     static constexpr double DEFAULT_DELTA_THRESHOLD = 0.00001;

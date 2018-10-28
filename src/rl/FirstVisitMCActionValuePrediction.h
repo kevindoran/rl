@@ -7,7 +7,7 @@
 namespace rl {
 
 // Long enough name?
-class FirstVisitMCActionValuePrediction : ActionValuePolicyEvaluation {
+class FirstVisitMCActionValuePrediction : ActionValuePolicyEvaluator {
 
 public:
     static constexpr double DEFAULT_DELTA_THRESHOLD = 0.00001;

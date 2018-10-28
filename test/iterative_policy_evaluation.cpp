@@ -3,7 +3,7 @@
 #include "rl/MappedEnvironment.h"
 #include "rl/GridWorld.h"
 #include "grid/Grid.h"
-#include "rl/IterativePolicyEvaluation.h"
+#include "rl/IterativePolicyEvaluator.h"
 #include "rl/Policy.h"
 #include "rl/DeterministicPolicy.h"
 #include "common/SuttonBartoExercises.h"
@@ -72,7 +72,7 @@ TEST(IterativePolicyEvaluationTest, basic_example) {
     grid_world.environment().mark_as_end_state(grid_world.pos_to_state(bottom_left));
     grid_world.environment().set_all_rewards_to(-1.0);
     grid_world.environment().build_distribution_tree();
-    rl::IterativePolicyEvaluation e;
+    rl::IterativePolicyEvaluator e;
     rl::DeterministicLambdaPolicy down_up_policy = rl::test::create_down_up_policy(grid_world);
 
     // Test
@@ -113,7 +113,7 @@ TEST(IterativePolicyEvaluationTest, basic_example) {
  */
 TEST(IterativePolicyEvaluationTest, sutton_barto_exercise_4_1) {
     using TestInfo = rl::test::Exercise4_1;
-    rl::IterativePolicyEvaluation evaluator;
+    rl::IterativePolicyEvaluator evaluator;
     auto grid_world = TestInfo::create_grid_world();
     rl::RandomGridPolicy random_policy(grid_world);
     const double allowed_error_factor = 0.02;
@@ -212,7 +212,7 @@ TEST(IterativePolicyEvaluationTest, continuous_task) {
     double reward_value = 5;
     rl::MappedEnvironment env = single_state_action_env("State 1", "Action 1", reward_value);
     const rl::State& state = *env.states_begin();
-    rl::IterativePolicyEvaluation evaluation;
+    rl::IterativePolicyEvaluator evaluation;
     rl::test::FirstActionPolicy policy;
 
     // Test
@@ -237,7 +237,7 @@ TEST(IterativePolicyEvaluationTest, continuous_task) {
 TEST(IterativePolicyEvaluationTest, broken_policy) {
     // Setup
     rl::MappedEnvironment env = single_state_action_env();
-    rl::IterativePolicyEvaluation evaluation;
+    rl::IterativePolicyEvaluator evaluation;
     // Set a discount rate so that the test doesn't go on forever in the case where the behaviour is
     // broken.
     evaluation.set_discount_rate(0.9);

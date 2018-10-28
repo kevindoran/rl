@@ -78,7 +78,7 @@ public:
 /**
  * Calculates the (state) value function for a Policy.
  */
-class PolicyEvaluation {
+class PolicyEvaluator {
 public:
     virtual ValueFunction evaluate(const Environment& e, const Policy& p) = 0;
 
@@ -87,14 +87,14 @@ public:
     virtual void set_delta_threshold(double max_delta) = 0;
     virtual double delta_threshold() const = 0;
 
-    virtual ~PolicyEvaluation() = default;
+    virtual ~PolicyEvaluator() = default;
 };
 
 
 /**
  * Calculates the (action) value function for a Policy.
  */
-class ActionValuePolicyEvaluation {
+class ActionValuePolicyEvaluator {
 public:
     virtual ActionValueFunction evaluate(const Environment& e, const Policy& p) = 0;
 
@@ -103,7 +103,7 @@ public:
     virtual void set_delta_threshold(double max_delta) = 0;
     virtual double delta_threshold() const = 0;
 
-    virtual ~ActionValuePolicyEvaluation() = default;
+    virtual ~ActionValuePolicyEvaluator() = default;
 };
 
 

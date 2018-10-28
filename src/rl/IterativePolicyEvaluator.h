@@ -3,11 +3,11 @@
 #include <limits>
 
 #include "rl/Policy.h"
-#include "rl/impl/PolicyEvaluation.h"
+#include "rl/impl/PolicyEvaluator.h"
 
 namespace rl {
 
-class IterativePolicyEvaluation : public impl::PolicyEvaluation {
+class IterativePolicyEvaluator : public impl::PolicyEvaluator {
 public:
 
     ValueFunction evaluate(const Environment& e, const Policy& p) override {
