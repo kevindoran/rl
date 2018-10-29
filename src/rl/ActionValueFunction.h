@@ -10,7 +10,11 @@ namespace rl {
  */
 class ActionValueFunction {
 public:
-    ActionValueFunction() = delete;
+    // This was changed from deleted -> default as it is convenient for some of the evaluators to
+    // store an ActionValueFunction by value. It may become useful to revert this change and store
+    // via pointers to heap allocated mem. Allowing the default construction allows for a somewhat
+    // invalid state to be permitted.
+    ActionValueFunction() = default;
 
     ActionValueFunction(ID state_count, ID action_count)
     {

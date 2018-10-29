@@ -31,11 +31,12 @@ TEST(FirstVisitMCActionValuePredictionTest, basic_example) {
     grid_world.environment().mark_as_end_state(grid_world.pos_to_state(bottom_left));
     grid_world.environment().set_all_rewards_to(-1.0);
     grid_world.environment().build_distribution_tree();
-    rl::FirstVisitMCActionValuePrediction e;
+    rl::FirstVisitMCActionValuePrediction evaluator;
     rl::DeterministicLambdaPolicy down_up_policy = rl::test::create_down_up_policy(grid_world);
 
     // Test
-    rl::ActionValueFunction action_v_fctn = e.evaluate(grid_world.environment(), down_up_policy);
+    const rl::ActionValueFunction& action_v_fctn =
+            evaluate(evaluator, grid_world.environment(), down_up_policy);
     // With the down-up policy, the action values should be:
     /**
      * Down  Up  Left  Right

@@ -9,39 +9,52 @@
 
 namespace rl {
 
-class FirstVisitMCValuePrediction : public impl::PolicyEvaluator {
+class FirstVisitMCValuePrediction : public StateBasedEvaluator,
+                                    public impl::PolicyEvaluator {
 public:
     static constexpr int MIN_VISITS = 100;
 
-
 public:
-    ValueFunction evaluate(const Environment& env, const Policy& p) override {
-        ValueFunction ans(env.state_count());
-        std::vector<int> visit_count(env.state_count(), 0);
-        std::vector<double> delta(env.state_count(), std::numeric_limits<double>::max());
+
+    void initialize(const Environment& env, const Policy& policy) override {
+        impl::PolicyEvaluator::initialize(env, policy);
+        value_fuction_ = ValueFunction(env.state_count());
+        visit_count = std::vector<int>(env.state_count(), 0);
+        delta = std::vector<double>(env.state_count(), std::numeric_limits<double>::max());
         // Set the value for all end states (zero).
         for(const State& end_state : env.end_states()) {
             delta[end_state.id()] = 0.0;
             visit_count[end_state.id()] = std::numeric_limits<int>::max();
         }
+    }
+
+    void step() override {
+        const Environment& env = *CHECK_NOTNULL(env_);
+        const Policy& policy = *CHECK_NOTNULL(policy_);
         // This algorithm will use exploring starts (start states) in order to ensure we get
         // value estimates for all states even if our policy is deterministic.
-        double max_delta = std::numeric_limits<double>::max();
-        int min_visit = 0;
-        while(max_delta > delta_threshold_ or min_visit < MIN_VISITS) {
-            for(const State& start_state : env.states())
-            {
-                if(env.is_end_state(start_state))   {
-                    continue;
-                }
-                Trace trace = run_trial(env, p, &start_state);
-                update_value_fctn(ans, visit_count, delta, trace);
+        for(const State& start_state : env.states())
+        {
+            if(env.is_end_state(start_state))   {
+                continue;
             }
-            max_delta = *std::max_element(delta.begin(), delta.end());
-            min_visit = *std::min_element(visit_count.begin(), visit_count.end());
+            Trace trace = run_trial(env, policy, &start_state);
+            update_value_fctn(trace);
         }
-        return ans;
+        most_recent_delta_ = *std::max_element(delta.begin(), delta.end());
+        min_visit_ = *std::min_element(visit_count.begin(), visit_count.end());
     }
+
+    void run() override {
+        while(most_recent_delta_ > delta_threshold_ or min_visit_ < MIN_VISITS) {
+            step();
+        }
+    }
+
+    const ValueFunction& value_function() const override {
+        return value_fuction_;
+    }
+
 
     void set_discount_rate(double discount_rate) override {
         throw std::runtime_error("This evaluator only supports episodic tasts.");
@@ -51,11 +64,8 @@ public:
         return 1.0;
     }
 
-    static void update_value_fctn(
-            ValueFunction& value_fctn,
-            std::vector<int>& visit_count,
-            std::vector<double>& delta,
-            const Trace& trace) {
+private:
+    void update_value_fctn(const Trace& trace) {
         double retrn = 0;
         Expects(!trace.empty());
         // Track the first occurrence of a state so that we can implement first-visit (skip states
@@ -83,15 +93,21 @@ public:
                 retrn += step.reward;
                 continue;
             }
-            double current_value = value_fctn.value(step.state);
+            double current_value = value_fuction_.value(step.state);
             double n = ++visit_count[step.state.id()];
             Ensures(n > 0);
             double updated_value = current_value + 1/n * (retrn - current_value);
-            value_fctn.set_value(step.state, updated_value);
+            value_fuction_.set_value(step.state, updated_value);
             delta[step.state.id()] = error_as_factor(current_value, updated_value);
             retrn += step.reward;
         }
     }
+
+private:
+    ValueFunction value_fuction_;
+    std::vector<int> visit_count{};
+    std::vector<double> delta{};
+    long min_visit_ = 0;
 };
 
 } // namespace rl

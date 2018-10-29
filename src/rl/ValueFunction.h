@@ -20,7 +20,12 @@ class ValueFunction {
 public:
     // Core guidelines C21:
     // If you define or delete any default operations, define or delete them all.
-    ValueFunction() = delete;
+
+    // The default constructor was changed from deleted -> default as it is convenient for some of
+    // the evaluators to store an ActionValueFunction by value. It may become useful to revert this
+    // change and store via pointers to heap allocated mem. Allowing the default construction allows
+    // for a somewhat invalid state to be permitted.
+    ValueFunction() = default;
     explicit ValueFunction(ID state_count) : state_values_(state_count, 0) {}
     ValueFunction(const ValueFunction&) = default;
     ValueFunction& operator=(const ValueFunction&) = default;
@@ -39,7 +44,7 @@ public:
     }
 
 private:
-    std::vector<double> state_values_;
+    std::vector<double> state_values_{};
 };
 
 }

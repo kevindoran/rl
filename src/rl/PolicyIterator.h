@@ -25,7 +25,7 @@ public:
         bool finished = false;
         while(!finished) {
             bool policy_updated = false;
-            ValueFunction value_fctn = evaluator.evaluate(env, *ans);
+            const ValueFunction& value_fctn = evaluate(evaluator, env, *ans);
             for(const State& s : env.states()) {
                 // Skip the end states. They always have a value of 0, and we shouldn't have any
                 // actions associated with it.
@@ -104,11 +104,9 @@ private:
         return expected_value;
     }
 
-
-
 private:
     IterativePolicyEvaluator default_evalutator;
-    PolicyEvaluator& evaluator = default_evalutator;
+    StateBasedEvaluator& evaluator = default_evalutator;
 };
 
 } // namespace rl

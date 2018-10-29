@@ -72,11 +72,11 @@ TEST(IterativePolicyEvaluationTest, basic_example) {
     grid_world.environment().mark_as_end_state(grid_world.pos_to_state(bottom_left));
     grid_world.environment().set_all_rewards_to(-1.0);
     grid_world.environment().build_distribution_tree();
-    rl::IterativePolicyEvaluator e;
+    rl::IterativePolicyEvaluator evaluator;
     rl::DeterministicLambdaPolicy down_up_policy = rl::test::create_down_up_policy(grid_world);
 
     // Test
-    rl::ValueFunction v_fctn = e.evaluate(grid_world.environment(), down_up_policy);
+    rl::ValueFunction v_fctn = evaluate(evaluator, grid_world.environment(), down_up_policy);
     // With the down-up policy, the state values should be:
     /**
      * -4
@@ -113,13 +113,13 @@ TEST(IterativePolicyEvaluationTest, basic_example) {
  */
 TEST(IterativePolicyEvaluationTest, sutton_barto_exercise_4_1) {
     using TestInfo = rl::test::Exercise4_1;
-    rl::IterativePolicyEvaluator evaluator;
     auto grid_world = TestInfo::create_grid_world();
     rl::RandomGridPolicy random_policy(grid_world);
+    rl::IterativePolicyEvaluator evaluator;
     const double allowed_error_factor = 0.02;
 
     // Test.
-    rl::ValueFunction v_fctn = evaluator.evaluate(grid_world.environment(), random_policy);
+    rl::ValueFunction v_fctn = evaluate(evaluator, grid_world.environment(), random_policy);
     for(rl::ID state_id = 0; state_id < grid_world.environment().state_count(); state_id++) {
         ASSERT_NEAR(TestInfo::expected_values[state_id],
                     v_fctn.value(grid_world.environment().state(state_id)),
@@ -212,8 +212,8 @@ TEST(IterativePolicyEvaluationTest, continuous_task) {
     double reward_value = 5;
     rl::MappedEnvironment env = single_state_action_env("State 1", "Action 1", reward_value);
     const rl::State& state = *env.states_begin();
-    rl::IterativePolicyEvaluator evaluation;
     rl::test::FirstActionPolicy policy;
+    rl::IterativePolicyEvaluator evaluator;
 
     // Test
     for(int discount_rate_tenth = 1; discount_rate_tenth <= 9; discount_rate_tenth++) {
@@ -221,8 +221,8 @@ TEST(IterativePolicyEvaluationTest, continuous_task) {
         double denom = 1 - discount_rate;
         ASSERT_FALSE(denom == 0) << "The test implementation is broken if this fails.";
         double correct_value = reward_value / denom;
-        evaluation.set_discount_rate(discount_rate);
-        rl::ValueFunction value_fctn = evaluation.evaluate(env, policy);
+        evaluator.set_discount_rate(discount_rate);
+        const rl::ValueFunction& value_fctn = evaluate(evaluator, env, policy);
         // We could be more exact here with out bounds.
         double bounds = 0.01 * correct_value;
         ASSERT_NEAR(correct_value, value_fctn.value(state), bounds);
@@ -237,17 +237,19 @@ TEST(IterativePolicyEvaluationTest, continuous_task) {
 TEST(IterativePolicyEvaluationTest, broken_policy) {
     // Setup
     rl::MappedEnvironment env = single_state_action_env();
-    rl::IterativePolicyEvaluator evaluation;
+    rl::IterativePolicyEvaluator evaluator;
     // Set a discount rate so that the test doesn't go on forever in the case where the behaviour is
     // broken.
-    evaluation.set_discount_rate(0.9);
+    evaluator.set_discount_rate(0.9);
     rl::test::NoActionPolicy no_action_policy;
     rl::test::ZeroWeightActionPolicy zero_weight_policy;
 
     // Test
     // 1. Exception expected for a policy with no action for a state.
-    EXPECT_ANY_THROW(evaluation.evaluate(env, no_action_policy));
+    evaluator.initialize(env, no_action_policy);
+    EXPECT_ANY_THROW(evaluator.run());
 
     // 2. Exception expected for a policy with an action of zero weight.
-    EXPECT_ANY_THROW(evaluation.evaluate(env, zero_weight_policy));
+    evaluator.initialize(env, zero_weight_policy);
+    EXPECT_ANY_THROW(evaluator.run());
 }

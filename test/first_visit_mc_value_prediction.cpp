@@ -32,11 +32,11 @@ TEST(FirstVisitMCValuePredictionTest, basic_example) {
     grid_world.environment().mark_as_end_state(grid_world.pos_to_state(bottom_left));
     grid_world.environment().set_all_rewards_to(-1.0);
     grid_world.environment().build_distribution_tree();
-    rl::FirstVisitMCValuePrediction e;
+    rl::FirstVisitMCValuePrediction evaluator;
     rl::DeterministicLambdaPolicy down_up_policy = rl::test::create_down_up_policy(grid_world);
 
     // Test
-    rl::ValueFunction v_fctn = e.evaluate(grid_world.environment(), down_up_policy);
+    const rl::ValueFunction& v_fctn = evaluate(evaluator, grid_world.environment(), down_up_policy);
     // With the down-up policy, the state values should be:
     /**
      * -4
@@ -82,7 +82,7 @@ TEST(FirstVisitMCValuePredictionTest, sutton_barto_exercise_4_1) {
     const double allowed_error_factor = 0.1;
 
     // Test.
-    rl::ValueFunction v_fctn = evaluator.evaluate(grid_world.environment(), random_policy);
+    const rl::ValueFunction& v_fctn = evaluate(evaluator, grid_world.environment(), random_policy);
     for(rl::ID state_id = 0; state_id < grid_world.environment().state_count(); state_id++) {
         ASSERT_NEAR(TestInfo::expected_values[state_id],
                     v_fctn.value(grid_world.environment().state(state_id)),

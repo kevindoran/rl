@@ -80,8 +80,43 @@ public:
  */
 class PolicyEvaluator {
 public:
-    virtual ValueFunction evaluate(const Environment& e, const Policy& p) = 0;
 
+    //----------------------------------------------------------------------------------------------
+    // Setup & run
+    //----------------------------------------------------------------------------------------------
+
+    /**
+     * Initializes the evaluator to evaluate policy \c p in environment \e. Resets all results.
+     */
+    virtual void initialize(const Environment& e, const Policy& p) = 0;
+
+    /**
+     * Carry out a single iteration of the evaluation algorithm.
+     */
+    virtual void step() = 0;
+
+    /**
+     * Run the evaluation algorithm until an end condition is reached.
+     */
+    virtual void run() = 0;
+
+    //----------------------------------------------------------------------------------------------
+    // Results
+    //----------------------------------------------------------------------------------------------
+
+    /**
+     * \returns a measure for how much the value function changed in the most recent iteration.
+     */
+    virtual double delta() const = 0;
+
+    /**
+     * \returns the number of steps carried out so far.
+     */
+    virtual long steps_done() const = 0;
+
+    //----------------------------------------------------------------------------------------------
+    // Settings
+    //----------------------------------------------------------------------------------------------
     virtual void set_discount_rate(double discount_rate) = 0;
     virtual double discount_rate() const = 0;
     virtual void set_delta_threshold(double max_delta) = 0;
@@ -91,20 +126,38 @@ public:
 };
 
 
+class StateBasedEvaluator : public virtual PolicyEvaluator {
+public:
+    /**
+     * \returns the current estimate of the policy's value function.
+     */
+    virtual const ValueFunction& value_function() const = 0;
+
+    ~StateBasedEvaluator() override = default;
+};
+
 /**
  * Calculates the (action) value function for a Policy.
  */
-class ActionValuePolicyEvaluator {
+class ActionBasedEvaluator : public virtual PolicyEvaluator {
 public:
-    virtual ActionValueFunction evaluate(const Environment& e, const Policy& p) = 0;
 
-    virtual void set_discount_rate(double discount_rate) = 0;
-    virtual double discount_rate() const = 0;
-    virtual void set_delta_threshold(double max_delta) = 0;
-    virtual double delta_threshold() const = 0;
+    virtual const ActionValueFunction& value_function() const = 0;
 
-    virtual ~ActionValuePolicyEvaluator() = default;
+    ~ActionBasedEvaluator() override = default;
 };
+
+// note: Having this template method is far more convenient that having all sub-types define a:
+//      ValueType init_and_run(Environment&,Policy&)
+// method. The presence of the specific ValueType such as ValueFunction prevent the method from
+// being declared in the PolicyEvaluator interface.
+template<typename EvaluatorT>
+// note: return value or const ref here?
+const auto& evaluate(EvaluatorT& evaluator, const Environment& env, const Policy& policy) {
+    evaluator.initialize(env, policy);
+    evaluator.run();
+    return evaluator.value_function();
+}
 
 
 /**
