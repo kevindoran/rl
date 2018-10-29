@@ -102,6 +102,7 @@ public:
 /**
  * Tests that the description of the problem has been correctly represented.
  */
+ // TODO: separate this out from the policy_iteration_test.
 TEST(PolicyIteration, sutton_barto_exercise_4_2_setup) {
     // Setup
     rl::test::Exercise4_2::CarRentalEnvironment env;
@@ -193,6 +194,7 @@ TEST(PolicyIteration, DISABLED_sutton_barto_exercise_4_2) {
     };
     rl::DeterministicLambdaPolicy start_policy(next_state_fctn);
     // Copying the values from the book.
+    // TODO: move this into Excercise4_2.
     int optimal_policy[env.MAX_CAR_COUNT + 1][env.MAX_CAR_COUNT + 1] =
            // 0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20
            { {0,  0,  0,  0,  0,  0,  0,  0, -1, -1, -2, -2, -2, -3, -3, -3, -3, -3, -4, -4, -4}, //  0

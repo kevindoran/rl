@@ -55,7 +55,6 @@ public:
         return value_fuction_;
     }
 
-
     void set_discount_rate(double discount_rate) override {
         throw std::runtime_error("This evaluator only supports episodic tasts.");
     }

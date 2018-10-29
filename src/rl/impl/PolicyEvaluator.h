@@ -61,11 +61,6 @@ public:
     }
 
 protected:
-    void reset() {
-
-    }
-
-protected:
     const rl::Environment* env_ = nullptr;
     const rl::Policy* policy_ = nullptr;
     long steps_ = 0;

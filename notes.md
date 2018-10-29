@@ -63,6 +63,8 @@ It may be desirable to switch to using pass by value in future.
 
 * Consider removing usages of Expects and Ensures in favour of using glog methods directly. Or 
   define our own macro that wraps glog. glog has better reporting on asserts.
-* Update the evaluation & iteration APIs to be broken into steps.
 * Write a genealized tester that takes in an environment, policy and evalator or iterator
-* Rename evaluation -> evaluator, iteration -> iterator
+* Fix glog usage.
+* Implement GPI
+* Implement MC policy improver
+

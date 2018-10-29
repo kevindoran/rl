@@ -156,7 +156,7 @@ public:
         needs_rebuilding_ = false;
     }
 
-    ResponseDistribution transition_list(const State& from_state, const Action& action) const {
+    ResponseDistribution transition_list(const State& from_state, const Action& action) const override {
         Expects(!is_end_state(from_state));
         ResponseDistribution ans{};
         // The following will fail if the distribution tree hasn't been built.
