@@ -10,6 +10,7 @@ namespace test {
 /**
  * A policy that always choose the first action in an environment.
  */
+ // TODO: Is this needed if we have FirstValidActionPolicy?
 class FirstActionPolicy : public rl::Policy {
 public:
     const Action& next_action(const Environment& e, const State& from_state) const override {
@@ -21,6 +22,66 @@ public:
     ActionDistribution
     possible_actions(const Environment& e, const State& from_state) const override {
         return ActionDistribution::single_action(next_action(e, from_state));
+    }
+};
+
+class FirstValidActionPolicy : public rl::Policy {
+public:
+    const rl::Action&
+    next_action(const rl::Environment& e, const rl::State& from_state) const override {
+        const Action* res;
+        for(const rl::Action& a : e.actions()) {
+            if(!e.is_action_allowed(from_state, a)) {
+                continue;
+            }
+            res = &a;
+        }
+        return *CHECK_NOTNULL(res);
+    }
+
+    ActionDistribution
+    possible_actions(const rl::Environment &e, const rl::State &from_state) const override {
+        return ActionDistribution::single_action(next_action(e, from_state));
+    }
+};
+
+class ConstantPolicy : public rl::Policy {
+public:
+    explicit ConstantPolicy(ID action_id) : action_id(action_id)
+    {}
+
+    const Action& next_action(const Environment& e, const State& from_state) const override {
+        CHECK_GT(e.action_count(), action_id);
+        const Action& action = e.action(action_id);
+        CHECK(e.is_action_allowed(from_state, action));
+        return action;
+    }
+
+    ActionDistribution
+    possible_actions(const Environment& e, const State& from_state) const override {
+        return ActionDistribution::single_action(next_action(e, from_state));
+    }
+
+private:
+    ID action_id;
+};
+
+class RandomPolicy : public rl::Policy {
+
+    const Action& next_action(const Environment& e, const State& from_state) const override {
+        return possible_actions(e, from_state).random_action();
+    }
+
+    ActionDistribution
+    possible_actions(const Environment& e, const State& from_state) const override {
+        ActionDistribution dist;
+        for(const Action& a : e.actions()) {
+            if(!e.is_action_allowed(from_state, a)) {
+                continue;
+            }
+            dist.add_action(a);
+        }
+        return dist;
     }
 };
 
