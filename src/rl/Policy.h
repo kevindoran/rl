@@ -48,6 +48,10 @@ public:
             return static_cast<ID>(action_list_.entries().size());
         }
 
+        bool empty() const {
+            return action_count() == 0;
+        }
+
         WeightMap weight_map() const {
             WeightMap ans;
             std::transform(
@@ -68,6 +72,7 @@ public:
 public:
     virtual const Action& next_action(const Environment& e, const State& from_state) const = 0;
 
+    // TODO: decide behaviour for what should happen when there are no actions.
     virtual ActionDistribution possible_actions(const Environment& e,
                                                 const State& from_state) const = 0;
 
