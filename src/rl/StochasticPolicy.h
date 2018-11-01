@@ -8,42 +8,40 @@ namespace rl {
 class StochasticPolicy : public Policy {
 public:
 
+    StochasticPolicy(ID state_count) : state_to_action_dist_(state_count)
+    {}
+
     // Our need for this method resulted in a refactor of ActionDistribution that saw the class get
     // a DistributionList member. We created the DistributionList because we couldn't use
     // DistributionTree- the latter is not copyable, and we want a copyable ActionDistribution.
     const Action& next_action(const Environment &e, const State &from_state) const override {
-        auto finder = state_to_action_dist_.find(from_state);
-        Expects(finder != std::end(state_to_action_dist_));
-        return finder->second.random_action();
+        return possible_actions(e, from_state).random_action();
     }
 
     ActionDistribution
     possible_actions(const Environment &e, const State &from_state) const override {
-        auto finder = state_to_action_dist_.find(from_state);
-        // This could be either an Ensures or an Expects.
-        if(finder == std::end(state_to_action_dist_)) {
-            return ActionDistribution{};
-        };
-        return finder->second;
+        CHECK(state_to_action_dist_.size() < std::numeric_limits<ID>::max());
+        CHECK_LT(from_state.id(), static_cast<ID>(state_to_action_dist_.size()));
+        const ActionDistribution& dist = state_to_action_dist_.at(from_state.id());
+        return dist;
     }
 
     void add_action_for_state(const State& s, const Action& a, long weight) {
-        // C++17: emplace unless there is something already there, in which case do nothing.
-        auto result = state_to_action_dist_.try_emplace(s, ActionDistribution{});
-        // result is a pair: an iterator to the inserted pair, and an was_inserted flag.
-        Expects(result.first != std::end(state_to_action_dist_));
-        ActionDistribution& action_dist = result.first->second;
+        CHECK_LT(s.id(), state_to_action_dist_.size());
+        ActionDistribution& action_dist = state_to_action_dist_.at(s.id());
         action_dist.add_action(a, weight);
     }
 
     bool clear_actions_for_state(const State& s) {
-        std::size_t remove_count =state_to_action_dist_.erase(s);
-        Ensures(remove_count <= 1);
-        bool something_removed = static_cast<bool>(remove_count);
-        return something_removed;
+        CHECK_LT(s.id(), state_to_action_dist_.size());
+        ActionDistribution& action_dist = state_to_action_dist_.at(s.id());
+        bool existing = !action_dist.empty();
+        state_to_action_dist_[s.id()] = ActionDistribution();
+        return existing; // i.e. something was reset.
     }
 
-    using StateToActionDistMap = std::unordered_map<State, ActionDistribution>;
+    // We are guaranteed a continuous state ID starting from 0, so we can use a vector as a map.
+    using StateToActionDistMap = std::vector<ActionDistribution>;
     StateToActionDistMap state_to_action_dist_{};
 
     /**
@@ -59,7 +57,7 @@ public:
     static StochasticPolicy create_from(const Environment& env, const PolicyInType& other) {
         // note: using unique_ptr is probably better here. I'll leave it as move-return for now,
         // as I'm curious if it will ever become an issue.
-        StochasticPolicy out;
+        StochasticPolicy out(env.state_count());
         for(const State& s : env.states()) {
             for(auto entry : other.possible_actions(env, s).weight_map()) {
                 const Action& a = *CHECK_NOTNULL(entry.first);
