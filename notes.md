@@ -67,4 +67,7 @@ It may be desirable to switch to using pass by value in future.
 * Fix glog usage.
 * Implement GPI
 * Implement MC policy improver
+* Sort out a propper design for transient Rewards (specifically, deal with their ids).
+* Break from the naming in (Sutton & Barto, 2018) of XXIterator to XXImprover as the former 
+  conflicts with the naming of iterators in c++.
 

@@ -13,6 +13,7 @@ namespace rl {
  * Improvements:
  *    - If GridWorld implemented an interface, we wouldn't need to use a class template.
  */
+// TODO: is this class needed? We have RandomPolicy?
 template<int H, int W>
 class RandomGridPolicy : public Policy {
 public:

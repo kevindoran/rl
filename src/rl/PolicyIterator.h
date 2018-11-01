@@ -19,6 +19,16 @@ public:
     }
 
     std::unique_ptr<Policy> improve(const Environment& env, const Policy &policy) const override {
+        // note: It is interesting to see how I approached this on the first try. The input policy
+        // is copied, and that becomes the starting point to iterate from. The copied input policy
+        // is stored as a StochasticPolicy and this object becomes the returned result.
+        // In comparison, I've seen other implementations where:
+        //    * on the first iteration, the input policy is used to decide actions.
+        //    * on all subsequent iterations, a greedy policy wrt the value function is used.
+        // With this approach, no storage space is used for the policy until returning a result.
+        // Instead, the current best state_value_function is stored.
+        // In addition, there is no need to create a stochastic policy from the input policy.
+
         // We will use a StochasticPolicy object as our result.
         std::unique_ptr<StochasticPolicy> ans =
                 std::make_unique<StochasticPolicy>(StochasticPolicy::create_from(env, policy));
