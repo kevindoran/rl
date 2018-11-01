@@ -50,6 +50,7 @@ add_library(reinforcement
         src/rl/FirstVisitMCActionValuePredictor.h
         src/rl/ActionValueFunction.h
         src/rl/ActionValuePolicyIterator.h
+        )
 target_include_directories(reinforcement
         PUBLIC
         ${PROJECT_SOURCE_DIR}/src)
@@ -67,7 +68,10 @@ add_executable(runTests
         test/policy_iteration.cpp
         test/common/ExamplePolicies.h
         test/first_visit_mc_value_prediction.cpp
-        test/first_visit_mc_action_value_prediction.cpp)
+        test/first_visit_mc_action_value_prediction.cpp
+        test/test_example_environments.cpp
+        test/common/SuttonBartoExercises.cpp
+        test/common/TestEnvironment.h)
 target_link_libraries(runTests gtest gtest_main)
 target_link_libraries(runTests ${CONAN_LIBS})
 target_link_libraries(runTests reinforcement)
