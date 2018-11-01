@@ -5,7 +5,7 @@
 #include <stack>
 #include <glog/logging.h>
 
-#include "util/Random.h"
+#include "util/random.h"
 
 namespace rl {
 

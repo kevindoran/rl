@@ -2,7 +2,7 @@
 
 #include "rl/GridWorld.h"
 #include "rl/Policy.h"
-#include "rl/FirstVisitMCActionValuePrediction.h"
+#include "rl/FirstVisitMCActionValuePredictor.h"
 #include "common/ExamplePolicies.h"
 #include "rl/RandomGridPolicy.h"
 #include "common/SuttonBartoExercises.h"
@@ -31,7 +31,7 @@ TEST(FirstVisitMCActionValuePredictionTest, basic_example) {
     grid_world.environment().mark_as_end_state(grid_world.pos_to_state(bottom_left));
     grid_world.environment().set_all_rewards_to(-1.0);
     grid_world.environment().build_distribution_tree();
-    rl::FirstVisitMCActionValuePrediction evaluator;
+    rl::FirstVisitMCActionValuePredictor evaluator;
     rl::DeterministicLambdaPolicy down_up_policy = rl::test::create_down_up_policy(grid_world);
 
     // Test

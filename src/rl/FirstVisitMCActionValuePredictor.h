@@ -8,7 +8,7 @@
 namespace rl {
 
 // Long enough name?
-class FirstVisitMCActionValuePrediction : public ActionBasedEvaluator,
+class FirstVisitMCActionValuePredictor : public ActionBasedEvaluator,
                                           public impl::PolicyEvaluator {
 
 public:

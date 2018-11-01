@@ -1,5 +1,5 @@
 #include "Grid.h"
-#include "util/Random.h"
+#include "util/random.h"
 
 namespace grid {
 

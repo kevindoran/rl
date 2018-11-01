@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "util/Random.h"
+#include "util/random.h"
 
 namespace rl {
 
