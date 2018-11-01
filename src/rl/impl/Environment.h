@@ -140,6 +140,43 @@ public:
     }
 
 protected:
+    const State& add_state(std::unique_ptr<State> s) {
+        states_.emplace_back(std::move(s));
+        const State& added = *states_.back();
+        Ensures(added.id() == state_count() - 1);
+        return *states_.back();
+    }
+
+    const State& add_end_state(std::unique_ptr<State> s) {
+        add_state(std::move(s));
+        const State& added  = *states_.back();
+        mark_as_end_state(added);
+        return added;
+    }
+
+    const Action& add_action(std::unique_ptr<Action> a) {
+        actions_.emplace_back(std::move(a));
+        const Action& added = *actions_.back();
+        Ensures(added.id() == action_count() - 1);
+        return added;
+    }
+
+    void validate() const {
+        for(ID i = 0; i < state_count(); i++) {
+            CHECK_EQ(state(i).id(), i)
+                << "Invalid environment: states must be indexed by their ID.";
+        }
+        for(ID i = 0; i < action_count(); i++) {
+            CHECK_EQ(action(i).id(), i)
+                << "Invalid environment: actions must be indexed by their ID.";
+        }
+        for(ID i = 0; i < reward_count(); i++) {
+            CHECK_EQ(reward(i).id(), i)
+                << "Invalid environment: rewards must be indexed by their ID.";
+        }
+    }
+
+protected:
     ID start_state_ = 0;
 
     /* Using list vs vector.
