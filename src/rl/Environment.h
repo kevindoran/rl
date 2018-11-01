@@ -193,7 +193,7 @@ public:
     // can be obtained easily from a ResponseDistribution.
     using Responses = std::vector<Response>;
 
-    const Responses responses() const {return responses_;}
+    const Responses& responses() const {return responses_;}
     Weight total_weight() const {return total_weight_;}
 
     void add_response(Response r) {
@@ -238,6 +238,8 @@ public:
     // Modify the environment
     //----------------------------------------------------------------------------------------------
     virtual void set_start_state(const State& state) = 0;
+    // TODO: is this needed in the interface? You can change the start state, but I can't think of
+    // a use-case to change the list of end states. It should be protected/private, I think.
     virtual void mark_as_end_state(const State& state) = 0;
 
     //----------------------------------------------------------------------------------------------
