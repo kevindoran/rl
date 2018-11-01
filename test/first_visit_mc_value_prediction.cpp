@@ -73,19 +73,19 @@ TEST(FirstVisitMCValuePredictionTest, basic_example) {
  */
 
 TEST(FirstVisitMCValuePredictionTest, sutton_barto_exercise_4_1) {
-    using TestInfo = rl::test::Exercise4_1;
+    rl::test::Exercise4_1 test_case;
     rl::FirstVisitMCValuePrediction evaluator;
     // The default (currently 0.00001) leads to long execution times. Making it less strict.
     evaluator.set_delta_threshold(0.0001);
-    auto grid_world = TestInfo::create_grid_world();
+    auto& grid_world = test_case.grid_world();
     rl::RandomGridPolicy random_policy(grid_world);
     const double allowed_error_factor = 0.1;
 
     // Test.
     const rl::ValueFunction& v_fctn = evaluate(evaluator, grid_world.environment(), random_policy);
     for(rl::ID state_id = 0; state_id < grid_world.environment().state_count(); state_id++) {
-        ASSERT_NEAR(TestInfo::expected_values[state_id],
+        ASSERT_NEAR(test_case.expected_values[state_id],
                     v_fctn.value(grid_world.environment().state(state_id)),
-                    allowed_error_factor * std::abs(TestInfo::expected_values[state_id]));
+                    allowed_error_factor * std::abs(test_case.expected_values[state_id]));
     }
 }

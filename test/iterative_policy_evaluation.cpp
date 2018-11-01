@@ -113,7 +113,8 @@ TEST(IterativePolicyEvaluationTest, basic_example) {
  */
 TEST(IterativePolicyEvaluationTest, sutton_barto_exercise_4_1) {
     using TestInfo = rl::test::Exercise4_1;
-    auto grid_world = TestInfo::create_grid_world();
+    rl::test::Exercise4_1 test_case;
+    auto& grid_world = test_case.grid_world();
     rl::RandomGridPolicy random_policy(grid_world);
     rl::IterativePolicyEvaluator evaluator;
     const double allowed_error_factor = 0.02;

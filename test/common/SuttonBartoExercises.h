@@ -2,25 +2,68 @@
 
 #include <stdexcept>
 #include <sstream>
+#include <unordered_map>
 
+#include "TestEnvironment.h"
 #include "rl/MappedEnvironment.h"
 #include "rl/impl/Environment.h"
 #include "gsl/gsl_randist.h"
 #include "gsl/gsl_cdf.h"
 #include "rl/GridWorld.h"
 #include "grid/Grid.h"
+#include "util/random.h"
 
 namespace rl {
 namespace test {
 
-
-class Exercise4_1 {
+class Exercise4_1 : public TestEnvironment {
 public:
     static const int GRID_WIDTH = 4;
     static const int GRID_HEIGHT = 4;
+    using GridType = GridWorld<GRID_HEIGHT, GRID_WIDTH>;
 
-    static GridWorld<GRID_WIDTH, GRID_HEIGHT>
-    create_grid_world() {
+    static constexpr double expected_values[] =
+            {0.0, -14, -20, -22,
+             -14, -18, -20, -20,
+             -20, -20, -18, -14,
+             -22, -20, -14, 0.0};
+
+    std::string name() const override {
+        return "Sutton & Barto exercise 4.1";
+    }
+
+    double required_discount_rate() const override {
+        return 1.0;
+    }
+
+    double required_delta_threshold() const override {
+        return 1e-5;
+    }
+
+    const MappedEnvironment& env() const override {
+        return grid_world_.environment();
+    }
+
+    OptimalActions optimal_actions(const State& from_state) const override {
+        OptimalActions ans;
+        std::transform(
+            std::begin(optimal_actions_[from_state.id()]),
+            std::end(optimal_actions_[from_state.id()]),
+            std::inserter(ans, std::end(ans)),
+            [this](int dir) {
+                return grid_world_.dir_to_action(grid::directions[dir]).id();
+            }
+            );
+        return ans;
+    }
+
+    // TODO: This method can be removed at some point.
+    GridType& grid_world() {
+        return grid_world_;
+    }
+
+private:
+    static GridType create_grid_world() {
         // Setup.
         rl::GridWorld<GRID_HEIGHT, GRID_WIDTH> grid_world;
         const grid::Position top_left{0, 0};
@@ -32,11 +75,10 @@ public:
         return grid_world;
     }
 
-    static constexpr double expected_values[] =
-        {0.0, -14, -20, -22,
-         -14, -18, -20, -20,
-         -20, -20, -18, -14,
-         -22, -20, -14, 0.0};
+private:
+    GridType grid_world_ = create_grid_world();
+
+    static const std::unordered_set<int> optimal_actions_[GRID_WIDTH * GRID_HEIGHT];
 };
 
 
@@ -70,7 +112,7 @@ public:
  *      condensed into a single transition where the reward is E(reward|s,s',a). If this is
  *      justified, does that mean that the transition trees have an unnecessary extra level?
  */
-class Exercise4_2 {
+class Exercise4_2 : public TestEnvironment {
 public:
 
     class CarRentalEnvironment : public rl::impl::Environment {
@@ -275,6 +317,61 @@ public:
             }
         }
     };
+
+    std::string name() const override {
+        return "Sutton & Barto exercise 4.2";
+    }
+
+    double required_discount_rate() const override {
+        return 1.0;
+    }
+
+    double required_delta_threshold() const override {
+        return 1e-4;
+    }
+
+    const CarRentalEnvironment& env() const override {
+        return env_;
+    }
+
+    OptimalActions optimal_actions(const State& from_state) const override {
+        int l1 = env_.cars_in_loc_1(from_state);
+        int l2 = env_.cars_in_loc_2(from_state);
+        int cars_moved = optimal_policy[l1][l2];
+        const Action& single_optimal_action = env_.action(env_.action_id(cars_moved));
+        // TODO: what is the initializer list syntax for set of ref-wrappers?
+        return OptimalActions{single_optimal_action.id()};
+    }
+
+private:
+    CarRentalEnvironment env_;
+
+    // Copying the values from the book.
+    static constexpr int optimal_policy[CarRentalEnvironment::MAX_CAR_COUNT + 1]
+                                       [CarRentalEnvironment::MAX_CAR_COUNT + 1] =
+        // 0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20
+        { {0,  0,  0,  0,  0,  0,  0,  0, -1, -1, -2, -2, -2, -3, -3, -3, -3, -3, -4, -4, -4}, //  0
+          {0,  0,  0,  0,  0,  0,  0,  0,  0, -1, -1, -1, -2, -2, -2, -2, -2, -3, -3, -3, -3}, //  1
+          {0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, -1, -1, -1, -1, -1, -2, -2, -2, -2, -2}, //  2
+          {0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, -1, -1, -1, -1, -1, -2}, //  3
+          {0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, -1, -1}, //  4
+          {1,  1,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0}, //  5
+          {2,  2,  1,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0}, //  6
+          {3,  2,  2,  1,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0}, //  7
+          {3,  3,  2,  2,  1,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0}, //  8
+          {4,  3,  3,  2,  2,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0}, //  9
+          {4,  4,  3,  3,  2,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0}, // 10
+          {5,  4,  4,  3,  2,  1,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0}, // 11
+          {5,  5,  4,  3,  2,  2,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0}, // 12
+          {5,  5,  4,  3,  3,  2,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0}, // 13
+          {5,  5,  4,  4,  3,  2,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0}, // 14
+          {5,  5,  5,  4,  3,  2,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0}, // 15
+          {5,  5,  5,  4,  3,  2,  1,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0}, // 16
+          {5,  5,  5,  4,  3,  2,  2,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0}, // 17
+          {5,  5,  5,  4,  3,  3,  2,  2,  1,  1,  1,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0}, // 18
+          {5,  5,  5,  4,  4,  3,  3,  2,  2,  2,  2,  1,  1,  1,  1,  1,  0,  0,  0,  0,  0}, // 19
+          {5,  5,  5,  5,  4,  4,  3,  3,  3,  3,  2,  2,  2,  2,  2,  1,  1,  1,  0,  0,  0}  // 20
+        };
 };
 
 } // namespace test
