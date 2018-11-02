@@ -12,7 +12,9 @@ namespace rl {
  * Its simplicity allows it extra features such as the ability to be copy constructed.
  *
  */
-template<typename T>
+template<typename T, typename Weight,
+        // Only all the compilation of this class when Weight is a signed numeric type.
+        typename = std::enable_if_t<std::is_signed<Weight>::value>>
 class DistributionList {
 public:
 
@@ -24,9 +26,9 @@ public:
         Entry& operator=(const Entry&) = default;
         Entry& operator=(Entry&&) = default;
 
-        Entry(long cumulative_begin, long weight, T* data) :
+        Entry(Weight cumulative_begin, Weight weight, T* data) :
             cumulative_begin_(cumulative_begin),
-            cumulative_end_(cumulative_begin + weight),
+            weight_(weight),
             data_(data)
         {}
 
@@ -34,28 +36,33 @@ public:
             return data_;
         }
 
-        long weight() const {
-            return cumulative_end_ - cumulative_begin_;
+        T* data() {
+            return const_cast<T*>(static_cast<const Entry*>(this)->data());
         }
 
-        long cumulative_begin() const {
+        Weight weight() const {
+            return weight_;
+        }
+
+        Weight cumulative_begin() const {
             return cumulative_begin_;
         }
 
-        long cumulative_end() const {
-            return cumulative_end_;
+        Weight cumulative_end() const {
+            return cumulative_begin_ + weight_;
         }
 
     private:
-        long cumulative_begin_ = -1;
-        long cumulative_end_ = -1;
+        Weight cumulative_begin_ = -1;
+        Weight weight_ = -1;
         T* data_ = nullptr;
     };
 
     using Entries = std::vector<Entry>;
 
-    void add(long weight, T* data) {
-        long begin = total_weight();
+    void add(Weight weight, T* data) {
+        Expects(weight > 0);
+        Weight begin = total_weight();
         list_.emplace_back(begin, weight, data);
     }
 
@@ -65,12 +72,12 @@ public:
         if(list_.size() == 1) {
             return list_.front().data();
         }
-        long cumulative_pos = util::random_in_range(0l, total_weight());
+        Weight cumulative_pos = util::random_in_range<Weight>(0, total_weight());
         Ensures(cumulative_pos >= 0 and cumulative_pos < total_weight());
         std::size_t lower = 0;
         std::size_t upper = list_.size() -1;
         std::size_t mid;
-        auto bisect_condition = [](long cumulative_end, long target) {
+        auto bisect_condition = [](Weight cumulative_end, Weight target) {
             return target < cumulative_end;
         };
         while(lower < upper) {
@@ -86,7 +93,11 @@ public:
         return list_[lower].data();
     }
 
-    long total_weight() const {
+    T* random() {
+        return const_cast<T*>(static_cast<const DistributionList*>(this)->random());
+    }
+
+    Weight total_weight() const {
         if(list_.empty()) {
             return 0;
         }

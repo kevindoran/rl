@@ -71,7 +71,8 @@ add_executable(runTests
         test/first_visit_mc_action_value_prediction.cpp
         test/test_example_environments.cpp
         test/common/SuttonBartoExercises.cpp
-        test/common/TestEnvironment.h)
+        test/common/TestEnvironment.h
+        test/distribution_list.cpp)
 target_link_libraries(runTests gtest gtest_main)
 target_link_libraries(runTests ${CONAN_LIBS})
 target_link_libraries(runTests reinforcement)

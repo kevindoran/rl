@@ -56,7 +56,7 @@ public:
                 if(improved_action) {
                     // We found a better action!
                     // Clear all existing actions, and use the new one.
-                    const int weight = 1;
+                    const Weight weight = 1;
                     ans->clear_actions_for_state(s);
                     ans->add_action_for_state(s, *CHECK_NOTNULL(improved_action), weight);
                     policy_updated = true;

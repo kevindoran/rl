@@ -21,17 +21,17 @@ class Policy {
 public:
     class ActionDistribution {
     public:
-        using WeightMap = std::unordered_map<const Action*, long>;
+        using WeightMap = std::unordered_map<const Action*, Weight>;
 
         static ActionDistribution single_action(const Action& a) {
             ActionDistribution dist;
-            long weight = 1;
+            Weight weight = 1;
             dist.add_action(a, weight);
             return dist;
 
         }
 
-        void add_action(const Action& a, long weight=1) {
+        void add_action(const Action& a, Weight weight=1) {
             action_list_.add(weight, &a);
         }
 
@@ -40,7 +40,7 @@ public:
             return result;
         }
 
-        long total_weight() const {
+        Weight total_weight() const {
             return action_list_.total_weight();
         }
 
@@ -65,7 +65,7 @@ public:
         }
 
     private:
-        using ActionList = DistributionList<const Action>;
+        using ActionList = DistributionList<const Action, Weight>;
         ActionList action_list_{};
     };
 

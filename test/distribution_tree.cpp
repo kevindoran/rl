@@ -213,6 +213,7 @@ TEST(DistributionTreeTest, test_random_child) {
         };
     tree.dfs(fctn);
     // Chi-squared test.
+    // Following steps outlined at: https://stattrek.com/chi-square-test/goodness-of-fit.aspx
     // Using the method: X^2 = ( (O-E)^2 / E )
     double X2 = 0;
     for(std::reference_wrapper<const CounterNode> leaf : leaves) {
