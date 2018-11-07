@@ -396,7 +396,7 @@ public:
         static constexpr double LOSS_REWARD = -1;
         static constexpr int DEALER_STICK_THRESHOLD = 17;
 
-        enum BlackjackAction {HIT=0, STICK=1};
+        enum class BlackjackAction {HIT=0, STICK=1};
         struct BlackjackState {
             int player_sum;
             bool usable_ace;
@@ -461,6 +461,16 @@ public:
             return static_cast<ID>(hit_or_stick);
         }
 
+        using Environment::state; // To prevent hiding.
+        const State& state(const BlackjackState& blackjack_state) const {
+            return state(state_id(blackjack_state));
+        }
+
+        using Environment::action; // To prevent hiding.
+        const Action& action(const BlackjackAction& blackjack_action) const {
+            return action(action_id(blackjack_action));
+        }
+
         BlackjackAction blackjack_action(const Action& action) const {
             return static_cast<BlackjackAction>(action.id());
         }
@@ -492,8 +502,22 @@ public:
             }
         }
 
+        static int random_card() {
+            int random_card = util::random_in_range(ACE, TEN + 3 + 1);
+            random_card = std::min(TEN, random_card);
+            return random_card;
+        }
+
+        static double card_chance(int card) {
+            if(card == TEN) {
+                return 4.0/13.0;
+            } else {
+                return 1.0/13.0;
+            }
+        }
+
         static int simulate_dealer_turn(int visible_card) {
-            int dealer_hidden_card = util::random_in_range(ACE, TEN + 1);
+            int dealer_hidden_card = random_card();
             int sum = card_value(dealer_hidden_card) + card_value(visible_card);
             bool has_ace = (visible_card == ACE) or (dealer_hidden_card == ACE);
             CHECK_LE(sum, card_value(ACE)*2) << "The maximum sum comes from 2 aces";
@@ -509,10 +533,6 @@ public:
                 has_ace = next.usable_ace;
             }
             return sum;
-        }
-
-        static int random_card() {
-            return util::random_in_range(ACE, TEN + 1);
         }
 
         Response next_state(const State& from_state, const Action& action) const override {
@@ -536,7 +556,7 @@ public:
                 ace_count++;
             }
             next.player_sum += card_value(card_hit);
-            if(next.player_sum > MAX_SUM and ace_count) {
+            while(next.player_sum > MAX_SUM and ace_count) {
                 next.player_sum = revert_ace(next.player_sum);
                 ace_count--;
                 CHECK_LE(next.player_sum, MAX_SUM + 1)
@@ -544,13 +564,13 @@ public:
                        "(when the sum is 21 and an ace is received).";
             }
             CHECK(ace_count <= 1 and ace_count >= 0)
-                << "The player can't have 2 aces at 11 points.";
+                << "The player can't have 2 aces at 11 points each.";
             next.usable_ace = (ace_count == 1);
             return next;
         }
 
         Response hit_response(const BlackjackState& state_data) const {
-            int next_card = util::random_in_range(ACE, TEN + 1);
+            int next_card = random_card();
             BlackjackState next = calculate_next_state(state_data, next_card);
             if(next.player_sum > MAX_SUM) {
                 // TODO: sort out transient reward ID.
@@ -568,12 +588,9 @@ public:
 
             // 2. Player's sum.
             int player_sum = state_data.player_sum;
-            if(state_data.player_sum > MAX_SUM and state_data.usable_ace) {
-                player_sum -= card_value(ACE) + 1;
-            }
-
             // It would be impossible to 'stick' from a state where the player has > 21 points.
             Ensures(player_sum <= MAX_SUM);
+
             double reward_value = 0;
             const State* end_state = nullptr;
             if(dealer_sum > MAX_SUM or dealer_sum < player_sum) {
@@ -611,21 +628,20 @@ public:
             EndingWeights counts{};
             switch(blackjack_action(action)) {
                 case BlackjackAction::HIT:
-                    // Choose a card. 1/10 chance of getting each card [Ace, 10].
+                    // Choose a card. 1/13 chance of getting each card [Ace, 9] and 4/13 for 10.
                     for(int card = ACE; card <= TEN; card++) {
                         BlackjackState next = calculate_next_state(state_data, card);
                         if(next.player_sum > MAX_SUM) {
                             // The player loses.
                             // There are multiple cards that could result in a loss, so count them
                             // before adding a response.
-                            counts.loss += 0.10;
+                            counts.loss += card_chance(card);
                             continue;
                         } else {
-                            const Weight chance_weight = 0.1;
                             const double reward = 0;
                             ans.add_response(Response{state(state_id(next)),
                                                       Reward(-1, reward),
-                                                      chance_weight});
+                                                      card_chance(card)});
                         }
                     }
                     break;
@@ -683,8 +699,7 @@ public:
             } else {
                 // Dealer will hit.
                 for(int card = ACE; card <= TEN; card++) {
-                    double prob = parent_prob * 0.10;
-                    int ace_count = static_cast<int>(dealer_usable_ace);
+                    double prob = parent_prob * card_chance(card);
                     // Use a dummy BlackjackState object, treating the dealer as the player.
                     BlackjackState after_hit = calculate_next_state({dealer_sum, dealer_usable_ace,
                                                                      0}, card);
@@ -723,6 +738,9 @@ public:
     }
 
     OptimalActions optimal_actions(const State& from_state) const override {
+        if(env_.is_end_state(from_state)) {
+            return OptimalActions{};
+        }
         BlackjackEnvironment::BlackjackAction action =
                 optimal_action(env_.blackjack_state(from_state));
         return OptimalActions{env_.action_id(action)};
