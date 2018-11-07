@@ -15,7 +15,6 @@ namespace rl {
  */
 class ActionValuePolicyIterator : public PolicyImprovement {
 public:
-
     std::unique_ptr<Policy> improve(const Environment& env, const Policy& policy) const override {
         std::unique_ptr<StochasticPolicy> ans =
                 std::make_unique<StochasticPolicy>(StochasticPolicy::create_from(env, policy));
@@ -91,5 +90,5 @@ private:
     ActionBasedEvaluator& evaluator_ = default_evaluator;
 };
 
-}
+} // namespace rl
 

@@ -15,13 +15,10 @@
 #include "rl/impl/Environment.h"
 #include "rl/DistributionTree.h"
 
-
 // TODO: there isn't much being used in gsl/gsl. Swap out Expects and Ensures for google logging
 // methods.
 
 namespace rl {
-
-
 /**
  * Order by sequence:
  *      state, action, next_state, reward.
@@ -44,7 +41,6 @@ struct cumulative_grouping_less {
 
 class MappedEnvironment : public impl::Environment {
 public:
-
     // https://stackoverflow.com/questions/32040426/expose-c-container-iterator-to-user
     // Exposing custom iterator types is an alternative option if we want to hide the underlying
     // container implementation, however, it's doesn't seem simple.
@@ -60,7 +56,6 @@ public:
     MappedEnvironment(MappedEnvironment&&) = default;
     MappedEnvironment& operator=(MappedEnvironment&&) = default;
     ~MappedEnvironment() = default;
-
 
     State& add_state(const std::string& name, bool end_state=false) {
         GSL_CONTRACT_CHECK("only max_value(ID) entries are supported.",

@@ -9,7 +9,6 @@ namespace rl {
 
 class PolicyIterator : public PolicyImprovement {
 public:
-
     void set_policy_evaluator(PolicyEvaluator& evaluator) {
         evaluator = evaluator;
     }

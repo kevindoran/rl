@@ -50,13 +50,11 @@ Direction from_string(const std::string& dir_str);
 
 Direction random_direction();
 
-
 /**
  * Represents a 2D coordinate (y, x) in ZxZ.
  */
 class Position {
 public:
-
     Position translate(Direction dir, int steps) const {
         return Position{y + dy[dir] * steps, x + dx[dir] * steps};
     }
@@ -265,7 +263,6 @@ public:
         return ans;
     }
 
-
     inline std::vector<Position> neighbours(const Position& pos) const {
         std::vector<Position> ans;
         if(pos.y > 0) {
@@ -283,12 +280,10 @@ public:
         return ans;
     }
 
-
 private:
     Position pos_map[TILE_COUNT];
 
     // We could have an optional per-tile data member also. std::enable_if could remove it.
-
 };
 
 } // namespace grid

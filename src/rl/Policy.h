@@ -30,7 +30,6 @@ public:
             Weight weight = 1;
             dist.add_action(a, weight);
             return dist;
-
         }
 
         void add_action(const Action& a, Weight weight=1) {
@@ -89,13 +88,11 @@ public:
     virtual ~Policy() = default;
 };
 
-
 /**
  * Calculates the (state) value function for a Policy.
  */
 class PolicyEvaluator {
 public:
-
     //----------------------------------------------------------------------------------------------
     // Setup & run
     //----------------------------------------------------------------------------------------------
@@ -145,7 +142,6 @@ public:
     virtual ~PolicyEvaluator() = default;
 };
 
-
 class StateBasedEvaluator : public virtual PolicyEvaluator {
 public:
     /**
@@ -161,7 +157,6 @@ public:
  */
 class ActionBasedEvaluator : public virtual PolicyEvaluator {
 public:
-
     virtual const ActionValueFunction& value_function() const = 0;
 
     ~ActionBasedEvaluator() override = default;
@@ -178,7 +173,6 @@ const auto& evaluate(EvaluatorT& evaluator, const Environment& env, const Policy
     evaluator.run();
     return evaluator.value_function();
 }
-
 
 /**
  * Calculates the optimal policy (or approximation to it) for an environment.

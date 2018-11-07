@@ -15,7 +15,6 @@ public:
     static constexpr int MIN_VISITS = 100;
 
 public:
-
     void initialize(const Environment& env, const Policy& policy) override {
         impl::PolicyEvaluator::initialize(env, policy);
         value_fuction_ = ValueFunction(env.state_count());

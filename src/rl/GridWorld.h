@@ -41,7 +41,6 @@ enum class GridWorldBoundsBehaviour {NO_OUT_OF_BOUNDS, TRANSITION_TO_CURRENT, LO
 
 template<int HEIGHT, int WIDTH>
 class GridWorld {
-
 public:
     using GridType = grid::Grid<HEIGHT, WIDTH>;
 

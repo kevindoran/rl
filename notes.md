@@ -63,11 +63,10 @@ It may be desirable to switch to using pass by value in future.
 
 * Consider removing usages of Expects and Ensures in favour of using glog methods directly. Or 
   define our own macro that wraps glog. glog has better reporting on asserts.
-* Write a genealized tester that takes in an environment, policy and evalator or iterator
 * Fix glog usage.
 * Implement GPI
-* Implement MC policy improver
 * Sort out a propper design for transient Rewards (specifically, deal with their ids).
 * Break from the naming in (Sutton & Barto, 2018) of XXIterator to XXImprover as the former 
   conflicts with the naming of iterators in c++.
+* Start to move code into cpp files, as the compile time is starting to get annoying.
 

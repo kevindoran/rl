@@ -1,6 +1,5 @@
 #include "SuttonBartoExercises.h"
 
-
 namespace {
     int R = grid::Direction::RIGHT;
     int D = grid::Direction::DOWN;

@@ -11,7 +11,6 @@ namespace rl {
 
 template<typename T>
 class DistributionTree {
-
 public:
     explicit DistributionTree() = default;
     // Can't copy unless we manually treat copying of our root node.
@@ -50,8 +49,6 @@ public:
         Node(Node&&) = default;
         Node& operator=(Node&&) = default;
         ~Node() = default;
-
-
 
         Node& add_child(long weight = 0, T* data = nullptr) {
             Ensures(children_.size() <= std::numeric_limits<ID>::max());
@@ -187,7 +184,6 @@ public:
     };
 
 public:
-
     const Node& root_node() const {return root_node_;}
 
     Node& root_node() {

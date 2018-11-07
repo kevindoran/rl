@@ -9,7 +9,6 @@
 namespace rl {
 
 class DeterministicPolicy : public Policy {
-
 public:
     const Action& next_action(const Environment &e, const State& from_state) const override {
         auto it = state_to_action_.find(from_state);
@@ -23,7 +22,6 @@ public:
                                         const State &from_state) const override {
         return ActionDistribution::single_action(next_action(e, from_state));
     }
-
 
     void set_action_for_state(const State& s, const Action& a) {
         auto res = state_to_action_.emplace(s, a);

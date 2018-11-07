@@ -67,7 +67,7 @@ private:
 };
 
 class RandomPolicy : public rl::Policy {
-
+public:
     const Action& next_action(const Environment& e, const State& from_state) const override {
         return possible_actions(e, from_state).random_action();
     }
@@ -105,6 +105,7 @@ public:
  * A faulty policy that returns an action Distribution with an action having zero weight.
  */
 class ZeroWeightActionPolicy : public rl::Policy {
+public:
     const Action& next_action(const Environment& e, const State& from_state) const override {
         Expects(e.action_count());
         return *e.actions_begin();

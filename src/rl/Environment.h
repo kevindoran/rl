@@ -9,7 +9,6 @@
 
 namespace rl {
 
-
 /*
  * Following the reasoning here and avoiding unsigned integer types.
  * https://google.github.io/styleguide/cppguide.html#Integer_Types
@@ -159,7 +158,6 @@ private:
  * Reward is stored by-value to allow fake/proxy rewards to be used.
  */
 struct Response {
-
     /**
      * Create a Response from a Transition.
      *
@@ -179,7 +177,6 @@ struct Response {
     Reward reward;
     Weight prob_weight;
 };
-
 
 /**
  * A container of Responses along with a weight total (sum of all response weights).
@@ -219,7 +216,6 @@ private:
  * opposed to creating transition lists on the fly.
  */
 class Environment {
-
 public:
     // Yuck. We still have std::unique_ptr and std::vector in the type. See DereferenceIterator.h
     // for more thoughts.
@@ -301,7 +297,6 @@ public:
 };
 
 } // namespace rl
-
 
 // Following the examples here:
 // https://en.cppreference.com/w/cpp/utility/hash

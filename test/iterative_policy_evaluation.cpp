@@ -12,7 +12,6 @@
 
 namespace {
 
-
 /**
  * Leaving the below here as an example of what _not_ to do.
  * The following Policy is ill-formed as the policy's possible_actions() method will return random
@@ -45,7 +44,6 @@ rl::MappedEnvironment single_state_action_env(std::string state_name="State 1",
     env.build_distribution_tree();
     return env;
 }
-
 
 } // namespace
 

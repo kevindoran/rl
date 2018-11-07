@@ -105,7 +105,6 @@ TYPED_TEST(DistributionListTypeF, add) {
     ASSERT_ANY_THROW(dist_list.add(0, nullptr));
 }
 
-
 namespace {
 
 template<typename Weight>
@@ -123,7 +122,6 @@ public:
 private:
     int count_ = 0;
     Weight weight_;
-
 };
 
 template<typename NUM>
@@ -139,6 +137,7 @@ typename std::enable_if_t<std::is_floating_point<NUM>::value, std::vector<NUM>>
 get_test_weightings() {
     return std::vector<NUM>{0.1, 0.4, 0.5, 1.0, 1.0, 2.0, 2.5, 2.5, 5, 10}; // Total weight: 25
 }
+
 } // namespace
 
 /**
@@ -191,5 +190,4 @@ TYPED_TEST(DistributionListTypeF, random) {
     // 2.
     rl::DistributionList<DummyStruct, NumType> dist_list;
     ASSERT_ANY_THROW(dist_list.random());
-
 }

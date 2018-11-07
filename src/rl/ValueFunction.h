@@ -47,4 +47,4 @@ private:
     std::vector<double> state_values_{};
 };
 
-}
+} // namespace rl

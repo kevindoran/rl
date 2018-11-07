@@ -11,14 +11,12 @@ namespace rl {
 // Long enough name?
 class FirstVisitMCActionValuePredictor : public ActionBasedEvaluator,
                                           public impl::PolicyEvaluator {
-
 public:
     static constexpr double DEFAULT_DELTA_THRESHOLD = 1e-8;
     static constexpr double DEFAULT_DISCOUNT_RATE = 1.0;
     static constexpr int MIN_VISIT = 1000;
 
 public:
-
     void initialize(const Environment& env, const Policy& policy) override {
         impl::PolicyEvaluator::initialize(env, policy);
         // We use action_count * state_count elements of the arrays.
@@ -146,7 +144,6 @@ private:
     std::vector<int> visit_count{};
     std::vector<double> delta{};
     long min_visit_ = 0;
-
 };
 
 } // namespace rl

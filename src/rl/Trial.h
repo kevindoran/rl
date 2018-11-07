@@ -21,7 +21,6 @@ struct TimeStep {
 using Trace = std::vector<TimeStep>;
 
 class Trial {
-
 public:
     explicit Trial(const Environment& env) :
         env_(&env), current_state_(&env.start_state()) {}
