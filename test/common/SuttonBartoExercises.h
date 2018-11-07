@@ -37,7 +37,7 @@ public:
     }
 
     double required_delta_threshold() const override {
-        return 1e-5;
+        return 1e-2;
     }
 
     const MappedEnvironment& env() const override {
@@ -323,11 +323,11 @@ public:
     }
 
     double required_discount_rate() const override {
-        return 1.0;
+        return 0.9;
     }
 
     double required_delta_threshold() const override {
-        return 1e-4;
+        return 1e-6;
     }
 
     const CarRentalEnvironment& env() const override {

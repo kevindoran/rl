@@ -97,7 +97,7 @@ private:
             Ensures(n > 0);
             double updated_value = current_value + 1/n * (retrn - current_value);
             value_fuction_.set_value(step.state, updated_value);
-            delta[step.state.id()] = error_as_factor(current_value, updated_value);
+            delta[step.state.id()] = std::abs(current_value - updated_value);
             retrn += step.reward;
         }
     }

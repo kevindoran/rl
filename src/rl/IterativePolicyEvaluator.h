@@ -79,7 +79,7 @@ public:
                 }
             }
             double prev = value_function_.value(s);
-            error = std::max(error, error_as_factor(prev, expected_value));
+            error = std::max(error, std::abs(prev - expected_value));
             value_function_.set_value(s, expected_value);
         }
         most_recent_delta_ = error;

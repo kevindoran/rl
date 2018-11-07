@@ -4,6 +4,7 @@
 #include "rl/ActionValueFunction.h"
 #include "rl/Policy.h"
 #include "rl/Trial.h"
+#include <iostream>
 
 namespace rl {
 
@@ -12,9 +13,9 @@ class FirstVisitMCActionValuePredictor : public ActionBasedEvaluator,
                                           public impl::PolicyEvaluator {
 
 public:
-    static constexpr double DEFAULT_DELTA_THRESHOLD = 0.00001;
+    static constexpr double DEFAULT_DELTA_THRESHOLD = 1e-8;
     static constexpr double DEFAULT_DISCOUNT_RATE = 1.0;
-    static constexpr int MIN_VISIT = 100;
+    static constexpr int MIN_VISIT = 1000;
 
 public:
 
@@ -59,8 +60,12 @@ public:
             }
         }
         // Update stopping criteria.
+        // TODO: can we use max_element here? I don't think so...
+        //most_recent_delta_ = std::accumulate(std::begin(delta), std::end(delta), 0.0) / delta.size();
         most_recent_delta_ = *std::max_element(delta.begin(), delta.end());
+        // TODO: what if there are skipped state-action pairs that then have 0 visit count?
         min_visit_ = *std::min_element(visit_count.begin(), visit_count.end());
+        steps_++;
     }
 
     bool finished() const override {
@@ -124,7 +129,10 @@ private:
             Ensures(n > 0);
             double updated_value = current_value + 1/n * (retrn - current_value);
             value_function_.set_value(state, action, updated_value);
-            delta[hash_val] = error_as_factor(current_value, updated_value);
+            // note: the delta here is ever decreasing with increasing n. A second more responsive
+            // weighted average for the value function could be used to keep the delta more
+            // responsive.
+            delta[hash_val] = std::abs(current_value - updated_value);
             retrn += step.reward;
         }
     }
