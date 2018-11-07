@@ -83,6 +83,7 @@ public:
             value_function_.set_value(s, expected_value);
         }
         most_recent_delta_ = error;
+        steps_++;
     }
 
     const ValueFunction& value_function() const override {

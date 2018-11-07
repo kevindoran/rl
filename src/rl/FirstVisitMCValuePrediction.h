@@ -43,6 +43,7 @@ public:
         }
         most_recent_delta_ = *std::max_element(delta.begin(), delta.end());
         min_visit_ = *std::min_element(visit_count.begin(), visit_count.end());
+        steps_++;
     }
 
     void run() override {
