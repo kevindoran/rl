@@ -1,8 +1,10 @@
 #include "gtest/gtest.h"
 
 #include <numeric>
+#include <rl/DeterministicPolicy.h>
 
 #include "common/SuttonBartoExercises.h"
+#include "rl/Trial.h"
 
 /**
  * Tests that the description of the Jack's Car Garage problem has been correctly represented.
@@ -134,11 +136,16 @@ TEST_F(BlackjackEnvironmentF, test_transition_list_hit) {
     rl::ResponseDistribution res = env.transition_list(
             env.state(env.state_id(blackjack_state)),
             env.action(env.action_id(BlackjackEnv::BlackjackAction::HIT)));
-    // There should be 10 transitions, with 10% chance each.
+    // There should be 10 transitions, with 1/13 chance each (or 4/13 for card 10).
     ASSERT_EQ(10, res.responses().size());
     ASSERT_DOUBLE_EQ(1.0, res.total_weight());
     for(const rl::Response& r : res.responses()) {
-        ASSERT_DOUBLE_EQ(0.1, r.prob_weight);
+        int was_ten = (env.blackjack_state(r.next_state).player_sum) == player_sum;
+        if(was_ten) {
+            ASSERT_DOUBLE_EQ(4.0/13.0, r.prob_weight);
+        } else {
+            ASSERT_DOUBLE_EQ(1.0/13.0, r.prob_weight);
+        }
     }
     // The 10 transitions are known and are as follows.
     for(int card = BlackjackEnv::ACE; card <= BlackjackEnv::TEN; card++) {
@@ -180,6 +187,7 @@ TEST_F(BlackjackEnvironmentF, test_transition_list_21_stick) {
     for(int from = 16; from >= 10; from--) {
         double probability = 0.0;
         for(int card_value = 1; card_value <= 11; card_value++) {
+            double card_chance = (card_value == 10) ? 4.0/13.0 : 1.0/13.0;
             // 10 Will only choose 11 as the ace value.
             if(from == 10 and card_value == 1) {
                 continue;
@@ -188,31 +196,14 @@ TEST_F(BlackjackEnvironmentF, test_transition_list_21_stick) {
             if(total > 21) {
                 continue;
             } else {
-                probability += 0.1 * draw_chances[total];
+                probability += card_chance * draw_chances[total];
             }
         }
         draw_chances[from] = probability;
     }
+    // These are our expected results:
     double draw_probability = draw_chances[10];
     double win_probability = 1.0 - draw_probability;
-
-    // note: at first, the DP solution disagreed with the observered result, so I calculated it
-    // by-hand to check which was correct. The discrepancy was tracked down to a bug in
-    // BlackjackEnvironment. Leaving both here for now.
-    //
-    // This whole process highlights a major drawback of the deterministic (non-Monte Carlo)
-    // approaches: it is tedious and error prone to describe the environment dynamics accurately.
-    //
-    // Case      Combination   Probability    Example
-    // 1 card:     5,5          1x(1/10)      10, 21
-    // 2 cards:    5,4          5x(1/10)^2    10, 12, 21
-    // 3 cards:    5,3         10x(1/10)^3    10, 12, 14, 21
-    // 4 cards:    5,2         10x(1/10)^4    10, 12, 14, 16, 21
-    // 5 cards:    5,1          5x(1/10)^5    10, 12, 14, 15, 16, 21
-    // 6 cards:    5,1          1x(1/10)^6    10, 12, 13, 14, 15, 16, 21
-    //
-    // Total: 0.161051
-    ASSERT_EQ(0.161051, draw_probability);
 
     // Test.
     rl::ResponseDistribution res = env.transition_list(
@@ -230,3 +221,179 @@ TEST_F(BlackjackEnvironmentF, test_transition_list_21_stick) {
         }
     }
 }
+
+struct WinDrawLoss {
+    double wins = 0;
+    double draws = 0;
+    double losses = 0;
+};
+
+/**
+ * Tests that the Blackjack simulation behaves as expected in terms of expected outcomes.
+ *
+ * \param env a blackjack environment.
+ * \param from_state the state from which
+ * \param expected
+ */
+void test_specific_case(BlackjackEnv& env, BlackjackEnv::BlackjackState from_state, const
+                        rl::Policy& policy, WinDrawLoss expected) {
+    // Setup
+    int loops = 500000;
+    WinDrawLoss observed{};
+    double confidence_required = 0.95;
+    // The input is taken as ratios. Transform these into expected counts.
+    expected.wins *= loops;
+    expected.draws *= loops;
+    expected.losses *= loops;
+
+    // Test
+    for(int i = 0; i < loops; i++) {
+        rl::Trial trial(env, env.state(env.state_id(from_state)));
+        rl::Trace trace;
+        const rl::Action* action = nullptr;
+        while(!trial.is_finished()) {
+            trace.emplace_back(rl::TimeStep{trial.current_state(), action, 0});
+            action = &policy.next_action(env, trial.current_state());
+            trial.execute_action(*action);
+        }
+        if(trial.current_state() == env.win_state()) {
+            observed.wins++;
+        } else if(trial.current_state() == env.draw_state()) {
+            observed.draws++;
+        } else {
+            ASSERT_EQ(trial.current_state(), env.loss_state());
+            observed.losses++;
+        }
+    }
+    // Chi-squared test
+    // Following steps outlined at: https://stattrek.com/chi-square-test/goodness-of-fit.aspx
+    // Using the method: X^2 = ( (O-E)^2 / E )
+    double X2 = 0;;
+    int degrees_of_freedom = -1;
+    if(expected.wins) {
+        X2 += std::pow(observed.wins   - expected.wins,   2) / expected.wins;
+        degrees_of_freedom++;
+    } else {
+        ASSERT_EQ(0, observed.wins);
+    }
+    if(expected.draws) {
+        X2 += std::pow(observed.draws  - expected.draws,  2) / expected.draws;
+        degrees_of_freedom++;
+    } else {
+        ASSERT_EQ(0, observed.draws);
+    }
+    if(expected.losses) {
+        X2 += std::pow(observed.losses - expected.losses, 2) / expected.losses;
+        degrees_of_freedom++;
+    } else {
+        ASSERT_EQ(0, observed.losses);
+    }
+    const double p_value = 1 - gsl_cdf_chisq_P(X2, degrees_of_freedom);
+    const double cut_off = 1 - confidence_required;
+    ASSERT_GT(p_value, cut_off);
+}
+
+/**
+ * Tests the win/draw/loss ratio for the state-action pair:
+ *
+ *     (player_sum=17, usable_ace=false, dealer_card = ACE), action = STICK
+ */
+TEST_F(BlackjackEnvironmentF, test_specific_case_1) {
+    // Setup
+    const BlackjackEnv::BlackjackState start_state{17, false, BlackjackEnv::ACE};
+    const WinDrawLoss expected_ratio {
+        0.115333, /* wins */
+        0.130662, /* draws */
+        0.754005  /* losses */
+    };
+    rl::DeterministicLambdaPolicy stick_policy(
+            [this](const rl::Environment&, const rl::State&) -> const rl::Action& {
+                return env.action(env.action_id(BlackjackEnv::BlackjackAction::STICK));
+            }
+        );
+
+    // Test
+    test_specific_case(env, start_state, stick_policy, expected_ratio);
+}
+
+/**
+ * Tests the win/draw/loss ratio for the state-action pair:
+ *
+ *     (player_sum=15, usable_ace=false, dealer_card = 2), action = STICK
+ */
+TEST_F(BlackjackEnvironmentF, test_specific_case_2) {
+    // Setup
+    const BlackjackEnv::BlackjackState start_state{15, false, 2};
+    const WinDrawLoss expected_ratio {
+            0.353984, /* wins */
+            0.0,      /* draws */
+            0.646016  /* losses */
+    };
+    rl::DeterministicLambdaPolicy stick_policy(
+            [this](const rl::Environment&, const rl::State&) -> const rl::Action& {
+                return env.action(env.action_id(BlackjackEnv::BlackjackAction::STICK));
+            }
+    );
+
+    // Test
+    test_specific_case(env, start_state, stick_policy, expected_ratio);
+}
+
+/**
+ * Tests the win/draw/loss ratio for the policy: (hit, stick) from the state (15, false, 2).
+ *
+ * The start state:
+ *     (player_sum=15, usable_ace=false, dealer_card = 2)
+ * The policy: hit on the first turn, stick on the second.
+ *
+ * The ratios were calculated manually.
+ */
+TEST_F(BlackjackEnvironmentF, test_specific_case_3) {
+    // Setup
+    const BlackjackEnv::BlackjackState start_state{15, false, 2};
+    const WinDrawLoss expected_ratio {
+            0.267040, /* wins */
+            0.049694, /* draws */
+            0.683266  /* losses */
+    };
+    rl::DeterministicLambdaPolicy hit_then_stick(
+            [this, start_state](const rl::Environment&, const rl::State& state) -> const rl::Action& {
+                if(start_state == env.blackjack_state(state)) {
+                    return env.action(env.action_id(BlackjackEnv::BlackjackAction::HIT));
+                } else {
+                    return env.action(env.action_id(BlackjackEnv::BlackjackAction::STICK));
+                }
+            }
+    );
+
+    // Test
+    test_specific_case(env, start_state, hit_then_stick, expected_ratio);
+}
+/**
+ * This test is used to generate dealer sum probabilities for creating the expected ratios in above
+ * tests.
+ */
+/*
+TEST_F(BlackjackEnvironmentF, test_simulate_dealer) {
+    const int loops = 1000000;
+    std::map<int, int> sum_counts;
+    for(int i = 0; i < loops; i++) {
+        int sum = env.simulate_dealer_turn(1);
+        ++sum_counts[sum];
+    }
+    std::cout
+              << "16: " << sum_counts[16] / (double) loops
+              << ", 17: " << sum_counts[17] / (double) loops
+              << ", 18: " << sum_counts[18] / (double)loops
+              << ", 19: " << sum_counts[19] / (double)loops
+              << ", 20: " << sum_counts[20] / (double)loops
+              << ", 21: " << sum_counts[21] / (double)loops
+              << ", 22: " << sum_counts[22] / (double)loops
+              << ", 23: " << sum_counts[23] / (double)loops
+              << ", 24: " << sum_counts[24] / (double)loops
+              << ", 25: " << sum_counts[25] / (double)loops
+              << ", 26: " << sum_counts[26] / (double)loops
+              << std::endl;
+    // Dealer card = 2:
+    // 17: 0.13993, 18: 0.134533, 19: 0.130004, 20: 0.123439, 21: 0.118489
+}*/
