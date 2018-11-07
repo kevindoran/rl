@@ -29,8 +29,7 @@ public:
     }
 
     void run() override {
-        //LOG_IF(WARN, most_recent_delta_ > delta_threshold_) <<
-        //"The evaluation end criteria is met before starting.";
+        LOG_IF(ERROR, finished()) << "The evaluation end criteria is met before starting.";
         while(most_recent_delta_ > delta_threshold_) {
             long previous_step_count = steps_done();
             step();

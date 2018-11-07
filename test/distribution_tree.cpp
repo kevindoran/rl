@@ -228,7 +228,6 @@ TEST(DistributionTreeTest, test_random_child) {
     ASSERT_GT(p_value, cut_off);
 }
 
-
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);
     google::InitGoogleLogging(argv[0]);

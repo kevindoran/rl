@@ -95,11 +95,10 @@ private:
                 // We found a better action!
                 ans = {&a, expected_value};
             } else {
-                if(expected_value > v_current) {
-                    // Log a warning.
-                    // We have found a higher value, but can't rely on it due to the
-                    // value being to close to our existing value.
-                }
+                LOG_IF(WARNING, expected_value > v_current)
+                    << "We have found a higher value but can't rely on it due to the value being "
+                       "too close to our existing value. The difference is less than the evaluator "
+                       "threshold";
             }
         }
         return ans;

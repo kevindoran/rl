@@ -1,5 +1,7 @@
 #pragma once
 
+#include <glog/logging.h>
+
 #include "Policy.h"
 #include "StochasticPolicy.h"
 #include "FirstVisitMCActionValuePredictor.h"
@@ -51,17 +53,20 @@ public:
                     best_value = value_fctn.value(state, current_action);
                 }
                 const Action* p_best_action = nullptr;
+                int allowed_actions = 0;
                 for(const Action& action : env.actions()) {
                     if(!env.is_action_allowed(state, action)) {
-                        // TODO: what is to be done in states that have no valid actions?
                         continue;
                     }
+                    allowed_actions++;
                     double v = value_fctn.value(state, action);
                     if(greater_than(v, best_value, evaluator_.delta_threshold())) {
                         p_best_action = &action;
                         best_value = v;
                     }
                 }
+                LOG_IF(ERROR, !allowed_actions) << "A state was encountered from which there were"
+                    "no allowed actions to be taken. State: " << state.name();
                 if(p_best_action) {
                     // We found a better action.
                     ans->clear_actions_for_state(state);

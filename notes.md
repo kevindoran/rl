@@ -63,7 +63,6 @@ It may be desirable to switch to using pass by value in future.
 
 * Consider removing usages of Expects and Ensures in favour of using glog methods directly. Or 
   define our own macro that wraps glog. glog has better reporting on asserts.
-* Fix glog usage.
 * Implement GPI
 * Sort out a propper design for transient Rewards (specifically, deal with their ids).
 * Start to move code into cpp files, as the compile time is starting to get annoying.
