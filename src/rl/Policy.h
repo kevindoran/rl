@@ -42,6 +42,12 @@ public:
             return result;
         }
 
+        const Action& any() const {
+            CHECK(!action_list_.entries().empty());
+            const Action& a = *CHECK_NOTNULL(action_list_.entries()[0].data());
+            return a;
+        }
+
         Weight total_weight() const {
             return action_list_.total_weight();
         }
