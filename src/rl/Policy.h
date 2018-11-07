@@ -177,7 +177,7 @@ const auto& evaluate(EvaluatorT& evaluator, const Environment& env, const Policy
 /**
  * Calculates the optimal policy (or approximation to it) for an environment.
  */
-class PolicyImprovement {
+class PolicyImprover {
 public:
     // A conclusion based on the logic from:
     // https://en.wikipedia.org/wiki/One-shot_deviation_principle, and
@@ -192,7 +192,7 @@ public:
     virtual PolicyEvaluator& policy_evaluator() = 0;
     virtual const PolicyEvaluator& policy_evaluator() const = 0;
 
-    virtual ~PolicyImprovement() = default;
+    virtual ~PolicyImprover() = default;
 };
 
 } // namespace rl

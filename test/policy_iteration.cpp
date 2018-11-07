@@ -1,15 +1,15 @@
 #include "gtest/gtest.h"
 
 #include <unordered_set>
-#include <rl/FirstVisitMCValuePrediction.h>
+#include <rl/FirstVisitMCValuePredictor.h>
 #include <ExamplePolicies.h>
-#include <rl/ActionValuePolicyIterator.h>
+#include <rl/ActionValuePolicyImprover.h>
 
 #include "rl/GridWorld.h"
 #include "grid/Grid.h"
 #include "rl/Policy.h"
 #include "common/SuttonBartoExercises.h"
-#include "rl/PolicyIterator.h"
+#include "rl/DeterministicImprover.h"
 #include "rl/RandomGridPolicy.h"
 
 namespace {
@@ -38,7 +38,7 @@ void check_policy_action(const rl::Policy& policy, const rl::Environment& env,
     }
 }
 
-void test_improver(rl::PolicyImprovement& policy_improver,
+void test_improver(rl::PolicyImprover& policy_improver,
                    const rl::test::TestEnvironment& test_case,
                    const rl::Policy& start_policy) {
     SCOPED_TRACE(test_case.name());
@@ -59,7 +59,7 @@ void test_improver(rl::PolicyImprovement& policy_improver,
 } // namespace
 
 TEST(PolicyImprovers, test_policy_iterator) {
-    rl::PolicyIterator improver;
+    rl::DeterministicImprover improver;
     test_improver(improver, rl::test::Exercise4_1(), rl::test::RandomPolicy());
     test_improver(improver, rl::test::Exercise4_2(), rl::test::RandomPolicy());
     // FIXME: make pass and also allow for the assertions of failure.
@@ -67,7 +67,7 @@ TEST(PolicyImprovers, test_policy_iterator) {
 }
 
 TEST(PolicyImprovers, test_action_value_policy_iterator) {
-    rl::ActionValuePolicyIterator improver;
+    rl::ActionValuePolicyImprover improver;
     // FIXME: A Monte Carlo evaluator of deterministic policy on a deterministic environment
     //        has a high chance of encountering an infinite trial unless loop detection is
     //        implemented.

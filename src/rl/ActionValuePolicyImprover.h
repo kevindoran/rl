@@ -13,7 +13,7 @@ namespace rl {
  * that works with state value functions (e.g. PolicyIterator). The latter implementation is far
  * more involved and requires the environment to have fully specified dynamics.
  */
-class ActionValuePolicyIterator : public PolicyImprovement {
+class ActionValuePolicyImprover : public PolicyImprover {
 public:
     std::unique_ptr<Policy> improve(const Environment& env, const Policy& policy) const override {
         std::unique_ptr<StochasticPolicy> ans =
@@ -82,7 +82,7 @@ public:
 
     ActionBasedEvaluator& policy_evaluator() override {
         return const_cast<ActionBasedEvaluator&>(
-                static_cast<const ActionValuePolicyIterator*>(this)->policy_evaluator());
+                static_cast<const ActionValuePolicyImprover*>(this)->policy_evaluator());
     }
 
 private:

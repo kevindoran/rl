@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
 #include "rl/GridWorld.h"
 #include "rl/Policy.h"
-#include "rl/FirstVisitMCValuePrediction.h"
+#include "rl/FirstVisitMCValuePredictor.h"
 #include "common/ExamplePolicies.h"
 #include "rl/RandomGridPolicy.h"
 #include "common/SuttonBartoExercises.h"
@@ -32,7 +32,7 @@ TEST(FirstVisitMCValuePredictionTest, basic_example) {
     grid_world.environment().mark_as_end_state(grid_world.pos_to_state(bottom_left));
     grid_world.environment().set_all_rewards_to(-1.0);
     grid_world.environment().build_distribution_tree();
-    rl::FirstVisitMCValuePrediction evaluator;
+    rl::FirstVisitMCValuePredictor evaluator;
     rl::DeterministicLambdaPolicy down_up_policy = rl::test::create_down_up_policy(grid_world);
 
     // Test
@@ -74,7 +74,7 @@ TEST(FirstVisitMCValuePredictionTest, basic_example) {
 
 TEST(FirstVisitMCValuePredictionTest, sutton_barto_exercise_4_1) {
     rl::test::Exercise4_1 test_case;
-    rl::FirstVisitMCValuePrediction evaluator;
+    rl::FirstVisitMCValuePredictor evaluator;
     // The default (currently 0.00001) leads to long execution times. Making it less strict.
     evaluator.set_delta_threshold(0.0001);
     auto& grid_world = test_case.grid_world();

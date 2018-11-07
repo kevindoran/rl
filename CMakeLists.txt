@@ -38,18 +38,18 @@ add_library(reinforcement
         src/util/DereferenceIterator.h
         src/util/RangeWrapper.h
         src/util/random.h
-        src/rl/PolicyIterator.h
+        src/rl/DeterministicImprover.h
         src/rl/StochasticPolicy.h
         src/rl/DistributionList.h
         src/rl/RandomGridPolicy.h
         src/rl/Environment.h
         src/rl/impl/Environment.h
-        src/rl/FirstVisitMCValuePrediction.h
+        src/rl/FirstVisitMCValuePredictor.h
         src/rl/Trial.h
         src/rl/impl/PolicyEvaluator.h
         src/rl/FirstVisitMCActionValuePredictor.h
         src/rl/ActionValueFunction.h
-        src/rl/ActionValuePolicyIterator.h
+        src/rl/ActionValuePolicyImprover.h
         )
 target_include_directories(reinforcement
         PUBLIC

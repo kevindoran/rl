@@ -7,7 +7,7 @@
 
 namespace rl {
 
-class PolicyIterator : public PolicyImprovement {
+class DeterministicImprover : public PolicyImprover {
 public:
     void set_policy_evaluator(PolicyEvaluator& evaluator) {
         evaluator = evaluator;
@@ -19,7 +19,7 @@ public:
 
     PolicyEvaluator& policy_evaluator() override {
         return const_cast<PolicyEvaluator&>(
-                static_cast<const PolicyIterator*>(this)->policy_evaluator());
+                static_cast<const DeterministicImprover*>(this)->policy_evaluator());
     }
 
     std::unique_ptr<Policy> improve(const Environment& env, const Policy &policy) const override {

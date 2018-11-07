@@ -9,7 +9,7 @@
 
 namespace rl {
 
-class FirstVisitMCValuePrediction : public StateBasedEvaluator,
+class FirstVisitMCValuePredictor : public StateBasedEvaluator,
                                     public impl::PolicyEvaluator {
 public:
     static constexpr int MIN_VISITS = 100;
