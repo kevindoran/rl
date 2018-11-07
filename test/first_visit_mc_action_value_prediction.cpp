@@ -8,7 +8,7 @@
 #include "common/SuttonBartoExercises.h"
 
 
-TEST(FirstVisitMCActionValuePredictionTest, basic_example) {
+TEST(FirstVisitMCActionValuePrediction, basic_example) {
     // Setup
     /*
      * Grid world layout:
@@ -76,4 +76,32 @@ TEST(FirstVisitMCActionValuePredictionTest, basic_example) {
             ASSERT_EQ(correct_value, value_to_test);
         }
     }
+}
+
+TEST(FirstVisitMCActionValuePrediction, exercise5_1_specific_case) {
+    // Setup
+    using BlackjackEnv = rl::test::Exercise5_1::BlackjackEnvironment;
+    BlackjackEnv env;
+    const BlackjackEnv::BlackjackState start_state{15, false, 2};
+    rl::DeterministicLambdaPolicy hit_then_stick(
+            [&env, start_state](const rl::Environment&, const rl::State& state) -> const rl::Action& {
+                if(start_state == env.blackjack_state(state)) {
+                    return env.action(env.action_id(BlackjackEnv::BlackjackAction::HIT));
+                } else {
+                    return env.action(env.action_id(BlackjackEnv::BlackjackAction::STICK));
+                }
+            }
+    );
+    rl::FirstVisitMCActionValuePredictor predictor;
+    // FIXME: what should be done to get this threshold down?
+    double allowed_error = 0.03;
+
+    // Test
+    const rl::ActionValueFunction& value_fctn = rl::evaluate(predictor, env, hit_then_stick);
+    // From BlackjackEnvironmentF.test_specific_case_3, we know that the expected return from
+    // (15, false, 2) with the hit-stick policy is:
+    double expected_return = 0.267040 - 0.683266; // wins - losses
+    ASSERT_NEAR( expected_return,
+        value_fctn.value(env.state(start_state), env.action(BlackjackEnv::BlackjackAction::HIT)),
+        allowed_error);
 }
