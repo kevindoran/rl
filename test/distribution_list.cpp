@@ -154,7 +154,7 @@ TYPED_TEST(DistributionListTypeF, random) {
     const int samples = 100000;
     const int total_weight = 25;
     const int samples_per_unit_weight = samples / total_weight;
-    const double confidence_required = 0.95;
+    const double confidence_required = 0.98;
     ASSERT_TRUE(samples % total_weight == 0) << "The test is broken if this fails.";
     std::list<Counter<NumType>> counters;
     rl::DistributionList<Counter<NumType>, NumType> counter_list;
