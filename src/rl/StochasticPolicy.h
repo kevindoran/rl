@@ -20,20 +20,19 @@ public:
 
     ActionDistribution
     possible_actions(const Environment &e, const State &from_state) const override {
-        CHECK(state_to_action_dist_.size() < std::numeric_limits<ID>::max());
-        CHECK_LT(from_state.id(), static_cast<ID>(state_to_action_dist_.size()));
+        CHECK_GT(state_to_action_dist_.size(), static_cast<std::size_t>(from_state.id()));
         const ActionDistribution& dist = state_to_action_dist_.at(from_state.id());
         return dist;
     }
 
-    void add_action_for_state(const State& s, const Action& a, long weight) {
-        CHECK_LT(s.id(), state_to_action_dist_.size());
+    void add_action_for_state(const State& s, const Action& a, Weight weight) {
+        CHECK_GT(state_to_action_dist_.size(), static_cast<std::size_t>(s.id()));
         ActionDistribution& action_dist = state_to_action_dist_.at(s.id());
         action_dist.add_action(a, weight);
     }
 
     bool clear_actions_for_state(const State& s) {
-        CHECK_LT(s.id(), state_to_action_dist_.size());
+        CHECK_GT(state_to_action_dist_.size(), static_cast<std::size_t>(s.id()));
         ActionDistribution& action_dist = state_to_action_dist_.at(s.id());
         bool existing = !action_dist.empty();
         state_to_action_dist_[s.id()] = ActionDistribution();
@@ -61,7 +60,7 @@ public:
         for(const State& s : env.states()) {
             for(auto entry : other.possible_actions(env, s).weight_map()) {
                 const Action& a = *CHECK_NOTNULL(entry.first);
-                long weight = entry.second;
+                Weight weight = entry.second;
                 out.add_action_for_state(s, a, weight);
             }
         }

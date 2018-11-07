@@ -98,10 +98,9 @@ private:
         for(std::size_t i = 0; i < trace.size() - 1; i++) {
             const State& state = trace[i].state;
             const Action& action = *CHECK_NOTNULL(trace[i].action);
-            if(!first_occurrence.count(hash(state, action))) {
-                Ensures(i <= std::numeric_limits<int>::max());
-                first_occurrence[hash(state, action)] = static_cast<int>(i);
-            }
+            Ensures(i <= std::numeric_limits<int>::max());
+            // C++ 17's unordered_map::try_emplace(). Insert if not present, otherwise do nothing.
+            first_occurrence.try_emplace(hash(state,action), static_cast<int>(i));
         }
         // Add the reward for entering the end state.
         retrn += trace.back().reward;

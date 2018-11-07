@@ -90,8 +90,7 @@ public:
     }
 
     bool is_end_state(const State& s) const override {
-        auto finder = std::find(end_states_.begin(), end_states_.end(), s.id());
-        bool is_an_end_state = finder != std::end(end_states_);
+        bool is_an_end_state = static_cast<bool>(end_states_.count(s.id()));
         return is_an_end_state;
     }
 

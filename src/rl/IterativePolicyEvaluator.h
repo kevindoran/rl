@@ -7,6 +7,9 @@
 
 namespace rl {
 
+// TODO: this evaluator (and others) need a loop detector to identify when a policy-env pair will
+// result in an infinite loop. Such a case has the potential to  occur in a deterministic
+// environment with a deterministic policy.
 class IterativePolicyEvaluator : public StateBasedEvaluator,
                                  public impl::PolicyEvaluator {
 public:
@@ -50,7 +53,7 @@ public:
             Expects(action_dist.total_weight());
             for(auto action_weight_pair : action_dist.weight_map()) {
                 const Action& action = *CHECK_NOTNULL(action_weight_pair.first);
-                long action_weight = action_weight_pair.second;
+                Weight action_weight = action_weight_pair.second;
                 // A policy's actions can't have zero weight.
                 Expects(action_weight);
                 ResponseDistribution response_dist = e.transition_list(s, action);

@@ -75,6 +75,8 @@ public:
     virtual const Action& next_action(const Environment& e, const State& from_state) const = 0;
 
     // TODO: decide behaviour for what should happen when there are no actions.
+    // note: the return type could be changed to shared_ptr<ActionDistribution> to allow for the
+    // option of returning an existing object rather than copying.
     virtual ActionDistribution possible_actions(const Environment& e,
                                                 const State& from_state) const = 0;
 
