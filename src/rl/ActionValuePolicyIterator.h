@@ -36,8 +36,8 @@ public:
                         continue;
                     }
                     double v = value_fctn.value(state, action);
-                    if(v > best_value) {
-                        best_action = &action;
+                    if(greater_than(v, best_value, evaluator_.delta_threshold())) {
+                        p_best_action = &action;
                         best_value = v;
                     }
                 }

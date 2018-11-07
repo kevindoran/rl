@@ -24,4 +24,8 @@ int compare(double val1, double val2, double error_factor) {
     return (val1 > val2) ? 1 : -1;
 }
 
+bool greater_than(double val1, double val2, double by_at_least) {
+    return compare(val1, val2, by_at_least) == 1;
+}
+
 } // namespace rl

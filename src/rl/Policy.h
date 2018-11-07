@@ -14,6 +14,8 @@ double error_as_factor(double prev, double updated);
 
 int compare(double val1, double val2, double error_factor);
 
+bool greater_than(double val1, double val2, double by_at_least);
+
 /**
  * For every state in an Environment, Policy defines actions to be taken (with probability).
  */

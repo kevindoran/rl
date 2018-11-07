@@ -92,7 +92,7 @@ private:
             }
             double expected_value = calculate_reward(env, from_state, a, value_fctn);
             double v_current = value_fctn.value(from_state);
-            if(compare(expected_value, v_current, evaluator.delta_threshold()) == 1) {
+            if(greater_than(expected_value, v_current, evaluator.delta_threshold())) {
                 // We found a better action!
                 ans = {&a, expected_value};
             } else {
