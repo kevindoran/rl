@@ -14,8 +14,13 @@ public:
         evaluator = evaluator;
     }
 
-    PolicyEvaluator& policy_evaluator() {
+    const PolicyEvaluator& policy_evaluator() const override {
         return evaluator;
+    }
+
+    PolicyEvaluator& policy_evaluator() override {
+        return const_cast<PolicyEvaluator&>(
+                static_cast<const PolicyIterator*>(this)->policy_evaluator());
     }
 
     std::unique_ptr<Policy> improve(const Environment& env, const Policy &policy) const override {

@@ -50,9 +50,18 @@ public:
         return ans;
     }
 
+    const ActionBasedEvaluator& policy_evaluator() const override {
+        return evaluator_;
+    }
+
+    ActionBasedEvaluator& policy_evaluator() override {
+        return const_cast<ActionBasedEvaluator&>(
+                static_cast<const ActionValuePolicyIterator*>(this)->policy_evaluator());
+    }
+
 private:
     FirstVisitMCActionValuePredictor default_evaluator;
-    ActionBasedEvaluator& evalutor = default_evaluator;
+    ActionBasedEvaluator& evaluator_ = default_evaluator;
 };
 
 }

@@ -185,6 +185,9 @@ public:
     // possible with the map used by DeterministicPolicy.
     virtual std::unique_ptr<Policy> improve(const Environment& env, const Policy& policy) const = 0;
 
+    virtual PolicyEvaluator& policy_evaluator() = 0;
+    virtual const PolicyEvaluator& policy_evaluator() const = 0;
+
     virtual ~PolicyImprovement() = default;
 };
 
