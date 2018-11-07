@@ -17,13 +17,13 @@ TEST(RangeWrapperTest, loop_over_int_vector) {
 
     bool seen[count] = {false};
     for(int i = 0; i < count; i++) {
-        ASSERT_FALSE(seen[count]) << "The test is broken if this fails.";
+        ASSERT_FALSE(seen[i]) << "The test is broken if this fails.";
     }
     for(const Dummy& d : dummys) {
         seen[d.value] = true;
     }
 
     for(int i = 0; i < count; i++) {
-        ASSERT_TRUE(seen[count]);
+        ASSERT_TRUE(seen[i]);
     }
 }
