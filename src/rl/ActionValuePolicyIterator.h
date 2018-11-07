@@ -45,7 +45,7 @@ public:
                     policy_updated = true;
                 }
             }
-            finished = !policy_updated;
+            finished = !policy_updated && evaluator_.finished();
         }
         return ans;
     }

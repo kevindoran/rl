@@ -110,14 +110,19 @@ public:
     //----------------------------------------------------------------------------------------------
 
     /**
-     * \returns a measure for how much the value function changed in the most recent iteration.
-     */
-    virtual double delta() const = 0;
-
-    /**
      * \returns the number of steps carried out so far.
      */
     virtual long steps_done() const = 0;
+
+    /**
+     * This method was created to allow evaluators some flexibility over how they consider
+     * a value function to have converged. A simple implementation would be to check the most
+     * recent delta against the delta threshold.
+     *
+     * \returns \c true if the value function meets the criteria such that it can be considered
+     *          converged; \c false otherwise.
+     */
+    virtual bool finished() const = 0;
 
     //----------------------------------------------------------------------------------------------
     // Settings

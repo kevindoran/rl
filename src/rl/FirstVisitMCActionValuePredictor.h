@@ -63,6 +63,10 @@ public:
         min_visit_ = *std::min_element(visit_count.begin(), visit_count.end());
     }
 
+    bool finished() const override {
+        return most_recent_delta_ < delta_threshold_ and min_visit_ > MIN_VISIT;
+    }
+
     void run() override {
         while(most_recent_delta_ > delta_threshold_ or min_visit_ < MIN_VISIT) {
             step();

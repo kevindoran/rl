@@ -32,16 +32,18 @@ public:
         //LOG_IF(WARN, most_recent_delta_ > delta_threshold_) <<
         //"The evaluation end criteria is met before starting.";
         while(most_recent_delta_ > delta_threshold_) {
+            long previous_step_count = steps_done();
             step();
+            CHECK_EQ(steps_done(), previous_step_count + 1);
         }
-    }
-
-    double delta() const override {
-        return most_recent_delta_;
     }
 
     long steps_done() const override {
         return steps_;
+    }
+
+    bool finished() const override {
+        return most_recent_delta_ < delta_threshold_;
     }
 
     void set_delta_threshold(double delta_threshold) override {
