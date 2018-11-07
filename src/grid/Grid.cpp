@@ -22,7 +22,7 @@ Direction from_string(const std::string& dir_str) {
 }
 
 Direction random_direction() {
-    int random_ordinal = rl::util::random_in_range(0, grid::DIR_COUNT);
+    int random_ordinal = rl::util::random_in_range<int>(0, grid::DIR_COUNT);
     Direction d = directions[random_ordinal];
     return d;
 }
