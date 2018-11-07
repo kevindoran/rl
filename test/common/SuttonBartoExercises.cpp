@@ -12,10 +12,10 @@ namespace rl {
 namespace test {
 
 const std::unordered_set<int> Exercise4_1::optimal_actions_[Exercise4_1::GRID_WIDTH * Exercise4_1::GRID_HEIGHT] = {
-    {   }, {  L}, {  L}, {D,L},
-    {  U}, {L,U}, {D,L}, {D,L},
-    {  U}, {R,U}, {R,D}, {  D},
-    {R,U}, {  R}, {  R}, {   }
+    {   }, {  L    }, {  L    }, {D,L},
+    {  U}, {  L,  U}, {D,L,R,U}, {D  },
+    {  U}, {D,L,R,U}, {D,  R  }, {D  },
+    {R,U}, {    R  }, {    R  }, {   }
 };
 
 } // namespace test
