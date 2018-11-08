@@ -78,7 +78,7 @@ TEST(FirstVisitMCActionValuePrediction, basic_example) {
     }
 }
 
-TEST(FirstVisitMCActionValuePrediction, exercise5_1_specific_case) {
+TEST(FirstVisitMCActionValuePrediction_LONG_RUNNING, exercise5_1_specific_case) {
     // Setup
     using BlackjackEnv = rl::test::Exercise5_1::BlackjackEnvironment;
     BlackjackEnv env;
@@ -95,6 +95,8 @@ TEST(FirstVisitMCActionValuePrediction, exercise5_1_specific_case) {
     rl::FirstVisitMCActionValuePredictor predictor;
     // FIXME: what should be done to get this threshold down?
     double allowed_error = 0.03;
+    // Seed the generator to insure deterministic results.
+    rl::util::random::reseed_generator(1);
 
     // Test
     const rl::ActionValueFunction& value_fctn = rl::evaluate(predictor, env, hit_then_stick);

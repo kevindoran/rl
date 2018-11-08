@@ -42,6 +42,8 @@ void test_improver(rl::PolicyImprover& policy_improver,
                    const rl::test::TestEnvironment& test_case,
                    const rl::Policy& start_policy) {
     SCOPED_TRACE(test_case.name());
+    // Seed the generator to insure deterministic results.
+    rl::util::random::reseed_generator(1);
     // The evaluator.set_discount_rate() is wrapped by this if, as some evaluators throw an
     // exception due to lack of support for non-episodic tasks. TODO: worth revisiting.
     if(test_case.required_discount_rate() != 1.0) {
@@ -58,7 +60,7 @@ void test_improver(rl::PolicyImprover& policy_improver,
 
 } // namespace
 
-TEST(PolicyImprovers, test_policy_iterator) {
+TEST(PolicyImprovers_LONG_RUNNING, test_policy_iterator) {
     rl::DeterministicImprover improver;
     test_improver(improver, rl::test::Exercise4_1(), rl::test::RandomPolicy());
     test_improver(improver, rl::test::Exercise4_2(), rl::test::RandomPolicy());
@@ -66,7 +68,7 @@ TEST(PolicyImprovers, test_policy_iterator) {
     //test_improver(improver, rl::test::Exercise5_1(), rl::test::RandomPolicy());
 }
 
-TEST(PolicyImprovers, test_action_value_policy_iterator) {
+TEST(PolicyImprovers_LONG_RUNNING, test_action_value_policy_iterator) {
     rl::ActionValuePolicyImprover improver;
     // FIXME: A Monte Carlo evaluator of deterministic policy on a deterministic environment
     //        has a high chance of encountering an infinite trial unless loop detection is

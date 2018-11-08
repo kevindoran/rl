@@ -504,7 +504,7 @@ public:
         }
 
         static int random_card() {
-            int random_card = util::random_in_range(ACE, TEN + 3 + 1);
+            int random_card = util::random::random_in_range(ACE, TEN + 3 + 1);
             random_card = std::min(TEN, random_card);
             return random_card;
         }

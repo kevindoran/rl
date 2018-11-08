@@ -68,7 +68,8 @@ public:
 
         const Node& random_child() const {
             Expects(!children_.empty());
-            long cumulative_pos = util::random_in_range(cumulative_begin_, cumulative_begin_ + weight_);
+            long cumulative_pos =
+                    util::random::random_in_range(cumulative_begin_, cumulative_begin_ + weight_);
             return child_at_cumulative_pos(cumulative_pos);
         }
 

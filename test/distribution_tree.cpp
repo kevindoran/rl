@@ -196,6 +196,8 @@ TEST(DistributionTreeTest, test_random_child) {
     const int trials_per_leaf = 100;
     const int trial_count = leaf_count * trials_per_leaf;
     const double confidence_required = 0.95;
+    // Seed the generator to insure deterministic results.
+    rl::util::random::reseed_generator(1);
 
     CounterTree tree{uniform_tree(levels, children_per_node)};
     // Randomly increment leaf counters.
@@ -231,5 +233,7 @@ TEST(DistributionTreeTest, test_random_child) {
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);
     google::InitGoogleLogging(argv[0]);
+    // Seed our random generator so that the tests are deterministic.
+    // TODO: this should be done for every test.
     return RUN_ALL_TESTS();
 }

@@ -72,7 +72,7 @@ public:
         if(list_.size() == 1) {
             return list_.front().data();
         }
-        Weight cumulative_pos = util::random_in_range<Weight>(0, total_weight());
+        Weight cumulative_pos = util::random::random_in_range<Weight>(0, total_weight());
         Ensures(cumulative_pos >= 0 and cumulative_pos < total_weight());
         std::size_t lower = 0;
         std::size_t upper = list_.size() -1;

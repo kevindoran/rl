@@ -15,6 +15,7 @@ TYPED_TEST_CASE(DistributionListTypeF, NumberTypes);
 struct DummyStruct {};
 
 namespace {
+
 template<typename NUM>
 typename std::enable_if_t<std::is_integral<NUM>::value, std::vector<NUM>>
 get_test_numbers() {
@@ -29,6 +30,7 @@ get_test_numbers() {
     return std::vector<NUM>{0.00001, 0.002, 0.03, 0.4, 0.9999, 0.1,
                             1.0, 1.001, 2.0, 5, 60, 700, 1000.1 };
 }
+
 } // namespace
 
 /**
@@ -150,10 +152,10 @@ get_test_weightings() {
 TYPED_TEST(DistributionListTypeF, random) {
     // Setup
     using NumType = TypeParam;
-    const int samples = 100000;
+    const int samples = 300000;
     const int total_weight = 25;
     const int samples_per_unit_weight = samples / total_weight;
-    const double confidence_required = 0.98;
+    const double significance_level = 0.90;
     ASSERT_TRUE(samples % total_weight == 0) << "The test is broken if this fails.";
     std::list<Counter<NumType>> counters;
     rl::DistributionList<Counter<NumType>, NumType> counter_list;
@@ -164,6 +166,8 @@ TYPED_TEST(DistributionListTypeF, random) {
         actual_total_weight += weight;
     }
     ASSERT_NEAR(total_weight, actual_total_weight, 1e-8) << "The test is broken if this fails.";
+    // Seed the generator to insure deterministic results.
+    rl::util::random::reseed_generator(1);
 
     for(int i = 0; i < samples; i++) {
         Counter<NumType>& data = *CHECK_NOTNULL(counter_list.random());
@@ -183,7 +187,7 @@ TYPED_TEST(DistributionListTypeF, random) {
     }
     const int degrees_of_freedom = counter_list.entries().size() - 1;
     const double p_value = 1 - gsl_cdf_chisq_P(X2, degrees_of_freedom);
-    const double cut_off = 1 - confidence_required;
+    const double cut_off = 1 - significance_level;
     ASSERT_GT(p_value, cut_off);
 
     // Test
