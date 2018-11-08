@@ -20,6 +20,7 @@ install:
 # Conan
 - sudo apt-get install python3
 - sudo apt-get install python3-pip
+  pip3 install --upgrade setuptools
 - pip3 install -r requirements.txt
 - conan profile new default --detect  # Generates default profile detecting GCC and sets old ABI
 - conan profile update settings.compiler.libcxx=libstdc++11 default  # Sets libcxx to C++11 ABI
