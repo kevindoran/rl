@@ -52,7 +52,7 @@ add_library(reinforcement
         src/rl/FirstVisitMCActionValuePredictor.h
         src/rl/ActionValueFunction.h
         src/rl/ActionValuePolicyImprover.h
-        src/util/random.cpp src/rl/MCEvaluator3.cpp)
+        src/util/random.cpp)
 target_include_directories(reinforcement
         PUBLIC
         ${PROJECT_SOURCE_DIR}/src)
