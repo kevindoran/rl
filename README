@@ -1,5 +1,6 @@
-# Setup
+https://travis-ci.com/kevindoran/rl.svg?branch=master
 
+# Setup
 1. Install Python 3.
 2. Install pip for Python 3.
 3. Install project's Python depedencies:
@@ -8,7 +9,6 @@
     cd ./cmake-build-debug
     conan install .. -s compiler.libcxx=libstdc++11
 
-# Build
-Run:
+# Build run:
     cmake --build ./cmake-build-debug
 
