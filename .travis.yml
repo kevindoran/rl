@@ -19,7 +19,8 @@ install:
 - sudo update-alternatives --install /usr/bin/gcov gcov /usr/bin/gcov-7 30
 # Conan
 - sudo apt-get install python3
-- pip install -r requirements.txt
+- sudo apt-get install pip3
+- pip3 install -r requirements.txt
 - conan profile new default --detect  # Generates default profile detecting GCC and sets old ABI
 - conan profile update settings.compiler.libcxx=libstdc++11 default  # Sets libcxx to C++11 ABI
 - conan install -if ./cmake-build-debug .
