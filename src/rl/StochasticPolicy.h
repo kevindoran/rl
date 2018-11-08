@@ -58,7 +58,14 @@ public:
         // as I'm curious if it will ever become an issue.
         StochasticPolicy out(env.state_count());
         for(const State& s : env.states()) {
-            for(auto entry : other.possible_actions(env, s).weight_map()) {
+            // As the ActionDistribution is returned by value, the full statement
+            // other.possible_actions(env, s).weight_map() cannot be placed in the for loop, as
+            // ActionDistribution object is destroyed before the loop can begin. This is an easy
+            // language trap to fall into. There are suggestions to extend the lifetime of
+            // temporaries in such for loop expressions:
+            //     http://open-std.org/JTC1/SC22/WG21/docs/cwg_closed.html#900
+            ActionDistribution dist = other.possible_actions(env, s);
+            for(auto const& entry : dist.weight_map()) {
                 const Action& a = *CHECK_NOTNULL(entry.first);
                 Weight weight = entry.second;
                 out.add_action_for_state(s, a, weight);
