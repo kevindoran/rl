@@ -34,6 +34,12 @@ public:
 
         void add_action(const Action& a, Weight weight=1) {
             action_list_.add(weight, &a);
+            // This weight_map_ was first needed by importance sampling MC evaluation- it needs
+            // a mapping from action->weight. A benefit is the simplification of the weight_map()
+            // function.
+            auto res = weight_map_.emplace(&a, weight);
+            bool inserted_without_override = res.second;
+            CHECK(inserted_without_override);
         }
 
         const Action& random_action() const {
@@ -51,6 +57,10 @@ public:
             return action_list_.total_weight();
         }
 
+        Weight weight(const Action& action) const {
+            return weight_map_.at(&action);
+        }
+
         ID action_count() const {
             return static_cast<ID>(action_list_.entries().size());
         }
@@ -59,21 +69,14 @@ public:
             return action_count() == 0;
         }
 
-        WeightMap weight_map() const {
-            WeightMap ans;
-            std::transform(
-                    std::begin(action_list_.entries()), std::end(action_list_.entries()),
-                    std::inserter(ans, ans.end()),
-                    [](const auto& entry) {
-                        return WeightMap::value_type{entry.data(), entry.weight()};
-                    }
-                );
-            return ans;
+        const WeightMap& weight_map() const {
+            return weight_map_;
         }
 
     private:
         using ActionList = DistributionList<const Action, Weight>;
         ActionList action_list_{};
+        WeightMap weight_map_{};
     };
 
 public:

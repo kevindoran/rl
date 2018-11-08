@@ -62,6 +62,8 @@ public:
     }
 
 protected:
+    // Held as pointers rather than references so that they can be set outside the constructor yet
+    // still held as const.
     const rl::Environment* env_ = nullptr;
     const rl::Policy* policy_ = nullptr;
     long steps_ = 0;
