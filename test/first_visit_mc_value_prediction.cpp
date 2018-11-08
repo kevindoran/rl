@@ -3,7 +3,7 @@
 #include "rl/Policy.h"
 #include "rl/FirstVisitMCValuePredictor.h"
 #include "common/ExamplePolicies.h"
-#include "rl/RandomGridPolicy.h"
+#include "rl/RandomPolicy.h"
 #include "common/SuttonBartoExercises.h"
 
 // TODO: the next two tests were copied directly from iterative_policy_evaluation.cpp. It would be
@@ -78,7 +78,7 @@ TEST(FirstVisitMCValuePredictionTest, sutton_barto_exercise_4_1) {
     // The default (currently 0.00001) leads to long execution times. Making it less strict.
     evaluator.set_delta_threshold(0.0001);
     auto& grid_world = test_case.grid_world();
-    rl::RandomGridPolicy random_policy(grid_world);
+    rl::RandomPolicy random_policy;
     const double allowed_error_factor = 0.1;
 
     // Test.

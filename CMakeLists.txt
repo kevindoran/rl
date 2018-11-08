@@ -43,7 +43,7 @@ add_library(reinforcement
         src/rl/DeterministicImprover.h
         src/rl/StochasticPolicy.h
         src/rl/DistributionList.h
-        src/rl/RandomGridPolicy.h
+        src/rl/RandomPolicy.h
         src/rl/Environment.h
         src/rl/impl/Environment.h
         src/rl/FirstVisitMCValuePredictor.h

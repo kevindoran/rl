@@ -8,7 +8,7 @@
 #include "rl/DeterministicPolicy.h"
 #include "common/SuttonBartoExercises.h"
 #include "common/ExamplePolicies.h"
-#include "rl/RandomGridPolicy.h"
+#include "rl/RandomPolicy.h"
 
 namespace {
 
@@ -113,7 +113,7 @@ TEST(IterativePolicyEvaluationTest, sutton_barto_exercise_4_1) {
     using TestInfo = rl::test::Exercise4_1;
     rl::test::Exercise4_1 test_case;
     auto& grid_world = test_case.grid_world();
-    rl::RandomGridPolicy random_policy(grid_world);
+    rl::RandomPolicy random_policy;
     rl::IterativePolicyEvaluator evaluator;
     const double allowed_error_factor = 0.02;
 

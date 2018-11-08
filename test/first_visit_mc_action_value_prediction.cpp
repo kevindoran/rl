@@ -4,7 +4,7 @@
 #include "rl/Policy.h"
 #include "rl/FirstVisitMCActionValuePredictor.h"
 #include "common/ExamplePolicies.h"
-#include "rl/RandomGridPolicy.h"
+#include "rl/RandomPolicy.h"
 #include "common/SuttonBartoExercises.h"
 
 

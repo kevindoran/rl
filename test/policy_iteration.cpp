@@ -10,7 +10,7 @@
 #include "rl/Policy.h"
 #include "common/SuttonBartoExercises.h"
 #include "rl/DeterministicImprover.h"
-#include "rl/RandomGridPolicy.h"
+#include "rl/RandomPolicy.h"
 
 namespace {
 
@@ -62,8 +62,8 @@ void test_improver(rl::PolicyImprover& policy_improver,
 
 TEST(PolicyImprovers_LONG_RUNNING, test_policy_iterator) {
     rl::DeterministicImprover improver;
-    test_improver(improver, rl::test::Exercise4_1(), rl::test::RandomPolicy());
-    test_improver(improver, rl::test::Exercise4_2(), rl::test::RandomPolicy());
+    test_improver(improver, rl::test::Exercise4_1(), rl::RandomPolicy());
+    test_improver(improver, rl::test::Exercise4_2(), rl::RandomPolicy());
     // FIXME: make pass and also allow for the assertions of failure.
     //test_improver(improver, rl::test::Exercise5_1(), rl::test::RandomPolicy());
 }
@@ -74,5 +74,5 @@ TEST(PolicyImprovers_LONG_RUNNING, test_action_value_policy_iterator) {
     //        has a high chance of encountering an infinite trial unless loop detection is
     //        implemented.
     //test_improver(improver, rl::test::Exercise4_1(), rl::test::FirstValidActionPolicy());
-    test_improver(improver, rl::test::Exercise5_1(), rl::test::RandomPolicy());
+    test_improver(improver, rl::test::Exercise5_1(), rl::RandomPolicy());
 }
