@@ -6,6 +6,10 @@ compiler:
 - gcc
 notifications:
   email: false
+cache:
+  directories:
+  - $HOME/.conan
+  - $HOME/.cache/pip
 
 before_install:
 # C++17
@@ -16,6 +20,8 @@ install:
 # C++17
 - sudo apt-get install -qq gcc-7 g++-7
 - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 30 --slave /usr/bin/g++ g++ /usr/bin/g++-7
+# GNU Scientific Library. There isn't a Conan package for GSL yet.
+- sudo apt-get install gsl-bin
 # Conan
 - sudo apt-get install python3
 - sudo apt-get install python3-pip
