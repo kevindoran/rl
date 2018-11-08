@@ -19,7 +19,9 @@ set(3RD_PARTY_DIR ${PROJECT_SOURCE_DIR}/3rdparty)
 # Qt
 set(CMAKE_AUTOMOC ON)
 #set(CMAKE_AUTOUIC ON)
-find_package(Qt5 REQUIRED Widgets)
+# Removed for the moment, as it isn't really used. Removing it saves a lot of time
+# building via Travis CI.
+#find_package(Qt5 REQUIRED Widgets)
 find_package(GSL REQUIRED)
 
 
@@ -50,7 +52,7 @@ add_library(reinforcement
         src/rl/FirstVisitMCActionValuePredictor.h
         src/rl/ActionValueFunction.h
         src/rl/ActionValuePolicyImprover.h
-        src/util/random.cpp)
+        src/util/random.cpp src/rl/MCEvaluator3.cpp src/rl/MCEvaluator3.h)
 target_include_directories(reinforcement
         PUBLIC
         ${PROJECT_SOURCE_DIR}/src)
@@ -58,7 +60,6 @@ target_include_directories(reinforcement
 # The add_compile_definitions() method is supported in cmake 3.12.
 #add_compile_definitions(GSL_THROW_ON_CONTRACT_VIOLATION)
 add_definitions(-DGSL_THROW_ON_CONTRACT_VIOLATION)
-target_link_libraries(reinforcement Qt5::Widgets)
 target_link_libraries(reinforcement ${CONAN_LIBS})
 
 # Tests
@@ -94,5 +95,6 @@ add_test(gtests runTests)
 
 
 # Main
-add_executable(reinforcement_main src/main.cpp)
-target_link_libraries(reinforcement_main reinforcement)
+#add_executable(reinforcement_main src/main.cpp)
+#target_link_libraries(reinforcement_main Qt5::Widgets)
+#target_link_libraries(reinforcement_main reinforcement)
