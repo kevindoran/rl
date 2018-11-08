@@ -14,7 +14,7 @@ before_install:
 
 install:
 # C++17
-- sudo apt-get install -qq g++-7
+- sudo apt-get install -qq gcc-7 g++-7
 - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7.3 30 --slave /usr/bin/g++ g++ /usr/bin/g++-7.3
 # Conan
 - sudo apt-get install python3
