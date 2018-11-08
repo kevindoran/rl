@@ -1,4 +1,4 @@
-https://travis-ci.com/kevindoran/rl.svg?branch=master
+[![Build Status](https://travis-ci.com/kevindoran/rl.svg?branch=master)](https://travis-ci.com/kevindoran/rl)
 
 # Setup
 1. Install Python 3.
