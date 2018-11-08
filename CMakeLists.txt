@@ -55,7 +55,9 @@ target_include_directories(reinforcement
         PUBLIC
         ${PROJECT_SOURCE_DIR}/src)
 # 3rd party dependencies
-add_compile_definitions(GSL_THROW_ON_CONTRACT_VIOLATION)
+# The add_compile_definitions() method is supported in cmake 3.12.
+#add_compile_definitions(GSL_THROW_ON_CONTRACT_VIOLATION)
+add_definitions(-DGSL_THROW_ON_CONTRACT_VIOLATION)
 target_link_libraries(reinforcement Qt5::Widgets)
 target_link_libraries(reinforcement ${CONAN_LIBS})
 
