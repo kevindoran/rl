@@ -47,49 +47,6 @@ rl::MappedEnvironment single_state_action_env(std::string state_name="State 1",
 
 } // namespace
 
-TEST(IterativePolicyEvaluationTest, basic_example) {
-    // Setup
-    /*
-     * Grid world layout:
-     *
-     *  X
-     *  X
-     *  X
-     *  X
-     *  E
-     *
-     *  All actions produce a reward of -1.
-     *
-     */
-    const int HEIGHT = 5;
-    const int WIDTH = 1;
-    rl::GridWorld<HEIGHT, WIDTH> grid_world(rl::GridWorldBoundsBehaviour::TRANSITION_TO_CURRENT);
-    // Make bottom-right tile the end state.
-    grid::Position top_left{0, 0};
-    grid::Position bottom_left{HEIGHT-1, 0};
-    grid_world.environment().mark_as_end_state(grid_world.pos_to_state(bottom_left));
-    grid_world.environment().set_all_rewards_to(-1.0);
-    grid_world.environment().build_distribution_tree();
-    rl::IterativePolicyEvaluator evaluator;
-    rl::DeterministicLambdaPolicy down_up_policy = rl::test::create_down_up_policy(grid_world);
-
-    // Test
-    rl::ValueFunction v_fctn = evaluate(evaluator, grid_world.environment(), down_up_policy);
-    // With the down-up policy, the state values should be:
-    /**
-     * -4
-     * -3
-     * -2
-     * -1
-     *  0
-     */
-    ASSERT_EQ(-4, v_fctn.value(grid_world.pos_to_state(grid::Position{0, 0})));
-    ASSERT_EQ(-3, v_fctn.value(grid_world.pos_to_state(grid::Position{0, 1})));
-    ASSERT_EQ(-2, v_fctn.value(grid_world.pos_to_state(grid::Position{0, 2})));
-    ASSERT_EQ(-1, v_fctn.value(grid_world.pos_to_state(grid::Position{0, 3})));
-    ASSERT_EQ(0, v_fctn.value(grid_world.pos_to_state(grid::Position{0, 4})));
-}
-
 /**
  * This test recreates the square grid and random policy described in exercise 4.1 of
  * (Sutton & Barto, 2018).

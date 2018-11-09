@@ -75,7 +75,10 @@ add_executable(runTests
         test/test_example_environments.cpp
         test/common/SuttonBartoExercises.cpp
         test/common/TestEnvironment.h
-        test/distribution_list.cpp)
+        test/distribution_list.cpp
+        test/policy_evaluation.cpp
+        test/common/PolicyEvaluationTests.h
+        test/common/PolicyEvaluationTests.cpp)
 target_link_libraries(runTests gtest gtest_main)
 target_link_libraries(runTests ${CONAN_LIBS})
 target_link_libraries(runTests reinforcement)
