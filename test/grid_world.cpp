@@ -32,6 +32,7 @@ TEST(GridWorldTest, basic_example) {
     // 1. Start at (0, 1) and move to the right edge.
     const Action& move_right_action = grid_world.dir_to_action(grid::Direction::RIGHT);
     while(pos.x < WIDTH-1) {
+        ASSERT_TRUE(environment.is_action_allowed(grid_world.pos_to_state(pos), move_right_action));
         grid_trial.execute_action(move_right_action);
         pos = pos.adj(grid::Direction::RIGHT);
         ASSERT_EQ(pos, grid_world.state_to_pos(grid_trial.current_state()));
