@@ -70,7 +70,6 @@ add_executable(runTests
         test/iterative_policy_evaluation.cpp
         test/policy_iteration.cpp
         test/common/ExamplePolicies.h
-        test/first_visit_mc_action_value_prediction.cpp
         test/test_example_environments.cpp
         test/common/SuttonBartoExercises.cpp
         test/common/TestEnvironment.h
