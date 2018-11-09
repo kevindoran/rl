@@ -19,27 +19,41 @@ rl::MappedEnvironment single_state_action_env(
 namespace rl {
 namespace test {
 
-void rl::test::GridWorldTest1::check(StateBasedEvaluator& evaluator) const {
+GridWorldTest1::GridWorldTest1() {
     // Setup
-    static const int HEIGHT = 5;
-    static const int WIDTH = 1;
-    rl::GridWorld<HEIGHT, WIDTH> grid_world{GridWorldBoundsBehaviour::TRANSITION_TO_CURRENT};
     grid::Position top_left{0, 0};
     grid::Position bottom_left{HEIGHT - 1, 0};
     grid_world.environment().set_start_state(grid_world.pos_to_state(top_left));
     grid_world.environment().mark_as_end_state(grid_world.pos_to_state(bottom_left));
     grid_world.environment().set_all_rewards_to(-1.0);
     grid_world.environment().build_distribution_tree();
-    DeterministicLambdaPolicy down_up_policy = create_down_up_policy(grid_world);
+    p_down_up_policy = std::make_unique<DeterministicLambdaPolicy>(create_down_up_policy(grid_world));
+}
 
+void GridWorldTest1::check(StateBasedEvaluator& evaluator) const {
     // Test
     const ValueFunction& value_function =
-            evaluate(evaluator, grid_world.environment(), down_up_policy);
+            evaluate(evaluator, grid_world.environment(), *p_down_up_policy);
     ASSERT_EQ(-4, value_function.value(grid_world.pos_to_state(grid::Position{0, 0})));
     ASSERT_EQ(-3, value_function.value(grid_world.pos_to_state(grid::Position{0, 1})));
     ASSERT_EQ(-2, value_function.value(grid_world.pos_to_state(grid::Position{0, 2})));
     ASSERT_EQ(-1, value_function.value(grid_world.pos_to_state(grid::Position{0, 3})));
     ASSERT_EQ(0, value_function.value(grid_world.pos_to_state(grid::Position{0, 4})));
+}
+
+void GridWorldTest1::check(ActionBasedEvaluator& evaluator) const {
+    const ActionValueFunction& value_function =
+            evaluate(evaluator, grid_world.environment(), *p_down_up_policy);
+    for(int h = 0; h < HEIGHT; h++) {
+        for(grid::Direction d : grid::directions) {
+            int direction_ordinal = static_cast<int>(d);
+            double correct_value = expected_action_values[h][direction_ordinal];
+            grid::Position pos{h, 0};
+            const rl::Action& action = grid_world.dir_to_action(d);
+            double value_to_test = value_function.value(grid_world.pos_to_state(pos), action);
+            ASSERT_EQ(correct_value, value_to_test);
+        }
+    }
 }
 
 void SuttonBartoExercise4_1Test::check(StateBasedEvaluator& evaluator) const {
@@ -92,6 +106,36 @@ void BrokenPolicyTest::check(StateBasedEvaluator& evaluator) const {
     // 2. Exception expected for a policy with an action of zero weight.
     evaluator.initialize(env, zero_weight_policy);
     EXPECT_ANY_THROW(evaluator.run());
+}
+
+void BlackjackSpecificCase::check(ActionBasedEvaluator& evaluator) const {
+    // Setup
+    using BlackjackEnv = rl::test::Exercise5_1::BlackjackEnvironment;
+    BlackjackEnv env;
+    const BlackjackEnv::BlackjackState start_state{15, false, 2};
+    rl::DeterministicLambdaPolicy hit_then_stick(
+            [&env, start_state](const rl::Environment&, const rl::State& state) -> const rl::Action& {
+                if(start_state == env.blackjack_state(state)) {
+                    return env.action(env.action_id(BlackjackEnv::BlackjackAction::HIT));
+                } else {
+                    return env.action(env.action_id(BlackjackEnv::BlackjackAction::STICK));
+                }
+            }
+    );
+    // FIXME: what should be done to get this threshold down?
+    double allowed_error = 0.03;
+    // From BlackjackEnvironmentF.test_specific_case_3, we know that the expected return from
+    // (15, false, 2) with the hit-stick policy is:
+    double expected_return = 0.267040 - 0.683266; // wins - losses
+    // Seed the generator to insure deterministic results.
+    rl::util::random::reseed_generator(1);
+
+    // Test
+    const rl::ActionValueFunction& value_fctn = rl::evaluate(evaluator, env, hit_then_stick);
+    ASSERT_NEAR(
+        expected_return,
+        value_fctn.value(env.state(start_state), env.action(BlackjackEnv::BlackjackAction::HIT)),
+        allowed_error);
 }
 
 } // namespace test
