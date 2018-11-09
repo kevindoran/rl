@@ -16,6 +16,25 @@
 namespace rl {
 namespace test {
 
+/**
+ * This test case recreates the square grid and random policy described in exercise 4.1 of
+ * (Sutton & Barto, 2018).
+ *
+ *  E  1  2  3
+ *  4  5  6  7
+ *  8  9  10 11
+ *  12 13 14 E
+ *
+ *  R = -1, for all transitions.
+ *
+ *  The test checks that our policy evaluation routine correctly calculates the value function for
+ *  the random policy as being:
+ *
+ *  0.0  -14  -20  -22
+ *  -14  -18  -20  -20
+ *  -20  -20  -18  -14
+ *  -22  -20  -14  0.0
+ */
 class Exercise4_1 : public TestEnvironment {
 public:
     static const int GRID_WIDTH = 4;
@@ -55,11 +74,6 @@ public:
             }
             );
         return ans;
-    }
-
-    // TODO: This method can be removed at some point.
-    GridType& grid_world() {
-        return grid_world_;
     }
 
 private:

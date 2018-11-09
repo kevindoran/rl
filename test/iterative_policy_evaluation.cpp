@@ -34,54 +34,7 @@ rl::DeterministicLambdaPolicy create_random_policy_broken(const rl::GridWorld<W,
     return rl::DeterministicLambdaPolicy(fctn);
 }
 
-rl::MappedEnvironment single_state_action_env(std::string state_name="State 1",
-        std::string action_name="Action 1", double reward_value=1.0) {
-    rl::MappedEnvironment env;
-    const rl::State& state = env.add_state(state_name);
-    const rl::Action& action = env.add_action(action_name);
-    const rl::Reward& reward = env.add_reward(reward_value, "Reward 1");
-    env.add_transition(rl::Transition(state, state, action, reward));
-    env.build_distribution_tree();
-    return env;
-}
-
 } // namespace
-
-/**
- * This test recreates the square grid and random policy described in exercise 4.1 of
- * (Sutton & Barto, 2018).
- *
- *  E  1  2  3
- *  4  5  6  7
- *  8  9  10 11
- *  12 13 14 E
- *
- *  R = -1, for all transitions.
- *
- *  The test checks that our policy evaluation routine correctly calculates the value function for
- *  the random policy as being:
- *
- *  0.0  -14  -20  -22
- *  -14  -18  -20  -20
- *  -20  -20  -18  -14
- *  -22  -20  -14  0.0
- */
-TEST(IterativePolicyEvaluationTest, sutton_barto_exercise_4_1) {
-    using TestInfo = rl::test::Exercise4_1;
-    rl::test::Exercise4_1 test_case;
-    auto& grid_world = test_case.grid_world();
-    rl::RandomPolicy random_policy;
-    rl::IterativePolicyEvaluator evaluator;
-    const double allowed_error_factor = 0.02;
-
-    // Test.
-    rl::ValueFunction v_fctn = evaluate(evaluator, grid_world.environment(), random_policy);
-    for(rl::ID state_id = 0; state_id < grid_world.environment().state_count(); state_id++) {
-        ASSERT_NEAR(TestInfo::expected_values[state_id],
-                    v_fctn.value(grid_world.environment().state(state_id)),
-                    allowed_error_factor * std::abs(TestInfo::expected_values[state_id]));
-    }
-}
 
 /**
  * This test implements the policy evaluation directly for the example from exercise 4.1 in
@@ -148,48 +101,32 @@ TEST(IterativePolicyEvaluationTest, sutton_barto_exercise_4_1_manual) {
     }
 }
 
-/**
- * Tests that the policy evaluation correctly converges for a simple continuous task.
- *
- * Tests that the single state, single action environment is evaluated correctly with different
- * discount rates.
- *
- *       state1__
- *        ^      | (action1) reward = 5.
- *        |______|
- *
- *  Tests discount rates from 0.1 to 0.9 (inclusive). Asserts that the value assigned to the single
- *  state is given by:
- *
- *      state_value = reward_value / (1 - discount_rate)
- */
+/*
 TEST(IterativePolicyEvaluationTest, continuous_task) {
-    // Setup
-    double reward_value = 5;
-    rl::MappedEnvironment env = single_state_action_env("State 1", "Action 1", reward_value);
-    const rl::State& state = *env.states_begin();
-    rl::test::FirstActionPolicy policy;
-    rl::IterativePolicyEvaluator evaluator;
+   rl::MappedEnvironment env = single_state_action_env("State 1", "Action 1", reward_value);
+   const rl::State& state = *env.states_begin();
+   rl::IterativePolicyEvaluator evaluator;
 
-    // Test
-    for(int discount_rate_tenth = 1; discount_rate_tenth <= 9; discount_rate_tenth++) {
-        double discount_rate = discount_rate_tenth / 10.0;
-        double denom = 1 - discount_rate;
-        ASSERT_FALSE(denom == 0) << "The test implementation is broken if this fails.";
-        double correct_value = reward_value / denom;
-        evaluator.set_discount_rate(discount_rate);
-        const rl::ValueFunction& value_fctn = evaluate(evaluator, env, policy);
-        // We could be more exact here with out bounds.
-        double bounds = 0.01 * correct_value;
-        ASSERT_NEAR(correct_value, value_fctn.value(state), bounds);
-    }
+   // Test
+   for(int discount_rate_tenth = 1; discount_rate_tenth <= 9; discount_rate_tenth++) {
+       double discount_rate = discount_rate_tenth / 10.0;
+       double denom = 1 - discount_rate;
+       ASSERT_FALSE(denom == 0) << "The test implementation is broken if this fails.";
+       double correct_value = reward_value / denom;
+       evaluator.set_discount_rate(discount_rate);
+       const rl::ValueFunction& value_fctn = evaluate(evaluator, env, policy);
+       // We could be more exact here with out bounds.
+       double bounds = 0.01 * correct_value;
+       ASSERT_NEAR(correct_value, value_fctn.value(state), bounds);
+   }
 }
 
 /**
- * An exception should be thrown during policy evaluation if:
- *    1. the policy does not have an action for a state.
- *    2. the policy has an action that has zero weight.
- */
+* An exception should be thrown during policy evaluation if:
+*    1. the policy does not have an action for a state.
+*    2. the policy has an action that has zero weight.
+*/
+/*
 TEST(IterativePolicyEvaluationTest, broken_policy) {
     // Setup
     rl::MappedEnvironment env = single_state_action_env();
@@ -208,4 +145,4 @@ TEST(IterativePolicyEvaluationTest, broken_policy) {
     // 2. Exception expected for a policy with an action of zero weight.
     evaluator.initialize(env, zero_weight_policy);
     EXPECT_ANY_THROW(evaluator.run());
-}
+}*/
