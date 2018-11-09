@@ -76,7 +76,7 @@ public:
         return *actions_.emplace_back(std::make_unique<Action>(actions_.size(), name));
     }
 
-    Reward& add_reward(long value, std::string name = {}) {
+    Reward& add_reward(double value, std::string name = {}) {
         GSL_CONTRACT_CHECK("only max_value(ID) entries are supported.",
                            rewards_.size() <= std::numeric_limits<ID>::max());
         needs_rebuilding_ = true;
