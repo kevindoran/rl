@@ -16,96 +16,51 @@ namespace test {
 
 class ActionBasedEvaluatorTestCase {
 public:
-    virtual const rl::Environment& env() const = 0;
-    virtual const rl::Policy& policy() const = 0;
-    virtual void check(const rl::ActionValueFunction& value_function) const = 0;
+    virtual void check(ActionBasedEvaluator& evaluator) const = 0;
 
     virtual ~ActionBasedEvaluatorTestCase() = default;
-
 };
 
 class StateBasedEvaluatorTestCase {
 public:
-    virtual const rl::Environment& env() const = 0;
-    virtual const rl::Policy& policy() const = 0;
-    virtual void check(const rl::ValueFunction& value_function) const = 0;
+    virtual void check(StateBasedEvaluator& evaluator) const = 0;
 
     virtual ~StateBasedEvaluatorTestCase() = default;
 };
 
-// We could use a template for these two functions, but they are so simple that there isn't much benefit.
-void test_evaluator(rl::StateBasedEvaluator& evaluator,
-                    const StateBasedEvaluatorTestCase& test_case);
-
-void test_evaluator(rl::ActionBasedEvaluator& evaluator,
-                    const ActionBasedEvaluatorTestCase& test_case);
-
+/*
+ * The environment is a grid world with layout:
+ *
+ *  X
+ *  X
+ *  X
+ *  X
+ *  E
+ *
+ *  All actions produce a reward of -1.
+ *
+ * The policy always chooses down, unless down is not allowed, it which case it chooses up.
+ *
+ * With the down-up policy, the state values should be:
+ *
+ * -4
+ * -3
+ * -2
+ * -1
+ *  0
+ */
 class GridWorldTest1 : public StateBasedEvaluatorTestCase {
 public:
-    GridWorldTest1();
-
-    /*
-     * The environment is a grid world with layout:
-     *
-     *  X
-     *  X
-     *  X
-     *  X
-     *  E
-     *
-     *  All actions produce a reward of -1.
-     */
-    const rl::Environment& env() const override {
-        return grid_world.environment();
-    }
-
-    /**
-     * The policy always chooses down, unless down is not allowed, it which case it chooses up.
-     */
-    const rl::Policy& policy() const override {
-        return *p_down_up_policy;
-    }
-
-    /**
-     * With the down-up policy, the state values should be:
-     *
-     * -4
-     * -3
-     * -2
-     * -1
-     *  0
-     */
-    void check(const rl::ValueFunction& value_function) const override;
-
-private:
-    static const int HEIGHT = 5;
-    static const int WIDTH = 1;
-    rl::GridWorld<HEIGHT, WIDTH> grid_world{rl::GridWorldBoundsBehaviour::TRANSITION_TO_CURRENT};
-    std::unique_ptr<rl::DeterministicLambdaPolicy> p_down_up_policy;
+    void check(StateBasedEvaluator& value_function) const override;
 };
 
-// TODO: decide how to disabiguate these classes from the Sutton & Barto environments.
-class SuttonBartoExercise4_1 : public StateBasedEvaluatorTestCase {
+class SuttonBartoExercise4_1Test : public StateBasedEvaluatorTestCase {
 public:
     const double ALLOWED_ERROR_FACTOR = 0.02;
 
 public:
-    const Environment& env() const override {
-        return test_case.env();
-    }
-
-    const Policy& policy() const override {
-        return policy_;
-    }
-
-    void check(const rl::ValueFunction& value_function) const override;
-
-private:
-    using Ex4_1 = rl::test::Exercise4_1;
-    Ex4_1 test_case;
-    rl::RandomPolicy policy_;
+    void check(StateBasedEvaluator& evaluator) const override;
 };
-
 
 // TODO: extend to include action based.
 /**
@@ -127,23 +82,12 @@ class ContinuousTaskTest : public StateBasedEvaluatorTestCase {
 public:
     const double ALLOWED_ERROR_FACTOR = 0.01;
 public:
-    explicit ContinuousTaskTest(double discount_rate);
+    void check(StateBasedEvaluator& evaluator) const override;
+};
 
-    const Environment& env() const override {
-        return env_;
-    }
-
-    const Policy& policy() const override {
-        return policy_;
-    }
-
-    void check(const ValueFunction& value_function) const override;
-
-private:
-    double discount_rate;
-    static const int REWARD_VALUE = 5;
-    MappedEnvironment env_;
-    FirstActionPolicy policy_;
+class BrokenPolicyTest : public StateBasedEvaluatorTestCase {
+public:
+    void check(StateBasedEvaluator& evaluator) const override;
 };
 
 } // namespace rl

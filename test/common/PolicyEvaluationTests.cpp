@@ -16,55 +16,83 @@ rl::MappedEnvironment single_state_action_env(
 
 } // namespace
 
-void rl::test::test_evaluator(rl::StateBasedEvaluator& evaluator,
-                              const rl::test::StateBasedEvaluatorTestCase& test_case) {
-    test_case.check(evaluate(evaluator, test_case.env(), test_case.policy()));
-}
+namespace rl {
+namespace test {
 
-void rl::test::test_evaluator(rl::ActionBasedEvaluator& evaluator,
-                              const rl::test::ActionBasedEvaluatorTestCase& test_case) {
-    test_case.check(evaluate(evaluator, test_case.env(), test_case.policy()));
-}
-
-rl::test::GridWorldTest1::GridWorldTest1() {
+void rl::test::GridWorldTest1::check(StateBasedEvaluator& evaluator) const {
+    // Setup
+    static const int HEIGHT = 5;
+    static const int WIDTH = 1;
+    rl::GridWorld<HEIGHT, WIDTH> grid_world{GridWorldBoundsBehaviour::TRANSITION_TO_CURRENT};
     grid::Position top_left{0, 0};
-    grid::Position bottom_left{HEIGHT-1, 0};
+    grid::Position bottom_left{HEIGHT - 1, 0};
     grid_world.environment().set_start_state(grid_world.pos_to_state(top_left));
     grid_world.environment().mark_as_end_state(grid_world.pos_to_state(bottom_left));
     grid_world.environment().set_all_rewards_to(-1.0);
     grid_world.environment().build_distribution_tree();
-    // Assumption here is that DeterministicLambdaPolicy is copy constructable.
-    p_down_up_policy = std::make_unique<rl::DeterministicLambdaPolicy>(
-            rl::test::create_down_up_policy(grid_world));
-}
+    DeterministicLambdaPolicy down_up_policy = create_down_up_policy(grid_world);
 
-void rl::test::GridWorldTest1::check(const rl::ValueFunction& value_function) const {
+    // Test
+    const ValueFunction& value_function =
+            evaluate(evaluator, grid_world.environment(), down_up_policy);
     ASSERT_EQ(-4, value_function.value(grid_world.pos_to_state(grid::Position{0, 0})));
     ASSERT_EQ(-3, value_function.value(grid_world.pos_to_state(grid::Position{0, 1})));
     ASSERT_EQ(-2, value_function.value(grid_world.pos_to_state(grid::Position{0, 2})));
     ASSERT_EQ(-1, value_function.value(grid_world.pos_to_state(grid::Position{0, 3})));
-    ASSERT_EQ(0,  value_function.value(grid_world.pos_to_state(grid::Position{0, 4})));
+    ASSERT_EQ(0, value_function.value(grid_world.pos_to_state(grid::Position{0, 4})));
 }
 
-void rl::test::SuttonBartoExercise4_1::check(const rl::ValueFunction& value_function) const {
-    for(rl::ID state_id = 0; state_id < test_case.env().state_count(); state_id++) {
+void SuttonBartoExercise4_1Test::check(StateBasedEvaluator& evaluator) const {
+    // Setup
+    using Ex4_1 = Exercise4_1;
+    Ex4_1 test_case;
+    RandomPolicy policy;
+
+    // Test
+    const ValueFunction& value_function = evaluate(evaluator, test_case.env(), policy);
+    for (rl::ID state_id = 0; state_id < test_case.env().state_count(); state_id++) {
         ASSERT_NEAR(Ex4_1::expected_values[state_id],
                     value_function.value(test_case.env().state(state_id)),
                     ALLOWED_ERROR_FACTOR * std::abs(Ex4_1::expected_values[state_id]));
     }
 }
 
-rl::test::ContinuousTaskTest::ContinuousTaskTest(double discount_rate) :
-discount_rate(discount_rate),
-env_(single_state_action_env("State 1", "Action 1", REWARD_VALUE)) {
+void rl::test::ContinuousTaskTest::check(StateBasedEvaluator& evaluator) const {
+    const int REWARD_VALUE = 5;
+    MappedEnvironment env(single_state_action_env("State 1", "Action 1", REWARD_VALUE));
+    FirstActionPolicy policy;
+    for(int discount_rate_tenth = 1; discount_rate_tenth <= 9; discount_rate_tenth++) {
+        double discount_rate = discount_rate_tenth / 10.0;
+        evaluator.set_discount_rate(discount_rate);
+        double denom = 1.0 - discount_rate;
+        ASSERT_FALSE(denom == 0) << "The test implementation is broken if this fails.";
+        double correct_value = REWARD_VALUE / denom;
+        // We could be more exact here with out bounds.
+        double bounds = ALLOWED_ERROR_FACTOR * correct_value;
+        const State& the_only_state = *env.states().begin();
+        const ValueFunction& value_function = evaluate(evaluator, env, policy);
+        ASSERT_NEAR(correct_value, value_function.value(the_only_state), bounds);
+    }
 }
 
-void rl::test::ContinuousTaskTest::check(const rl::ValueFunction& value_function) const {
-    double denom = 1.0 - discount_rate;
-    ASSERT_FALSE(denom == 0) << "The test implementation is broken if this fails.";
-    double correct_value = REWARD_VALUE / denom;
-    // We could be more exact here with out bounds.
-    double bounds = ALLOWED_ERROR_FACTOR * correct_value;
-    const State& the_only_state = *env_.states().begin();
-    ASSERT_NEAR(correct_value, value_function.value(the_only_state), bounds);
+void BrokenPolicyTest::check(StateBasedEvaluator& evaluator) const {
+    // Setup
+    MappedEnvironment env = single_state_action_env();
+    // Set a discount rate so that the test doesn't go on forever in the case where the behaviour is
+    // broken.
+    evaluator.set_discount_rate(0.9);
+    rl::test::NoActionPolicy no_action_policy;
+    rl::test::ZeroWeightActionPolicy zero_weight_policy;
+
+    // Test
+    // 1. Exception expected for a policy with no action for a state.
+    evaluator.initialize(env, no_action_policy);
+    EXPECT_ANY_THROW(evaluator.run());
+
+    // 2. Exception expected for a policy with an action of zero weight.
+    evaluator.initialize(env, zero_weight_policy);
+    EXPECT_ANY_THROW(evaluator.run());
 }
+
+} // namespace test
+} // namespace rl
