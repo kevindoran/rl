@@ -6,6 +6,7 @@
 #include "rl/IterativePolicyEvaluator.h"
 #include "rl/FirstVisitMCValuePredictor.h"
 #include "rl/FirstVisitMCActionValuePredictor.h"
+#include "rl/MCEvaluator3.h"
 
 //----------------------------------------------------------------------------------------------
 // IterativePolicyEvaluator
@@ -54,7 +55,7 @@ TEST_F(FirstVisitMCValuePredictor, grid_world1) {
     test_case.check(evaluator);
 }
 
-TEST_F(FirstVisitMCValuePredictor, sutton_barto_exercise_4_1) {
+TEST_F(FirstVisitMCValuePredictor, sutton_barto_exercise_4_1_LONG_RUNNING) {
     // Setup
     // The default (currently 0.00001) leads to long execution times. Making it less strict.
     evaluator.set_delta_threshold(0.0001);
@@ -82,6 +83,20 @@ TEST_F(FirstVisitMCActionValuePredictor,
         blackjack_speciic_case1_LONG_RUNNING) {
     // Setup
     rl::test::BlackjackSpecificCase test_case;
+    test_case.check(evaluator);
+}
+
+//----------------------------------------------------------------------------------------------
+// Every-visit Monte Carlo off-policy importance sampling state-action value function evaluator.
+//----------------------------------------------------------------------------------------------
+class MCEvaluator3 : public ::testing::Test {
+protected:
+    rl::MCEvaluator3 evaluator;
+};
+
+TEST_F(MCEvaluator3, grid_world1) {
+    // Setup
+    rl::test::GridWorldTest1 test_case;
     test_case.check(evaluator);
 }
 

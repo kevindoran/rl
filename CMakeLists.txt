@@ -3,7 +3,7 @@ project(reinforcement)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wall -Wno-long-long -pedantic -Wno-unused-variable")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -Wall -Wno-long-long -pedantic -Wno-unused-variable -ftrapv")
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 
 # Conan
@@ -52,7 +52,11 @@ add_library(reinforcement
         src/rl/FirstVisitMCActionValuePredictor.h
         src/rl/ActionValueFunction.h
         src/rl/ActionValuePolicyImprover.h
-        src/util/random.cpp)
+        src/rl/MCEvaluator3.h
+        src/rl/MCEvaluator3.cpp
+        src/util/random.cpp
+        src/rl/StateActionMap.h
+        )
 target_include_directories(reinforcement
         PUBLIC
         ${PROJECT_SOURCE_DIR}/src)
@@ -76,7 +80,9 @@ add_executable(runTests
         test/distribution_list.cpp
         test/policy_evaluation.cpp
         test/common/PolicyEvaluationTests.h
-        test/common/PolicyEvaluationTests.cpp)
+        test/common/PolicyEvaluationTests.cpp
+        test/test_policy.cpp
+        )
 target_link_libraries(runTests gtest gtest_main)
 target_link_libraries(runTests ${CONAN_LIBS})
 target_link_libraries(runTests reinforcement)

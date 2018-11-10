@@ -57,8 +57,19 @@ public:
             return action_list_.total_weight();
         }
 
+        /**
+         * Returns the probability weight of the given action being chosen.
+         *
+         * If the given action has no chance of being chosen, 0 will be returned.
+         */
         Weight weight(const Action& action) const {
-            return weight_map_.at(&action);
+            auto it = weight_map_.find(&action);
+            if(it == std::end(weight_map_)) {
+                return 0;
+            } else {
+                double res = it->second;
+                return res;
+            }
         }
 
         ID action_count() const {

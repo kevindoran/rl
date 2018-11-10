@@ -1,0 +1,48 @@
+#pragma once
+
+#include <rl/impl/PolicyEvaluator.h>
+#include "RandomPolicy.h"
+#include "Trial.h"
+#include "StateActionMap.h"
+
+namespace rl {
+
+/**
+ * Monte Carlo off-policy prediction via importance sampling.
+ *
+ * Trials using a policy that has full coverage of the policy space (the behaviour policy) are used
+ * to calculate the state-action value function for a target policy. The target policy in this case
+ * is a greedy policy- greedy with respect to the value function.
+ *
+ * I've given up on trying to encode the details of the algorithms into the class names.
+ */
+class MCEvaluator3 : public ActionBasedEvaluator,
+                     public impl::PolicyEvaluator {
+public:
+    enum class AveragingMode {STANDARD, WEIGHTED};
+    static const int MIN_VISIT = 100;
+public:
+    void set_averaging_mode(AveragingMode mode);
+    void initialize(const Environment& env, const Policy& policy) override;
+    void step() override;
+    bool finished() const override;
+    const ActionValueFunction& value_function() const override;
+
+private:
+    void update_action_value_fctn(const Trace& trace);
+
+private:
+    AveragingMode averaging_mode_ = AveragingMode::WEIGHTED;
+    RandomPolicy DEFAULT_BEHAVIOUR_POLICY;
+    Policy& behaviour_policy = DEFAULT_BEHAVIOUR_POLICY;
+    ActionValueFunction value_function_;
+    // Using action-value functions for our internal data also.
+    StateActionMap<double> cumulative_sampling_ratios;
+    StateActionMap<double> deltas;
+    StateActionMap<long> visit_counts;
+    long min_visit = 0;
+};
+
+} // namespace rl
+
+

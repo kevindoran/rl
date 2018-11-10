@@ -27,11 +27,10 @@ public:
         std::size_t element_count = env.action_count() * env.state_count();
         value_function_ = ActionValueFunction(env.state_count(), env.action_count());
         visit_count = std::vector<int>(element_count, 0);
-        delta = std::vector<double>(element_count, 0);
+        delta = std::vector<double>(element_count, 0.0);
         // Set the value for all end states (zero).
         for(const State& state : env.end_states()) {
             for(const Action& action : env.actions()) {
-                delta[hash(state, action)] = 0.0;
                 visit_count[hash(state, action)] =
                         std::numeric_limits<int>::max();
             }

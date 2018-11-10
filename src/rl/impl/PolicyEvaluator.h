@@ -30,7 +30,7 @@ public:
 
     void run() override {
         LOG_IF(ERROR, finished()) << "The evaluation end criteria is met before starting.";
-        while(most_recent_delta_ > delta_threshold_) {
+        while(!finished()) {
             long previous_step_count = steps_done();
             step();
             CHECK_EQ(steps_done(), previous_step_count + 1);
