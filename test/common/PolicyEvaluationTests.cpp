@@ -126,7 +126,7 @@ void BlackjackSpecificCase::check(ActionBasedEvaluator& evaluator) const {
     double allowed_error = 0.03;
     // From BlackjackEnvironmentF.test_specific_case_3, we know that the expected return from
     // (15, false, 2) with the hit-stick policy is:
-    double expected_return = 0.267040 - 0.683266; // wins - losses
+    double expected_return = 0.267040 - 0.683266; // wins - losses (draws are: 0.049694)
     // Seed the generator to insure deterministic results.
     rl::util::random::reseed_generator(1);
 

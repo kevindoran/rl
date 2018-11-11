@@ -57,12 +57,10 @@ public:
             }
         }
         // Update stopping criteria.
-        // TODO: can we use max_element here? I don't think so...
-        //most_recent_delta_ = std::accumulate(std::begin(delta), std::end(delta), 0.0) / delta.size();
+        steps_++;
         most_recent_delta_ = *std::max_element(delta.begin(), delta.end());
         // TODO: what if there are skipped state-action pairs that then have 0 visit count?
         min_visit_ = *std::min_element(visit_count.begin(), visit_count.end());
-        steps_++;
     }
 
     bool finished() const override {

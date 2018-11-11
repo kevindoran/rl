@@ -1,9 +1,9 @@
 #pragma once
 
 #include <rl/impl/PolicyEvaluator.h>
-#include "RandomPolicy.h"
 #include "Trial.h"
 #include "StateActionMap.h"
+#include "RandomPolicy.h"
 
 namespace rl {
 
@@ -19,6 +19,7 @@ namespace rl {
 class MCEvaluator3 : public ActionBasedEvaluator,
                      public impl::PolicyEvaluator {
 public:
+    // TODO: these options aren't used yet.
     enum class AveragingMode {STANDARD, WEIGHTED};
     static const int MIN_VISIT = 100;
 public:
@@ -33,9 +34,9 @@ private:
 
 private:
     AveragingMode averaging_mode_ = AveragingMode::WEIGHTED;
-    RandomPolicy DEFAULT_BEHAVIOUR_POLICY;
-    Policy& behaviour_policy = DEFAULT_BEHAVIOUR_POLICY;
+    std::unique_ptr<Policy> p_behaviour_policy;
     ActionValueFunction value_function_;
+    RandomPolicy random_policy;
     // Using action-value functions for our internal data also.
     StateActionMap<double> cumulative_sampling_ratios;
     StateActionMap<double> deltas;

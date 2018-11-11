@@ -58,7 +58,7 @@ public:
         }
 
         /**
-         * Returns the probability weight of the given action being chosen.
+         * Returns the weight of the given action being chosen.
          *
          * If the given action has no chance of being chosen, 0 will be returned.
          */
@@ -70,6 +70,13 @@ public:
                 double res = it->second;
                 return res;
             }
+        }
+
+        /**
+         * Returns the probability of the given action being chosen.
+         */
+        double probability(const Action& action) const {
+            return weight(action) / total_weight();
         }
 
         ID action_count() const {
@@ -91,12 +98,12 @@ public:
     };
 
 public:
-    virtual const Action& next_action(const Environment& e, const State& from_state) const = 0;
+    virtual const Action& next_action(const Environment& env, const State& from_state) const = 0;
 
     // TODO: decide behaviour for what should happen when there are no actions.
     // note: the return type could be changed to shared_ptr<ActionDistribution> to allow for the
     // option of returning an existing object rather than copying.
-    virtual ActionDistribution possible_actions(const Environment& e,
+    virtual ActionDistribution possible_actions(const Environment& env,
                                                 const State& from_state) const = 0;
 
     virtual ~Policy() = default;

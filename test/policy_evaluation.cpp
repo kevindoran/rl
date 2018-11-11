@@ -100,3 +100,14 @@ TEST_F(MCEvaluator3, grid_world1) {
     test_case.check(evaluator);
 }
 
+TEST_F(MCEvaluator3, blackjack_specific_case1_LONG_RUNNING) {
+    // Setup
+    rl::test::BlackjackSpecificCase test_case;
+    // The MCEvaluator3 takes a LONG time to converge for all state-action pairs. Reducing the
+    // delta threshold to speed things up. It is lucky that it is still accurate enough to pass
+    // with a 1e-3 delta threshold setting.
+    evaluator.set_delta_threshold(1e-3);
+    // Test
+    test_case.check(evaluator);
+}
+
