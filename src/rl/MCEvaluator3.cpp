@@ -1,6 +1,6 @@
 #include "MCEvaluator3.h"
 #include "RandomPolicy.h"
-#include <BlendedPolicy.h>
+#include <rl/BlendedPolicy.h>
 
 namespace rl {
 

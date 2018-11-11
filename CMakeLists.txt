@@ -56,7 +56,7 @@ add_library(reinforcement
         src/rl/MCEvaluator3.cpp
         src/util/random.cpp
         src/rl/StateActionMap.h
-        src/rl/QeGreedyPolicy.h src/BlendedPolicy.h
+        src/rl/QeGreedyPolicy.h src/rl/BlendedPolicy.h
         )
 target_include_directories(reinforcement
         PUBLIC
