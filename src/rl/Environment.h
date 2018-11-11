@@ -254,6 +254,9 @@ public:
 
     virtual std::vector<std::reference_wrapper<const State>> end_states() const = 0;
 
+    // TODO: there should be multiple possible start states. For example, the Blackjack environment
+    // has a number of possible start states, and some are not reachable from the single designated
+    // start state that is currently being designated.
     virtual const State& start_state() const = 0;
 
     virtual bool is_end_state(const State& s) const = 0;
