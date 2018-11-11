@@ -76,13 +76,18 @@ protected:
 TEST_F(FirstVisitMCActionValuePredictor, grid_world1) {
     // Setup
     rl::test::GridWorldTest1 test_case;
+    // Test
     test_case.check(evaluator);
 }
 
 TEST_F(FirstVisitMCActionValuePredictor,
-        blackjack_speciic_case1_LONG_RUNNING) {
+        blackjack_specific_case1_LONG_RUNNING) {
     // Setup
     rl::test::BlackjackSpecificCase test_case;
+    // Another slow test. Reducing the delta threshold to speed it up. (1e-3 leads to a failing test
+    // at the current allowed accuracy bounds, so 1e-4 will have to do).
+    evaluator.set_delta_threshold(1e-4);
+    // Test
     test_case.check(evaluator);
 }
 
