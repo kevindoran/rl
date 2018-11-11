@@ -90,6 +90,10 @@ public:
                 static_cast<const ActionValuePolicyImprover*>(this)->policy_evaluator());
     }
 
+    void set_policy_evaluator(const ActionBasedEvaluator& evaluator) {
+        evaluator_ = evaluator;
+    }
+
 private:
     FirstVisitMCActionValuePredictor default_evaluator;
     ActionBasedEvaluator& evaluator_ = default_evaluator;

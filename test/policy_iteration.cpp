@@ -4,6 +4,7 @@
 #include <rl/FirstVisitMCValuePredictor.h>
 #include <ExamplePolicies.h>
 #include <rl/ActionValuePolicyImprover.h>
+#include <rl/MCEvaluator3.h>
 
 #include "rl/GridWorld.h"
 #include "grid/Grid.h"
@@ -60,7 +61,7 @@ void test_improver(rl::PolicyImprover& policy_improver,
 
 } // namespace
 
-TEST(PolicyImprovers_LONG_RUNNING, test_policy_iterator) {
+TEST(PolicyImprovers_LONG_RUNNING, policy_iterator) {
     rl::DeterministicImprover improver;
     test_improver(improver, rl::test::Exercise4_1(), rl::RandomPolicy());
     test_improver(improver, rl::test::Exercise4_2(), rl::RandomPolicy());
@@ -68,11 +69,20 @@ TEST(PolicyImprovers_LONG_RUNNING, test_policy_iterator) {
     //test_improver(improver, rl::test::Exercise5_1(), rl::test::RandomPolicy());
 }
 
-TEST(PolicyImprovers_LONG_RUNNING, test_action_value_policy_iterator) {
+TEST(PolicyImprovers_LONG_RUNNING, action_value_policy_iterator) {
     rl::ActionValuePolicyImprover improver;
     // FIXME: A Monte Carlo evaluator of deterministic policy on a deterministic environment
     //        has a high chance of encountering an infinite trial unless loop detection is
     //        implemented.
     //test_improver(improver, rl::test::Exercise4_1(), rl::test::FirstValidActionPolicy());
+    test_improver(improver, rl::test::Exercise5_1(), rl::RandomPolicy());
+}
+
+TEST(PolicyImprovers_LONG_RUNNING, action_value_iterator_with_MCEvalutar3) {
+    // Setup
+    rl::ActionValuePolicyImprover improver;
+    rl::MCEvaluator3 evaluator;
+    improver.set_policy_evaluator(evaluator);
+    // Test
     test_improver(improver, rl::test::Exercise5_1(), rl::RandomPolicy());
 }
