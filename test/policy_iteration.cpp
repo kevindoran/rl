@@ -88,7 +88,7 @@ TEST(PolicyImprovers, action_value_iterator_with_MCEvalutar3_LONG_RUNNING) {
     test_improver(improver, rl::test::Exercise5_1(), rl::RandomPolicy());
 }
 
-TEST(PolicyImprovers, sarsa_improver) {
+TEST(PolicyImprovers, sarsa_improver_LONG_RUNNING) {
     // Setup
     rl::SarsaImprover improver;
     // Test
