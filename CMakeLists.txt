@@ -60,6 +60,8 @@ add_library(reinforcement
         src/rl/BlendedPolicy.h
         src/rl/TDEvaluator.cpp
         src/rl/TDEvaluator.h
+        src/rl/SarsaImprover.h
+        src/rl/impl/PolicyImprover.h
         )
 target_include_directories(reinforcement
         PUBLIC

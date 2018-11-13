@@ -58,6 +58,15 @@ public:
         // as I'm curious if it will ever become an issue.
         StochasticPolicy out(env.state_count());
         for(const State& s : env.states()) {
+            // The input policy shouldn't have any actions for end states. To be defensive, the
+            // end state entries will be cleared anyway.
+            if(env.is_end_state(s)) {
+                if(other.possible_actions(env, s).action_count()) {
+                    LOG(WARNING) << "Creating a stochastic policy from another policy. The source "
+                                    "policy has actions assigned to end states (which is invalid).";
+                }
+                continue;
+            }
             // As the ActionDistribution is returned by value, the full statement
             // other.possible_actions(env, s).weight_map() cannot be placed in the for loop, as
             // ActionDistribution object is destroyed before the loop can begin. This is an easy

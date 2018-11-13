@@ -1,3 +1,4 @@
+#include "Policy.h"
 #include "TDEvaluator.h"
 #include <rl/BlendedPolicy.h>
 
@@ -51,8 +52,9 @@ void TDEvaluator::update_value_fctn(const Trace& trace) {
         double current_val = value_function_.value(ts.state, action);
         // This line below distinguishes TD from MC. The next state's state value is being used
         // (like Expected Sarsa) instead of the subsequent state-action pair's state action value.
-        double td_error = prev_ts.reward + state_value(prev_ts.state) -
-                          value_function_.value(ts.state, action);
+        double state_val = calculate_state_value(*CHECK_NOTNULL(env_), value_function_,
+                                                 prev_ts.state, *CHECK_NOTNULL(policy_));
+        double td_error = prev_ts.reward + state_val - value_function_.value(ts.state, action);
         long n = ++visit_counts.data(ts.state, action);
         CHECK_GT(n, 0);
         double updated_val = current_val +  1.0/n * td_error;
@@ -61,25 +63,6 @@ void TDEvaluator::update_value_fctn(const Trace& trace) {
         deltas.set(ts.state, action, std::abs(updated_val - current_val));
         p_prev_ts = &ts;
     }
-}
-
-double TDEvaluator::state_value(const State& state) const {
-    const Environment& env = *CHECK_NOTNULL(env_);
-    const Policy& policy = *CHECK_NOTNULL(policy_);
-    if(env.is_end_state(state)) {
-        return 0;
-    }
-    double expected_return = 0;
-    Policy::ActionDistribution action_dist = policy.possible_actions(env, state);
-    for (const Action& action : env.actions()) {
-        if (!env.is_action_allowed(state, action)) {
-            continue;
-        }
-        double action_return = action_dist.probability(action) *
-                               value_function_.value(state, action);
-        expected_return += action_return;
-    }
-    return expected_return;
 }
 
 } // namespace rl

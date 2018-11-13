@@ -81,11 +81,27 @@ public:
         return ans;
     }
 
-    const ActionBasedEvaluator& policy_evaluator() const override {
+    void set_discount_rate(double discount_rate) override {
+        evaluator_.set_discount_rate(discount_rate);
+    }
+
+    double discount_rate() const override {
+        return evaluator_.discount_rate();
+    }
+
+    void set_delta_threshold(double max_delta) override {
+        evaluator_.set_delta_threshold(max_delta);
+    }
+
+    double delta_threshold() const override {
+        return evaluator_.delta_threshold();
+    }
+
+    const ActionBasedEvaluator& policy_evaluator() const {
         return evaluator_;
     }
 
-    ActionBasedEvaluator& policy_evaluator() override {
+    ActionBasedEvaluator& policy_evaluator() {
         return const_cast<ActionBasedEvaluator&>(
                 static_cast<const ActionValuePolicyImprover*>(this)->policy_evaluator());
     }

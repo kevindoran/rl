@@ -24,7 +24,23 @@ public:
     explicit QeGreedyPolicy(const ActionValueFunction& value_function) :
     value_function(value_function) {}
 
+    explicit QeGreedyPolicy(const ActionValueFunction& value_function, double e) :
+    value_function(value_function),
+    e_(e) {}
+
+    QeGreedyPolicy() = delete;
+    QeGreedyPolicy(const QeGreedyPolicy&) = delete;
+    QeGreedyPolicy& operator=(const QeGreedyPolicy&) = delete;
+    QeGreedyPolicy(QeGreedyPolicy&&) = delete;
+    QeGreedyPolicy&& operator=(QeGreedyPolicy&&) = delete;
+    ~QeGreedyPolicy() override = default;
+
+    static QeGreedyPolicy create_pure_greedy_policy(const ActionValueFunction& value_function) {
+        return QeGreedyPolicy(value_function, 0);
+    }
+
     const Action& next_action(const Environment& env, const State& from_state) const override {
+        CHECK(!env.is_end_state(from_state));
         const Action* best_action = nullptr;
         double best_return = std::numeric_limits<double>::lowest();
         for(const Action& a : env.actions()) {
@@ -34,13 +50,16 @@ public:
                 best_action = &a;
             }
         }
+        // TODO: use e.
         return *CHECK_NOTNULL(best_action);
     }
 
     ActionDistribution
-    possible_actions(const Environment& e, const State& from_state) const override {
-        throw std::runtime_error("Not implemented yet.");
-        return ActionDistribution();
+    possible_actions(const Environment& env, const State& from_state) const override {
+        if(env.is_end_state(from_state)) {
+            return ActionDistribution();
+        }
+        return ActionDistribution::single_action(next_action(env, from_state));
     }
 
     void set_e(double e) {

@@ -210,10 +210,33 @@ public:
     // possible with the map used by DeterministicPolicy.
     virtual std::unique_ptr<Policy> improve(const Environment& env, const Policy& policy) const = 0;
 
-    virtual PolicyEvaluator& policy_evaluator() = 0;
-    virtual const PolicyEvaluator& policy_evaluator() const = 0;
+    //----------------------------------------------------------------------------------------------
+    // Settings
+    //----------------------------------------------------------------------------------------------
+    virtual void set_discount_rate(double discount_rate) = 0;
+    virtual double discount_rate() const = 0;
+    virtual void set_delta_threshold(double max_delta) = 0;
+    virtual double delta_threshold() const = 0;
 
     virtual ~PolicyImprover() = default;
 };
+
+
+/**
+ * Calculates, from an action value function, the state value for \c state when following \c policy.
+ *
+ * This method flattens the state-action value function into a state value for a given state.
+ *
+ * The calculation is a simple sum, over a: prob(a | state) * action_value(a)
+ *
+ * Note: this method can become a member function of ActionValueFunction once this Policy.h header
+ * is split up (currently, there would be a cyclic include dependency).
+ */
+double calculate_state_value(
+        const Environment& env,
+        const ActionValueFunction& value_function,
+        const State& state,
+        const Policy& policy);
+
 
 } // namespace rl

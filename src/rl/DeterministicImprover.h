@@ -9,15 +9,32 @@ namespace rl {
 
 class DeterministicImprover : public PolicyImprover {
 public:
-    void set_policy_evaluator(PolicyEvaluator& evaluator) {
-        evaluator = evaluator;
+
+    void set_discount_rate(double discount_rate) override {
+        evaluator_.set_discount_rate(discount_rate);
     }
 
-    const PolicyEvaluator& policy_evaluator() const override {
-        return evaluator;
+    double discount_rate() const override {
+        return evaluator_.discount_rate();
     }
 
-    PolicyEvaluator& policy_evaluator() override {
+    void set_delta_threshold(double max_delta) override {
+        evaluator_.set_delta_threshold(max_delta);
+    }
+
+    double delta_threshold() const override {
+        return evaluator_.delta_threshold();
+    }
+
+    void set_policy_evaluator(StateBasedEvaluator& evaluator) {
+        evaluator_ = evaluator;
+    }
+
+    const PolicyEvaluator& policy_evaluator() const {
+        return evaluator_;
+    }
+
+    PolicyEvaluator& policy_evaluator() {
         return const_cast<PolicyEvaluator&>(
                 static_cast<const DeterministicImprover*>(this)->policy_evaluator());
     }
@@ -39,7 +56,7 @@ public:
         bool finished = false;
         while(!finished) {
             bool policy_updated = false;
-            const ValueFunction& value_fctn = evaluate(evaluator, env, *ans);
+            const ValueFunction& value_fctn = evaluate(evaluator_, env, *ans);
             for(const State& s : env.states()) {
                 // Skip the end states. They always have a value of 0, and we shouldn't have any
                 // actions associated with it.
@@ -91,7 +108,7 @@ private:
             }
             double expected_value = calculate_reward(env, from_state, a, value_fctn);
             double v_current = value_fctn.value(from_state);
-            if(greater_than(expected_value, v_current, evaluator.delta_threshold())) {
+            if(greater_than(expected_value, v_current, evaluator_.delta_threshold())) {
                 // We found a better action!
                 ans = {&a, expected_value};
             } else {
@@ -109,7 +126,7 @@ private:
         ResponseDistribution transitions = env.transition_list(from_state, action);
         double expect_value_sum = 0;
         for(const Response& r : transitions.responses()) {
-            double next_state_value = evaluator.discount_rate() * value_fctn.value(r.next_state);
+            double next_state_value = evaluator_.discount_rate() * value_fctn.value(r.next_state);
             expect_value_sum += r.prob_weight * (r.reward.value() + next_state_value);
         }
         Ensures(transitions.total_weight() != 0);
@@ -119,7 +136,7 @@ private:
 
 private:
     IterativePolicyEvaluator default_evalutator;
-    StateBasedEvaluator& evaluator = default_evalutator;
+    StateBasedEvaluator& evaluator_ = default_evalutator;
 };
 
 } // namespace rl

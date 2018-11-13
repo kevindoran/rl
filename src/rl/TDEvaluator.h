@@ -28,15 +28,6 @@ public:
 private:
     void update_value_fctn(const Trace& trace);
 
-    /**
-     * Calculate the expected return from the given state when following the policy being evaluated.
-     *
-     * This method flattens the state-action value function into a state value for a given state.
-     *
-     * The calculation is a simple sum, over a: prob(a | state) * action_value(a)
-     */
-    double state_value(const State& state) const;
-
 private:
     ActionValueFunction value_function_;
     StateActionMap<double> deltas;
