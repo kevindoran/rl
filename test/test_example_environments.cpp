@@ -209,7 +209,7 @@ TEST_F(BlackjackEnvironmentF, test_transition_list_21_stick) {
     rl::ResponseDistribution res = env.transition_list(
             env.state(env.state_id(blackjack_state)),
             env.action(env.action_id(BlackjackEnv::BlackjackAction::STICK)));
-    ASSERT_EQ(2, res.responses().size());
+    ASSERT_EQ(static_cast<std::size_t>(2), res.responses().size());
     ASSERT_DOUBLE_EQ(1.0, res.total_weight());
     for (const rl::Response& r : res.responses()) {
         if (r.next_state == env.win_state()) {
