@@ -139,24 +139,30 @@ public:
     }
 
 protected:
-    const State& add_state(std::unique_ptr<State> s) {
-        states_.emplace_back(std::move(s));
-        const State& added = *states_.back();
-        Ensures(added.id() == state_count() - 1);
+    const State& add_state(std::string name) {
+        ID id = state_count();
+        states_.emplace_back(std::make_unique<State>(id, std::move(name)));
         return *states_.back();
     }
 
-    const State& add_end_state(std::unique_ptr<State> s) {
-        add_state(std::move(s));
+    const State& add_end_state(std::string name) {
+        add_state(std::move(name));
         const State& added  = *states_.back();
         mark_as_end_state(added);
         return added;
     }
 
-    const Action& add_action(std::unique_ptr<Action> a) {
-        actions_.emplace_back(std::move(a));
+    const Action& add_action(std::string name) {
+        ID id = action_count();
+        actions_.emplace_back(std::make_unique<Action>(id, std::move(name)));
         const Action& added = *actions_.back();
-        Ensures(added.id() == action_count() - 1);
+        return added;
+    }
+
+    const Reward& add_reward(std::string name, double value) {
+        ID id = reward_count();
+        rewards_.emplace_back(std::make_unique<Reward>(id, std::move(name), value));
+        const Reward& added = *rewards_.back();
         return added;
     }
 

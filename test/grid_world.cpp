@@ -17,22 +17,20 @@ TEST(GridWorldTest, basic_example) {
     const int HEIGHT = 4;
     const int WIDTH = 4;
     GridWorld<HEIGHT, WIDTH> grid_world(GridWorldBoundsBehaviour::NO_OUT_OF_BOUNDS);
-    MappedEnvironment& environment = grid_world.environment();
     grid::Position pos{0, 1};
-    environment.set_start_state(grid_world.pos_to_state(pos));
-    rl::Trial grid_trial(grid_world.environment());
-    auto& grid = grid_world.grid();
+    grid_world.set_start_state(grid_world.pos_to_state(pos));
+    rl::Trial grid_trial(grid_world);
     // Make top-left and bottom-right tiles the end states.
     grid::Position top_left{0, 0};
     grid::Position bottom_right{HEIGHT-1, WIDTH-1};
-    environment.mark_as_end_state(grid_world.pos_to_state(top_left));
-    environment.mark_as_end_state(grid_world.pos_to_state(bottom_right));
+    grid_world.mark_as_end_state(grid_world.pos_to_state(top_left));
+    grid_world.mark_as_end_state(grid_world.pos_to_state(bottom_right));
 
     // Test
     // 1. Start at (0, 1) and move to the right edge.
     const Action& move_right_action = grid_world.dir_to_action(grid::Direction::RIGHT);
     while(pos.x < WIDTH-1) {
-        ASSERT_TRUE(environment.is_action_allowed(grid_world.pos_to_state(pos), move_right_action));
+        ASSERT_TRUE(grid_world.is_action_allowed(grid_world.pos_to_state(pos), move_right_action));
         grid_trial.execute_action(move_right_action);
         pos = pos.adj(grid::Direction::RIGHT);
         ASSERT_EQ(pos, grid_world.state_to_pos(grid_trial.current_state()));
@@ -45,7 +43,7 @@ TEST(GridWorldTest, basic_example) {
     ASSERT_ANY_THROW(grid_trial.execute_action(move_right_action));
 
     // 3. Set all rewards to 1.0. Then move down.
-    grid_world.environment().set_all_rewards_to(1.0);
+    grid_world.set_all_rewards_to(1.0);
     const Action& move_down_action = grid_world.dir_to_action(grid::Direction::DOWN);
     grid_trial.execute_action(move_down_action);
     pos = pos.adj(grid::Direction::DOWN);

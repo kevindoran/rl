@@ -190,6 +190,15 @@ public:
     // can be obtained easily from a ResponseDistribution.
     using Responses = std::vector<Response>;
 
+public:
+    ResponseDistribution() = default;
+    ResponseDistribution(ResponseDistribution&&) = default;
+    ResponseDistribution& operator=(ResponseDistribution&&) = default;
+    ~ResponseDistribution() = default;
+    // Deleted until needed.
+    ResponseDistribution(const ResponseDistribution&) = delete;
+    ResponseDistribution& operator=(const ResponseDistribution&) = delete;
+
     const Responses& responses() const {return responses_;}
     Weight total_weight() const {return total_weight_;}
 
@@ -198,6 +207,17 @@ public:
         total_weight_ += r.prob_weight;
         responses_.emplace_back(std::move(r));
     }
+
+    static ResponseDistribution single_response(Response response) {
+        return ResponseDistribution(std::move(response));
+    }
+
+private:
+    explicit ResponseDistribution(Response response) :
+            responses_{std::move(response)},
+            total_weight_{responses_.back().prob_weight}
+    {}
+
 private:
     Responses responses_{};
     Weight total_weight_ = 0;

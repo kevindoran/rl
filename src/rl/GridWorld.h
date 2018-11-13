@@ -1,9 +1,13 @@
 #pragma once
 
-#include "rl/MappedEnvironment.h"
 #include "grid/Grid.h"
+#include "impl/Environment.h"
 
 namespace rl {
+
+// This enum exists outside the GridWorld class template so that each template instance doesn't
+// get a different enum.
+enum class GridWorldBoundsBehaviour {NO_OUT_OF_BOUNDS, TRANSITION_TO_CURRENT, LOOP};
 
 /**
  * An environment representing an WxH grid where each grid entry represents a state.
@@ -34,13 +38,8 @@ namespace rl {
  * One or more grid positions can be marked as end states.
  *
  */
-
-// This enum exists outside the GridWorld class template so that each template instance doesn't
-// get a different enum.
-enum class GridWorldBoundsBehaviour {NO_OUT_OF_BOUNDS, TRANSITION_TO_CURRENT, LOOP};
-
 template<int HEIGHT, int WIDTH>
-class GridWorld {
+class GridWorld : public impl::Environment {
 public:
     using GridType = grid::Grid<HEIGHT, WIDTH>;
 
@@ -59,56 +58,59 @@ public:
                 grid::Position p{y, x};
                 // Add state.
                 std::string state_name = p.to_string();
-                State &s = environment_.add_state(state_name);
+                const State &s = add_state(state_name);
                 Ensures(s == pos_to_state(p));
                 // Add reward.
-                Reward &r = environment_.add_reward(DEFAULT_REWARD, state_name);
+                const Reward &r = add_reward(state_name, DEFAULT_REWARD);
                 Ensures(r.id() == reward_at(p).id());
             }
         }
 
         // Add actions. There are just 4 actions.
         for (grid::Direction d : grid::directions) {
-            Action &a = environment_.add_action(grid::to_string(d));
+            const Action &a = add_action(grid::to_string(d));
             Ensures(a.id() == dir_to_action_id(d));
         }
+    }
 
-        // Add transitions.
-        for (int y = 0; y < HEIGHT; y++) {
-            for (int x = 0; x < WIDTH; x++) {
-                grid::Position from_pos{y, x};
-                // Tile might not always be the same as the state ID.
-                const State& from_state = pos_to_state(from_pos);
-                for (grid::Direction d : grid::directions) {
-                    grid::Position to_pos = from_pos.adj(d);
-                    if (!grid_.is_valid(to_pos)) {
-                        switch (bounds_behaviour) {
-                            case GridWorldBoundsBehaviour::NO_OUT_OF_BOUNDS:
-                                // Skip this tile.
-                                continue;
-                            case GridWorldBoundsBehaviour::TRANSITION_TO_CURRENT:
-                                to_pos = from_pos;
-                                break;
-                            case GridWorldBoundsBehaviour::LOOP:
-                                to_pos = grid_.modulo(to_pos);
-                                break;
-                        }
-                    }
-                    const State& to_state = pos_to_state(to_pos);
-                    const Action& action = dir_to_action(d);
-                    const Reward& reward = reward_at(to_pos);
-                    // Do we need a mapping for these?
-                    Transition t{from_state, to_state, action, reward};
-                    environment_.add_transition(t);
-                }
+    bool is_action_allowed(const State& from_state, const Action& action) const override {
+        grid::Position from_pos = state_to_pos(from_state);
+        grid::Position to_pos = from_pos.adj(action_to_dir(action));
+        bool invalid = !grid_.is_valid(to_pos) and bounds_behaviour_
+                        == GridWorldBoundsBehaviour::NO_OUT_OF_BOUNDS;
+        return !invalid;
+    }
+
+    Response next_state(const State& from_state, const Action& action) const override {
+        grid::Position from_pos = state_to_pos(from_state);
+        grid::Position to_pos = from_pos.adj(action_to_dir(action));
+        if (!grid_.is_valid(to_pos)) {
+            switch (bounds_behaviour_) {
+                case GridWorldBoundsBehaviour::NO_OUT_OF_BOUNDS:
+                    // Skip this tile.
+                    // TODO: refactor with a standard precondition check.
+                    throw std::runtime_error("Moving out of bounds is not allowed");
+                case GridWorldBoundsBehaviour::TRANSITION_TO_CURRENT:
+                    to_pos = from_pos;
+                    break;
+                case GridWorldBoundsBehaviour::LOOP:
+                    to_pos = grid_.modulo(to_pos);
+                    break;
             }
         }
-        environment_.build_distribution_tree();
+        const State& to_state = pos_to_state(to_pos);
+        const Reward& r = reward(to_state.id());
+        return Response{to_state, r, 1.0};
+    }
+
+    ResponseDistribution
+    transition_list(const State& from_state, const Action& action) const override {
+        return ResponseDistribution::single_response(next_state(from_state, action));
     }
 
     const State& pos_to_state(grid::Position p) const {
         // Making some assumptions on the ids and enum values matching. Could use a map instead.
-        return environment_.state(grid_.to_id(p));
+        return state(grid_.to_id(p));
     }
 
     grid::Position state_to_pos(const State& state) const {
@@ -116,7 +118,7 @@ public:
     }
 
     const Action& dir_to_action(grid::Direction d) const {
-        return environment_.action(dir_to_action_id(d));
+        return action(dir_to_action_id(d));
     }
 
     ID dir_to_action_id(grid::Direction d) const {
@@ -157,19 +159,11 @@ public:
      */
     const Reward& reward_at(grid::Position target_state) const {
         // Making some assumptions on the ids and enum values matching. Could use a map instead.
-        return environment_.reward(pos_to_state(target_state).id());
+        return reward(pos_to_state(target_state).id());
     }
 
     Reward& reward_at(grid::Position target_state) {
         return const_cast<Reward&>(static_cast<const GridWorld*>(this)->reward_at(target_state));
-    }
-
-    const MappedEnvironment& environment() const {
-        return environment_;
-    }
-
-    MappedEnvironment& environment() {
-        return const_cast<MappedEnvironment&>(static_cast<const GridWorld*>(this)->environment());
     }
 
     const GridType& grid() const {
@@ -180,24 +174,20 @@ public:
         return const_cast<GridType&>(static_cast<const GridWorld*>(this)->grid());
     }
 
-    /// Some conveniences:
-    // Removed. If we want convenience fctns like this, we need to contain a Trial, rather than
-    // just an environment.
-    /*
-     * grid::Position current_pos() {
-        return state_to_pos(environment_.current_state());
-    }
-    */
-
     GridWorldBoundsBehaviour bounds_behaviour() const {
         return bounds_behaviour_;
+    }
+
+    void set_all_rewards_to(double value) {
+        for(auto& p_reward : rewards_) {
+            p_reward->set_value(value);
+        }
     }
 
 public:
     const int DEFAULT_REWARD = 0;
 
 private:
-    MappedEnvironment environment_;
     GridType grid_;
     GridWorldBoundsBehaviour bounds_behaviour_;
 };

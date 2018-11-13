@@ -59,8 +59,8 @@ public:
         return 1e-2;
     }
 
-    const MappedEnvironment& env() const override {
-        return grid_world_.environment();
+    const Environment& env() const override {
+        return grid_world_;
     }
 
     OptimalActions optimal_actions(const State& from_state) const override {
@@ -82,10 +82,9 @@ private:
         rl::GridWorld<GRID_HEIGHT, GRID_WIDTH> grid_world;
         const grid::Position top_left{0, 0};
         const grid::Position bottom_right{GRID_HEIGHT-1, GRID_WIDTH-1};
-        grid_world.environment().mark_as_end_state(grid_world.pos_to_state(top_left));
-        grid_world.environment().mark_as_end_state(grid_world.pos_to_state(bottom_right));
-        grid_world.environment().set_all_rewards_to(-1.0);
-        grid_world.environment().build_distribution_tree();
+        grid_world.mark_as_end_state(grid_world.pos_to_state(top_left));
+        grid_world.mark_as_end_state(grid_world.pos_to_state(bottom_right));
+        grid_world.set_all_rewards_to(-1.0);
         return grid_world;
     }
 
@@ -440,7 +439,7 @@ public:
                             state_name << dealer_card << ")";
                         }
                         ID id = state_id({player_sum, usable_ace, dealer_card});
-                        add_state(std::make_unique<State>(id, state_name.str()));
+                        add_state(state_name.str());
                         Ensures(states_.back().get()->id() == id);
                         id_to_blackjack_state.insert(
                                 {id, BlackjackState{player_sum, usable_ace, dealer_card}});
@@ -448,14 +447,16 @@ public:
                 }
             }
             // Create the 3 end states.
-            win_state_  = &add_end_state(std::make_unique<State>(state_count(), "win"));
-            draw_state_ = &add_end_state(std::make_unique<State>(state_count(), "draw"));
-            loss_state_ = &add_end_state(std::make_unique<State>(state_count(), "lose"));
+            win_state_  = &add_end_state("win");
+            draw_state_ = &add_end_state("draw");
+            loss_state_ = &add_end_state("lose");
             CHECK_EQ(203, state_count());
 
             // Create the 2 actions.
-            add_action(std::make_unique<Action>(action_id(BlackjackAction::HIT), "hit"));
-            add_action(std::make_unique<Action>(action_id(BlackjackAction::STICK), "stick"));
+            add_action("hit");
+            CHECK_EQ(actions_.back()->id(), action_id(BlackjackAction::HIT));
+            add_action("stick");
+            CHECK_EQ(actions_.back()->id(), action_id(BlackjackAction::STICK));
             CHECK_EQ(2, action_count());
             validate();
         }

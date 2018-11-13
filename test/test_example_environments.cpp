@@ -137,7 +137,7 @@ TEST_F(BlackjackEnvironmentF, test_transition_list_hit) {
             env.state(env.state_id(blackjack_state)),
             env.action(env.action_id(BlackjackEnv::BlackjackAction::HIT)));
     // There should be 10 transitions, with 1/13 chance each (or 4/13 for card 10).
-    ASSERT_EQ(10, res.responses().size());
+    ASSERT_EQ(static_cast<std::size_t>(10), res.responses().size());
     ASSERT_DOUBLE_EQ(1.0, res.total_weight());
     for(const rl::Response& r : res.responses()) {
         int was_ten = (env.blackjack_state(r.next_state).player_sum) == player_sum;

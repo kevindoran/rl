@@ -23,17 +23,16 @@ GridWorldTest1::GridWorldTest1() {
     // Setup
     grid::Position top_left{0, 0};
     grid::Position bottom_left{HEIGHT - 1, 0};
-    grid_world.environment().set_start_state(grid_world.pos_to_state(top_left));
-    grid_world.environment().mark_as_end_state(grid_world.pos_to_state(bottom_left));
-    grid_world.environment().set_all_rewards_to(-1.0);
-    grid_world.environment().build_distribution_tree();
+    grid_world.set_start_state(grid_world.pos_to_state(top_left));
+    grid_world.mark_as_end_state(grid_world.pos_to_state(bottom_left));
+    grid_world.set_all_rewards_to(-1.0);
     p_down_up_policy = std::make_unique<DeterministicLambdaPolicy>(create_down_up_policy(grid_world));
 }
 
 void GridWorldTest1::check(StateBasedEvaluator& evaluator) const {
     // Test
     const ValueFunction& value_function =
-            evaluate(evaluator, grid_world.environment(), *p_down_up_policy);
+            evaluate(evaluator, grid_world, *p_down_up_policy);
     ASSERT_EQ(-4, value_function.value(grid_world.pos_to_state(grid::Position{0, 0})));
     ASSERT_EQ(-3, value_function.value(grid_world.pos_to_state(grid::Position{0, 1})));
     ASSERT_EQ(-2, value_function.value(grid_world.pos_to_state(grid::Position{0, 2})));
@@ -43,7 +42,7 @@ void GridWorldTest1::check(StateBasedEvaluator& evaluator) const {
 
 void GridWorldTest1::check(ActionBasedEvaluator& evaluator) const {
     const ActionValueFunction& value_function =
-            evaluate(evaluator, grid_world.environment(), *p_down_up_policy);
+            evaluate(evaluator, grid_world, *p_down_up_policy);
     for(int h = 0; h < HEIGHT; h++) {
         for(grid::Direction d : grid::directions) {
             int direction_ordinal = static_cast<int>(d);

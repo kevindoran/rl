@@ -39,6 +39,20 @@ struct cumulative_grouping_less {
     }
 };
 
+/**
+ * MappedEnvironment stores all transition information in a distribution tree.
+ *
+ * This class represents an environment whose transitions are entries in a RxRxRxR table
+ * (from state) x (action) x (next state) x (reward). The methods such as next_state() and
+ * transition_list() draw from this table.
+ *
+ * This class is an interesting idea, but not much practical use, as most problems allow for the
+ * dynamics on an environment to be described more effictively by implementing a function rather
+ * than filling in a table. GridWorld originally used MappedEnvironment, but was later switched to
+ * calculate the transitions directly. The old GridWorld can be refered to to see how
+ * MappedEnvironment might be used.
+ *
+ */
 class MappedEnvironment : public impl::Environment {
 public:
     // https://stackoverflow.com/questions/32040426/expose-c-container-iterator-to-user
