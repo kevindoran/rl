@@ -7,6 +7,7 @@
 #include "rl/FirstVisitMCValuePredictor.h"
 #include "rl/FirstVisitMCActionValuePredictor.h"
 #include "rl/MCEvaluator3.h"
+#include "rl/TDEvaluator.h"
 
 //----------------------------------------------------------------------------------------------
 // IterativePolicyEvaluator
@@ -116,3 +117,25 @@ TEST_F(MCEvaluator3, blackjack_specific_case1_LONG_RUNNING) {
     test_case.check(evaluator);
 }
 
+//----------------------------------------------------------------------------------------------
+// On-policy temporal difference evaluator.
+//----------------------------------------------------------------------------------------------
+class TDEvaluator : public ::testing::Test {
+protected:
+    rl::TDEvaluator evaluator;
+};
+
+TEST_F(TDEvaluator, grid_world1) {
+    // Setup
+    rl::test::GridWorldTest1 test_case;
+    // Test
+    test_case.check(evaluator);
+}
+
+TEST_F(TDEvaluator, blackjack_specific_case1) {
+    // Setup
+    rl::test::BlackjackSpecificCase test_case;
+    evaluator.set_delta_threshold(1e-4);
+    // Test
+    test_case.check(evaluator);
+}
