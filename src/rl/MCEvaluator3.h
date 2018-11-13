@@ -1,8 +1,8 @@
 #pragma once
 
-#include <rl/impl/PolicyEvaluator.h>
-#include "Trial.h"
+#include "impl/PolicyEvaluator.h"
 #include "StateActionMap.h"
+#include "Trial.h"
 #include "RandomPolicy.h"
 
 namespace rl {
@@ -22,6 +22,7 @@ public:
     // TODO: these options aren't used yet.
     enum class AveragingMode {STANDARD, WEIGHTED};
     static const int MIN_VISIT = 100;
+
 public:
     void set_averaging_mode(AveragingMode mode);
     void initialize(const Environment& env, const Policy& policy) override;
@@ -37,7 +38,6 @@ private:
     std::unique_ptr<Policy> p_behaviour_policy;
     ActionValueFunction value_function_;
     RandomPolicy random_policy;
-    // Using action-value functions for our internal data also.
     StateActionMap<double> cumulative_sampling_ratios;
     StateActionMap<double> deltas;
     StateActionMap<long> visit_counts;

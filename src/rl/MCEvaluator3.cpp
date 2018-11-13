@@ -54,9 +54,9 @@ void MCEvaluator3::step() {
                 update_action_value_fctn(trace);
             }
         }
-        most_recent_delta_ = *std::max_element(std::begin(deltas.data()), std::end(deltas.data()));
-        min_visit = *std::min_element(std::begin(visit_counts.data()), std::end(visit_counts.data()));
     }
+    most_recent_delta_ = *std::max_element(std::begin(deltas.data()), std::end(deltas.data()));
+    min_visit = *std::min_element(std::begin(visit_counts.data()), std::end(visit_counts.data()));
     steps_++;
 }
 
@@ -69,13 +69,13 @@ void MCEvaluator3::update_action_value_fctn(const Trace& trace) {
     for (auto it = std::next(std::crbegin(trace)); it != std::crend(trace); ++it) {
         const TimeStep& ts = *it;
         const Action& action = *CHECK_NOTNULL(ts.action);
-        // If the target policy could never take this route, exit.
+        // Update value function.
         double updated_cumulative_weight = cumulative_sampling_ratios.data(ts.state, action)
                                            + sampling_ratio;
         double current_val = value_function_.value(ts.state, action);
         double updated_val = current_val + sampling_ratio / updated_cumulative_weight *
                                            (retrn - current_val);
-        // Update data.
+        // Update other data.
         value_function_.set_value(ts.state, action, updated_val);
         visit_counts.data(ts.state, action)++;
         deltas.set(ts.state, action, std::abs(updated_val - current_val));
@@ -90,6 +90,7 @@ void MCEvaluator3::update_action_value_fctn(const Trace& trace) {
         double target_action_prob = policy.possible_actions(env, ts.state).probability(action);
         CHECK_GT(behaviour_action_prob, 0.0);
         sampling_ratio *= (target_action_prob / behaviour_action_prob);
+        // If the target policy could never take this route, exit.
         if (sampling_ratio == 0.0) {
             break;
         }
