@@ -6,7 +6,7 @@
 #include "rl/IterativePolicyEvaluator.h"
 #include "rl/Policy.h"
 #include "rl/DeterministicPolicy.h"
-#include "common/SuttonBartoExercises.h"
+#include "common/suttonbarto/Exercise4_1.h"
 #include "common/ExamplePolicies.h"
 #include "rl/RandomPolicy.h"
 
@@ -50,7 +50,7 @@ rl::DeterministicLambdaPolicy create_random_policy_broken(const rl::GridWorld<W,
  * Grid. If just this test fails, then this test is probably implemented incorrectly.
  */
 TEST(IterativePolicyEvaluationTest, sutton_barto_exercise_4_1_manual) {
-    using TestInfo = rl::test::Exercise4_1;
+    using TestInfo = rl::test::suttonbarto::Exercise4_1;
     const int HEIGHT = 4;
     const int WIDTH = HEIGHT;
     const grid::Position top_left{0, 0};

@@ -8,7 +8,6 @@
 #include "rl/Policy.h"
 #include "rl/DeterministicPolicy.h"
 #include "ExamplePolicies.h"
-#include "SuttonBartoExercises.h"
 
 
 namespace rl {

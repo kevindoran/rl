@@ -1,4 +1,6 @@
 #include "PolicyEvaluationTests.h"
+#include "suttonbarto/Exercise4_1.h"
+#include "suttonbarto/Exercise5_1.h"
 
 namespace {
 
@@ -57,7 +59,7 @@ void GridWorldTest1::check(ActionBasedEvaluator& evaluator) const {
 
 void SuttonBartoExercise4_1Test::check(StateBasedEvaluator& evaluator) const {
     // Setup
-    using Ex4_1 = Exercise4_1;
+    using Ex4_1 = suttonbarto::Exercise4_1;
     Ex4_1 test_case;
     RandomPolicy policy;
 
@@ -109,7 +111,7 @@ void BrokenPolicyTest::check(StateBasedEvaluator& evaluator) const {
 
 void BlackjackSpecificCase::check(ActionBasedEvaluator& evaluator) const {
     // Setup
-    using BlackjackEnv = rl::test::Exercise5_1::BlackjackEnvironment;
+    using BlackjackEnv = suttonbarto::Exercise5_1::BlackjackEnvironment;
     BlackjackEnv env;
     const BlackjackEnv::BlackjackState start_state{15, false, 2};
     rl::DeterministicLambdaPolicy hit_then_stick(

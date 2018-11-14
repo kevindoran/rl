@@ -1,18 +1,20 @@
 #include "gtest/gtest.h"
 
 #include <numeric>
-#include <rl/DeterministicPolicy.h>
 
-#include "common/SuttonBartoExercises.h"
+#include "rl/DeterministicPolicy.h"
 #include "rl/Trial.h"
+#include "common/suttonbarto/Exercise4_2.h"
+#include "common/suttonbarto/Exercise5_1.h"
 
+namespace sb = rl::test::suttonbarto;
 /**
  * Tests that the description of the Jack's Car Garage problem has been correctly represented.
  */
  // TODO: split into separate tests.
 TEST(ExampleEnvironments, sutton_barto_exercise_4_2_jacks_garage) {
     // Setup
-    rl::test::Exercise4_2::CarRentalEnvironment env;
+    sb::Exercise4_2::CarRentalEnvironment env;
 
     // Test cars_in_loc_X()
     const rl::State& one_in_each_loc = env.state(22);
@@ -26,13 +28,13 @@ TEST(ExampleEnvironments, sutton_barto_exercise_4_2_jacks_garage) {
     const rl::Action& move_3_from_loc_1 = env.action(env.MAX_CAR_TRANSFERS + 3);
     const rl::Action& move_3_from_loc_2 = env.action(env.MAX_CAR_TRANSFERS - 3);
     ASSERT_EQ(-3, env.change_in_car_count(move_3_from_loc_1,
-                                          rl::test::Exercise4_2::CarRentalEnvironment::Location::LOC1));
+                                          sb::Exercise4_2::CarRentalEnvironment::Location::LOC1));
     ASSERT_EQ(3, env.change_in_car_count(move_3_from_loc_1,
-                                         rl::test::Exercise4_2::CarRentalEnvironment::Location::LOC2));
+                                          sb::Exercise4_2::CarRentalEnvironment::Location::LOC2));
     ASSERT_EQ(3, env.change_in_car_count(move_3_from_loc_2,
-                                         rl::test::Exercise4_2::CarRentalEnvironment::Location::LOC1));
+                                          sb::Exercise4_2::CarRentalEnvironment::Location::LOC1));
     ASSERT_EQ(-3, env.change_in_car_count(move_3_from_loc_2,
-                                          rl::test::Exercise4_2::CarRentalEnvironment::Location::LOC2));
+                                          sb::Exercise4_2::CarRentalEnvironment::Location::LOC2));
 
     // Test is_action_allowed.
     ASSERT_TRUE(env.is_action_allowed(env.state(3, 10), move_3_from_loc_1));
@@ -84,7 +86,7 @@ TEST(ExampleEnvironments, sutton_barto_exercise_4_2_jacks_garage) {
     ASSERT_DOUBLE_EQ(expected_income, response_part.revenue);
 }
 
-using BlackjackEnv = rl::test::Exercise5_1::BlackjackEnvironment;
+using BlackjackEnv = sb::Exercise5_1::BlackjackEnvironment;
 class BlackjackEnvironmentF : public ::testing::Test {
 protected:
     BlackjackEnv env;

@@ -80,15 +80,19 @@ add_executable(runTests
         test/iterative_policy_evaluation.cpp
         test/policy_iteration.cpp
         test/common/ExamplePolicies.h
-        test/test_example_environments.cpp
-        test/common/SuttonBartoExercises.cpp
+        test/example_environments.cpp
         test/common/TestEnvironment.h
         test/distribution_list.cpp
         test/policy_evaluation.cpp
         test/common/PolicyEvaluationTests.h
         test/common/PolicyEvaluationTests.cpp
-        test/test_policy.cpp
+        test/policy.cpp
+        test/common/suttonbarto/Exercise4_1.h
+        test/common/suttonbarto/Exercise4_1.cpp
+        test/common/suttonbarto/Exercise4_2.h
+        test/common/suttonbarto/Exercise5_1.h
         )
+
 target_link_libraries(runTests gtest gtest_main)
 target_link_libraries(runTests ${CONAN_LIBS})
 target_link_libraries(runTests reinforcement)

@@ -1,16 +1,19 @@
 #include "gtest/gtest.h"
-
 #include <unordered_set>
-#include <rl/FirstVisitMCValuePredictor.h>
-#include <ExamplePolicies.h>
-#include <rl/ActionValuePolicyImprover.h>
-#include <rl/MCEvaluator3.h>
-#include <rl/SarsaImprover.h>
+
+#include "common/ExamplePolicies.h"
+#include "rl/FirstVisitMCValuePredictor.h"
+#include "rl/ActionValuePolicyImprover.h"
+#include "rl/MCEvaluator3.h"
+#include "rl/SarsaImprover.h"
 
 #include "rl/GridWorld.h"
 #include "grid/Grid.h"
 #include "rl/Policy.h"
-#include "common/SuttonBartoExercises.h"
+#include "common/TestEnvironment.h"
+#include "common/suttonbarto/Exercise4_1.h"
+#include "common/suttonbarto/Exercise4_2.h"
+#include "common/suttonbarto/Exercise5_1.h"
 #include "rl/DeterministicImprover.h"
 #include "rl/RandomPolicy.h"
 
@@ -40,6 +43,7 @@ void check_policy_action(const rl::Policy& policy, const rl::Environment& env,
     }
 }
 
+
 void test_improver(rl::PolicyImprover& policy_improver,
                    const rl::test::TestEnvironment& test_case,
                    const rl::Policy& start_policy) {
@@ -64,8 +68,8 @@ void test_improver(rl::PolicyImprover& policy_improver,
 
 TEST(PolicyImprovers, policy_iterator_LONG_RUNNING) {
     rl::DeterministicImprover improver;
-    test_improver(improver, rl::test::Exercise4_1(), rl::RandomPolicy());
-    test_improver(improver, rl::test::Exercise4_2(), rl::RandomPolicy());
+    test_improver(improver, rl::test::suttonbarto::Exercise4_1(), rl::RandomPolicy());
+    test_improver(improver, rl::test::suttonbarto::Exercise4_2(), rl::RandomPolicy());
     // FIXME: make pass and also allow for the assertions of failure.
     //test_improver(improver, rl::test::Exercise5_1(), rl::test::RandomPolicy());
 }
@@ -76,7 +80,7 @@ TEST(PolicyImprovers, action_value_policy_iterator_LONG_RUNNING) {
     //        has a high chance of encountering an infinite trial unless loop detection is
     //        implemented.
     //test_improver(improver, rl::test::Exercise4_1(), rl::test::FirstValidActionPolicy());
-    test_improver(improver, rl::test::Exercise5_1(), rl::RandomPolicy());
+    test_improver(improver, rl::test::suttonbarto::Exercise5_1(), rl::RandomPolicy());
 }
 
 TEST(PolicyImprovers, action_value_iterator_with_MCEvalutar3_LONG_RUNNING) {
@@ -85,12 +89,12 @@ TEST(PolicyImprovers, action_value_iterator_with_MCEvalutar3_LONG_RUNNING) {
     rl::MCEvaluator3 evaluator;
     improver.set_policy_evaluator(evaluator);
     // Test
-    test_improver(improver, rl::test::Exercise5_1(), rl::RandomPolicy());
+    test_improver(improver, rl::test::suttonbarto::Exercise5_1(), rl::RandomPolicy());
 }
 
 TEST(PolicyImprovers, sarsa_improver_LONG_RUNNING) {
     // Setup
     rl::SarsaImprover improver;
     // Test
-    test_improver(improver, rl::test::Exercise5_1(), rl::RandomPolicy());
+    test_improver(improver, rl::test::suttonbarto::Exercise5_1(), rl::RandomPolicy());
 }
