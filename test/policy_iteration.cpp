@@ -16,6 +16,7 @@
 #include "common/suttonbarto/Exercise4_1.h"
 #include "common/suttonbarto/Exercise4_2.h"
 #include "common/suttonbarto/Exercise5_1.h"
+#include "common/suttonbarto/Example6_6.h"
 #include "rl/DeterministicImprover.h"
 #include "rl/RandomPolicy.h"
 #include "rl/Trial.h"
@@ -111,7 +112,6 @@ TEST(PolicyImprovers, td_improver_LONG_RUNNING) {
 TEST(PolicyImprovers, sarsa_example_6_5) {
     // Setup
     rl::SarsaImprover sarsa;
-    sarsa.set_delta_threshold(0.001);
     //rl::DeterministicImprover sarsa;
     using Ex6_5 = rl::test::suttonbarto::Example6_5;
     Ex6_5::WindyGridWorld windy_grid_world;
@@ -129,4 +129,32 @@ TEST(PolicyImprovers, sarsa_example_6_5) {
         ASSERT_EQ(expected, trace.at(i).state)
             << "The calculated policy should produce the optimal route when used.";
     }
+}
+
+/**
+ * Follows the ideas from Sutton & Barto's Example 6.6.
+ */
+TEST(PolicyImprovers, example6_6) {
+    // Setup
+    using Ex6_6 = rl::test::suttonbarto::Example6_6;
+    Ex6_6 test_case;
+    rl::SarsaImprover sarsa_improver;
+    // 100,000 wasn't enough to guarantee the full safe route (the last corner would sometimes be
+    // avoided.
+    sarsa_improver.set_iteration_count(200000);
+    sarsa_improver.set_greedy_e(0.1);
+    rl::RandomPolicy start_policy;
+
+    // Test
+    // 1. Sarsa with 0.1 e-greedy action selection should take the longer, safer route.
+    std::unique_ptr<rl::Policy> p_policy = sarsa_improver.improve(test_case.env(), start_policy);
+    rl::Trace trace = rl::run_trial(test_case.env(), *p_policy);
+    ASSERT_EQ(trace.size(), Ex6_6::SAFE_ROUTE.size());
+    for(int i = 0; i < static_cast<int>(Ex6_6::SAFE_ROUTE.size()); i++) {
+        const rl::State& expected = test_case.env().pos_to_state(Ex6_6::SAFE_ROUTE.at(i));
+        ASSERT_EQ(expected, trace.at(i).state)
+                                    << "Sarsa (with e-greedy) should produce the safe route.";
+    }
+
+    // 2. Q-learning should take the optimal route.
 }

@@ -93,6 +93,8 @@ add_executable(runTests
         test/common/suttonbarto/Example6_5.h
         test/common/suttonbarto/Example6_5.cpp
         test/qegreedy_policy.cpp
+        test/common/suttonbarto/Example6_6.h
+        test/common/suttonbarto/Example6_6.cpp
         )
 
 target_link_libraries(runTests gtest gtest_main)
