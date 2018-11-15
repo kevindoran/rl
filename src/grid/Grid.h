@@ -168,6 +168,13 @@ public:
     }
 
     /**
+     * \returns the position within the grid that is closest to the given position.
+     */
+    static const Position round(const Position& p) {
+        return Position{std::max(0, std::min(HEIGHT, p.y)), std::max(0, std::min(WIDTH, p.x))};
+    }
+
+    /**
      * Determines if the given position exists on this grid.
      *
      * \return \c true if \c p is a valid position on the grid, \c false otherwise.

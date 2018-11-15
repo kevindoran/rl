@@ -41,16 +41,28 @@ public:
 
     const Action& next_action(const Environment& env, const State& from_state) const override {
         CHECK(!env.is_end_state(from_state));
+        double choice = util::random::random_in_range<double>(0, 1);
+        bool take_random_action = choice <= e_;
+        if(take_random_action) {
+            int random_action_index = util::random::random_in_range(0, env.action_count());
+            while(!env.is_action_allowed(from_state, env.action(random_action_index))) {
+                random_action_index = util::random::random_in_range(0, env.action_count());
+            }
+            CHECK(env.is_action_allowed(from_state, env.action(random_action_index)));
+            return env.action(random_action_index);
+        }
         const Action* best_action = nullptr;
         double best_return = std::numeric_limits<double>::lowest();
         for(const Action& a : env.actions()) {
+            if(!env.is_action_allowed(from_state, a)) {
+                continue;
+            }
             double retrn = value_function.value(from_state, a);
             if(retrn > best_return) {
                 best_return = retrn;
                 best_action = &a;
             }
         }
-        // TODO: use e.
         return *CHECK_NOTNULL(best_action);
     }
 
@@ -63,6 +75,7 @@ public:
     }
 
     void set_e(double e) {
+        CHECK_LE(e, 1.0);
         e_ = e;
     }
 

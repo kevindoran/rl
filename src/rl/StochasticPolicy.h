@@ -82,6 +82,26 @@ public:
         }
         return out;
     }
+
+    /**
+     * Create a policy that is greedy with respect to the given value function.
+     */
+    static StochasticPolicy create_from(const Environment& env,
+                                        const ActionValueFunction& value_function) {
+        // as I'm curious if it will ever become an issue.
+        StochasticPolicy out(env.state_count());
+        for(const State& s : env.states()) {
+            // The input policy shouldn't have any actions for end states. To be defensive, the
+            // end state entries will be cleared anyway.
+            if(env.is_end_state(s)) {
+                continue;
+            }
+            const Action& best_action = env.action(value_function.best_action(s).first);
+            Weight weight = 1.0;
+            out.add_action_for_state(s, best_action, weight);
+        }
+        return out;
+    }
 };
 
 } // namespace rl

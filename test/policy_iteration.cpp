@@ -1,5 +1,6 @@
 #include "gtest/gtest.h"
 #include <unordered_set>
+#include <suttonbarto/Example6_5.h>
 
 #include "common/ExamplePolicies.h"
 #include "rl/FirstVisitMCValuePredictor.h"
@@ -16,6 +17,7 @@
 #include "common/suttonbarto/Exercise5_1.h"
 #include "rl/DeterministicImprover.h"
 #include "rl/RandomPolicy.h"
+#include "rl/Trial.h"
 
 namespace {
 
@@ -97,4 +99,27 @@ TEST(PolicyImprovers, sarsa_improver_LONG_RUNNING) {
     rl::SarsaImprover improver;
     // Test
     test_improver(improver, rl::test::suttonbarto::Exercise5_1(), rl::RandomPolicy());
+}
+
+TEST(PolicyImprovers, sarsa_example_6_5) {
+    // Setup
+    rl::SarsaImprover sarsa;
+    sarsa.set_delta_threshold(0.001);
+    //rl::DeterministicImprover sarsa;
+    using Ex6_5 = rl::test::suttonbarto::Example6_5;
+    Ex6_5::WindyGridWorld windy_grid_world;
+    rl::util::random::reseed_generator(1);
+    rl::RandomPolicy start_policy;
+
+    // Test
+    // policy_improver.set_delta_threshold(test_case.required_delta_threshold());
+    std::unique_ptr<rl::Policy> p_policy = sarsa.improve(windy_grid_world, start_policy);
+    ASSERT_TRUE(p_policy);
+    rl::Trace trace = rl::run_trial(windy_grid_world, *p_policy);
+    ASSERT_EQ(trace.size(), Ex6_5::OPTIMAL_ROUTE.size());
+    for(int i = 0; i < static_cast<int>(Ex6_5::OPTIMAL_ROUTE.size()); i++) {
+        const rl::State& expected = windy_grid_world.pos_to_state(Ex6_5::OPTIMAL_ROUTE.at(i));
+        ASSERT_EQ(expected, trace.at(i).state)
+            << "The calculated policy should produce the optimal route when used.";
+    }
 }

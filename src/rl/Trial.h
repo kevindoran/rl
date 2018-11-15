@@ -84,8 +84,8 @@ inline Trace run_trial(
     //       from_state is an end state?
     double reward = 0;
     trace.emplace_back(TimeStep{trial.current_state(), &start_action, reward});
-    Response response = trial.execute_action(start_action);
-    reward = response.reward.value();
+    Response first_response = trial.execute_action(start_action);
+    reward = first_response.reward.value();
     while(!trial.is_finished()) {
         const Action& action = policy.next_action(env, trial.current_state());
         trace.emplace_back(TimeStep{trial.current_state(), &action, reward});

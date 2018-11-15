@@ -1,6 +1,7 @@
 #pragma once
 
 #include "rl/Environment.h"
+#include "glog/logging.h"
 #include <vector>
 
 namespace rl {
@@ -51,6 +52,21 @@ public:
         Expects(state.id() < static_cast<ID>(values_.size()));
         Expects(action.id() < static_cast<ID>(values_.front().size()));
         values_[state.id()][action.id()] = value;
+    }
+
+    using ActionValuePair = std::pair<ID, double>;
+    ActionValuePair best_action(const State& state) const {
+        int max_pos = 0;
+        double max_val = std::numeric_limits<double>::lowest();
+        CHECK_LT(state.id(), static_cast<ID>(values_.size()));
+        const std::vector<double>& action_list = values_.at(state.id());
+        for(ID i = 0; i < static_cast<ID>(action_list.size()); i++) {
+            if(action_list.at(i) > max_val) {
+                max_val = action_list.at(i);
+                max_pos = i;
+            }
+        }
+        return std::make_pair(max_pos, max_val);
     }
 
 private:

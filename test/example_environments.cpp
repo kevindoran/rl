@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 
 #include <numeric>
+#include <suttonbarto/Example6_5.h>
 
 #include "rl/DeterministicPolicy.h"
 #include "rl/Trial.h"
@@ -247,6 +248,7 @@ void test_specific_case(BlackjackEnv& env, BlackjackEnv::BlackjackState from_sta
     expected.wins *= loops;
     expected.draws *= loops;
     expected.losses *= loops;
+    rl::util::random::reseed_generator(1);
 
     // Test
     for(int i = 0; i < loops; i++) {
@@ -399,3 +401,48 @@ TEST_F(BlackjackEnvironmentF, test_simulate_dealer) {
     // Dealer card = 2:
     // 17: 0.13993, 18: 0.134533, 19: 0.130004, 20: 0.123439, 21: 0.118489
 }*/
+
+/**
+ * Tests the wind effect on WindyGridWorld.
+ *
+ * Tests that:
+ *   1. next_state() acts like normal GridWorld for tiles that don't have wind.
+ *   2. next_state() applies wind _before_ carrying out the action.
+ *   3. wind doesn't blow off the grid.
+ */
+TEST(WindyGridWorld, next_state) {
+    // Setup
+    sb::Example6_5::WindyGridWorld windy_world;
+
+    // Test
+    // 1. Normal behaviour when no wind.
+    grid::Position no_wind_pos{5, 1};
+    const rl::State& no_wind_state = windy_world.pos_to_state(no_wind_pos);
+    for(grid::Direction d : grid::directions) {
+        grid::Position adj = no_wind_pos.adj(d);
+        const rl::State& expected = windy_world.pos_to_state(adj);
+        const rl::State& actual =
+                windy_world.next_state(no_wind_state, windy_world.dir_to_action(d)).next_state;
+        ASSERT_EQ(expected, actual);
+    }
+
+    // 2. Wind applies before move.
+    // pos_a has 1 wind, and pos_b, to the right, has 2 wind.
+    // Moving right from pos_a should move 1 right and 1 up (not 1 right and 2 up).
+    grid::Position pos_a{5, 3};
+    // Moving Up means -ve y change:
+    grid::Position pos_b{4, 4};
+    const rl::State& state_a = windy_world.pos_to_state(pos_a);
+    const rl::State& state_b = windy_world.pos_to_state(pos_b);
+    ASSERT_EQ(state_b, windy_world.next_state(
+                          state_a, windy_world.dir_to_action(grid::Direction::RIGHT)).next_state);
+
+    // 3. Wind pushes into boundary.
+    // (0,5) -> right -> (0, 5), when in upward wind.
+    grid::Position pos_c{0, 5};
+    grid::Position pos_d{0, 6};
+    const rl::State& state_c = windy_world.pos_to_state(pos_c);
+    const rl::State& state_d = windy_world.pos_to_state(pos_d);
+    ASSERT_EQ(state_d, windy_world.next_state(
+                            state_c, windy_world.dir_to_action(grid::Direction::RIGHT)).next_state);
+}
