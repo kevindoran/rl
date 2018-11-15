@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 #include <unordered_set>
 #include <suttonbarto/Example6_5.h>
+#include <rl/TDEvaluator.h>
 
 #include "common/ExamplePolicies.h"
 #include "rl/FirstVisitMCValuePredictor.h"
@@ -94,9 +95,15 @@ TEST(PolicyImprovers, action_value_iterator_with_MCEvalutar3_LONG_RUNNING) {
     test_improver(improver, rl::test::suttonbarto::Exercise5_1(), rl::RandomPolicy());
 }
 
-TEST(PolicyImprovers, sarsa_improver_LONG_RUNNING) {
+TEST(PolicyImprovers, td_improver_LONG_RUNNING) {
     // Setup
-    rl::SarsaImprover improver;
+    // Until Environment & run_trial() support multiple environment start states, non-exploring
+    // starts improvers wont cover all state-action pairs. Thus, just using the TD evaluator with
+    // the standard ActionValuePolicyImprover for now.
+    // rl::SarsaImprover improver.
+    rl::ActionValuePolicyImprover improver;
+    rl::TDEvaluator evaluator;
+    improver.set_policy_evaluator(evaluator);
     // Test
     test_improver(improver, rl::test::suttonbarto::Exercise5_1(), rl::RandomPolicy());
 }
