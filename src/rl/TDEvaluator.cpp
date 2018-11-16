@@ -57,6 +57,7 @@ void TDEvaluator::update_value_fctn(const Trace& trace) {
         double td_error = prev_ts.reward + state_val - value_function_.value(ts.state, action);
         long n = ++visit_counts.data(ts.state, action);
         CHECK_GT(n, 0);
+        // Is it wrong or lacking meaning to use n here given that we are bootstrapping?
         double updated_val = current_val +  1.0/n * td_error;
         // Update data.
         value_function_.set_value(ts.state, action, updated_val);

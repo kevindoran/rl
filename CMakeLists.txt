@@ -61,6 +61,7 @@ add_library(reinforcement
         src/rl/TDEvaluator.h
         src/rl/SarsaImprover.h
         src/rl/impl/PolicyImprover.h
+        src/rl/QLearningImprover.h
         )
 target_include_directories(reinforcement
         PUBLIC

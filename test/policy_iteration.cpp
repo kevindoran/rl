@@ -2,6 +2,7 @@
 #include <unordered_set>
 #include <suttonbarto/Example6_5.h>
 #include <rl/TDEvaluator.h>
+#include <rl/QLearningImprover.h>
 
 #include "common/ExamplePolicies.h"
 #include "rl/FirstVisitMCValuePredictor.h"
@@ -139,14 +140,20 @@ TEST(PolicyImprovers, example6_6) {
     using Ex6_6 = rl::test::suttonbarto::Example6_6;
     Ex6_6 test_case;
     rl::SarsaImprover sarsa_improver;
-    // 100,000 wasn't enough to guarantee the full safe route (the last corner would sometimes be
-    // avoided.
-    sarsa_improver.set_iteration_count(200000);
-    sarsa_improver.set_greedy_e(0.1);
+    rl::QLearningImprover qlearning_improver;
+    const double greedy_e = 0.1;
+    sarsa_improver.set_greedy_e(greedy_e);
+    qlearning_improver.set_greedy_e(greedy_e);
     rl::RandomPolicy start_policy;
+    rl::util::random::reseed_generator(1);
 
     // Test
     // 1. Sarsa with 0.1 e-greedy action selection should take the longer, safer route.
+    // Regarding the iteration count:
+    // The high iteration count, 180,000, is required to demonstrate that Sarsa with e-greedy will
+    // tend to the safest route in the CliffWorld example (when e is not gradually reduced). A lower
+    // iteration count tends to produce a more optimal route.
+    sarsa_improver.set_iteration_count(180000);
     std::unique_ptr<rl::Policy> p_policy = sarsa_improver.improve(test_case.env(), start_policy);
     rl::Trace trace = rl::run_trial(test_case.env(), *p_policy);
     ASSERT_EQ(trace.size(), Ex6_6::SAFE_ROUTE.size());
@@ -157,4 +164,16 @@ TEST(PolicyImprovers, example6_6) {
     }
 
     // 2. Q-learning should take the optimal route.
+    // Q-learning's iteration count:
+    // Q-learning converges on the optimal policy (for all states) by about 20,000 iterations, and
+    // this doesn't change as the iterations are increased.
+    qlearning_improver.set_iteration_count(20000);
+    std::unique_ptr<rl::Policy> p_qlearning_policy =
+            qlearning_improver.improve(test_case.env(), start_policy);
+    // Q-learning is subjected to a stricter test: all states are checked, not just the optimal
+    // route.
+    for(const rl::State& state : test_case.env().states()) {
+        check_policy_action(*p_qlearning_policy, test_case.env(), state,
+                test_case.optimal_actions(state));
+    }
 }

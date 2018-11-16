@@ -35,7 +35,6 @@ public:
         // How does the following work? no move or copy ctr...
         QeGreedyPolicy policy{QeGreedyPolicy::create_pure_greedy_policy(value_function)};
         policy.set_e(greedy_e);
-        policy.set_e(DEFAULT_GREEDY_E);
         for(int i = 0; i < iterations; i++) {
             Trial trial(env);
             while(!trial.is_finished()) {

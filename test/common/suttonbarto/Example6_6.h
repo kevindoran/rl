@@ -13,12 +13,14 @@ namespace suttonbarto {
  *
  * Refer to p132 of Sutton & Barto 2018.
  *
- * The CliffWorld environment is used to highlight a difference in the behaviour of Q-Learning and
- * Sarsa algorithms: Q-Learning will find the optimal route even though the route is alone by the
- * cliff (which has a very high negative reward). Sarsa with e-greedy will take a safer but not
- * the optimal route. e-greedy Sarsa under-rates the optimal route as the action selection is
- * sometimes random and will follow a route off the cliff. Q-Learning, being an off-policy
- * algorithm, doesn't have this problem.
+ * The CliffWorld environment is used to highlight a difference in the behaviour of
+ * Sarsa (on-policy, using e-greedy action selection) and Q-learning (off-policy) algorithms:
+ * Q-Learning will find the optimal route even though the route is alone by the cliff (which has a
+ * very high negative reward). Sarsa with e-greedy will take a safer but not optimal route.
+ * This safer route is taken as Sarsa will under-rate the optimal route. This is due to the random
+ * action sometimes causing the route off the cliff to be taken. Q-Learning, being an off-policy
+ * algorithm, doesn't have this characteristic. While Q-learning will find the optimal policy,
+ * Sarsa will have better online performance.
  */
 class Example6_6 : public TestEnvironment {
 public:
@@ -30,6 +32,8 @@ public:
     static constexpr grid::Position GOAL_POS{3,11};
     static constexpr grid::Position START_POS{3,0};
     static constexpr int CLIFF_ROW = 3;
+    static const std::vector<grid::Position> SAFE_ROUTE;
+    static const std::vector<grid::Position> OPTIMAL_ROUTE;
 
     class CliffWorld : public GridWorld<HEIGHT, WIDTH> {
     public:
@@ -79,28 +83,21 @@ public:
     }
 
     OptimalActions optimal_actions(const State& from_state) const override {
-        // 3 cases.
-        // Start state:    up
-        // Last column:    down
-        // Otherwise:      right
-        grid::Direction optimal_dir = grid::Direction::NONE;
-        if(from_state == env_.start_state()) {
-            optimal_dir = grid::Direction::UP;
-        } else if(env_.state_to_pos(from_state).x == (WIDTH - 1)) {
-            optimal_dir = grid::Direction::DOWN;
-        } else {
-            optimal_dir = grid::Direction::RIGHT;
-        }
-        CHECK(optimal_dir != grid::Direction::NONE);
-        const Action& optimal_action = env_.dir_to_action(optimal_dir);
-        CHECK(env_.is_action_allowed(from_state, optimal_action));
-        return OptimalActions{optimal_action.id()};
+        OptimalActions ans;
+        std::transform(
+                std::begin(optimal_actions_[from_state.id()]),
+                std::end(optimal_actions_[from_state.id()]),
+                std::inserter(ans, std::end(ans)),
+                [this](int dir) {
+                    return env_.dir_to_action(grid::directions[dir]).id();
+                }
+        );
+        return ans;
     }
-
-    static const std::vector<grid::Position> SAFE_ROUTE;
 
 private:
     CliffWorld env_;
+    static const std::unordered_set<int> optimal_actions_[HEIGHT * WIDTH];
 };
 
 } // namespace suttonbarto
