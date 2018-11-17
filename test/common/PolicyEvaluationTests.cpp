@@ -111,7 +111,7 @@ void BrokenPolicyTest::check(StateBasedEvaluator& evaluator) const {
 
 void BlackjackSpecificCase::check(ActionBasedEvaluator& evaluator) const {
     // Setup
-    using BlackjackEnv = suttonbarto::Exercise5_1::BlackjackEnvironment;
+    using BlackjackEnv = suttonbarto::BlackjackEnvironment;
     BlackjackEnv env;
     const BlackjackEnv::BlackjackState start_state{15, false, 2};
     rl::DeterministicLambdaPolicy hit_then_stick(

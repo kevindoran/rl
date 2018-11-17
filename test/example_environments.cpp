@@ -87,7 +87,7 @@ TEST(ExampleEnvironments, sutton_barto_exercise_4_2_jacks_garage) {
     ASSERT_DOUBLE_EQ(expected_income, response_part.revenue);
 }
 
-using BlackjackEnv = sb::Exercise5_1::BlackjackEnvironment;
+using BlackjackEnv = sb::BlackjackEnvironment;
 class BlackjackEnvironmentF : public ::testing::Test {
 protected:
     BlackjackEnv env;

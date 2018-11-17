@@ -96,6 +96,7 @@ add_executable(runTests
         test/qegreedy_policy.cpp
         test/common/suttonbarto/Example6_6.h
         test/common/suttonbarto/Example6_6.cpp
+        test/common/suttonbarto/BlackjackEnvironment.h
         )
 
 target_link_libraries(runTests gtest gtest_main)
