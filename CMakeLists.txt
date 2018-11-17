@@ -97,6 +97,7 @@ add_executable(runTests
         test/common/suttonbarto/Example6_6.h
         test/common/suttonbarto/Example6_6.cpp
         test/common/suttonbarto/BlackjackEnvironment.h
+        test/common/suttonbarto/CarRentalEnvironment.h
         )
 
 target_link_libraries(runTests gtest gtest_main)

@@ -15,7 +15,7 @@ namespace sb = rl::test::suttonbarto;
  // TODO: split into separate tests.
 TEST(ExampleEnvironments, sutton_barto_exercise_4_2_jacks_garage) {
     // Setup
-    sb::Exercise4_2::CarRentalEnvironment env;
+    sb::CarRentalEnvironment env;
 
     // Test cars_in_loc_X()
     const rl::State& one_in_each_loc = env.state(22);
@@ -29,13 +29,13 @@ TEST(ExampleEnvironments, sutton_barto_exercise_4_2_jacks_garage) {
     const rl::Action& move_3_from_loc_1 = env.action(env.MAX_CAR_TRANSFERS + 3);
     const rl::Action& move_3_from_loc_2 = env.action(env.MAX_CAR_TRANSFERS - 3);
     ASSERT_EQ(-3, env.change_in_car_count(move_3_from_loc_1,
-                                          sb::Exercise4_2::CarRentalEnvironment::Location::LOC1));
+                                          sb::CarRentalEnvironment::Location::LOC1));
     ASSERT_EQ(3, env.change_in_car_count(move_3_from_loc_1,
-                                          sb::Exercise4_2::CarRentalEnvironment::Location::LOC2));
+                                          sb::CarRentalEnvironment::Location::LOC2));
     ASSERT_EQ(3, env.change_in_car_count(move_3_from_loc_2,
-                                          sb::Exercise4_2::CarRentalEnvironment::Location::LOC1));
+                                          sb::CarRentalEnvironment::Location::LOC1));
     ASSERT_EQ(-3, env.change_in_car_count(move_3_from_loc_2,
-                                          sb::Exercise4_2::CarRentalEnvironment::Location::LOC2));
+                                          sb::CarRentalEnvironment::Location::LOC2));
 
     // Test is_action_allowed.
     ASSERT_TRUE(env.is_action_allowed(env.state(3, 10), move_3_from_loc_1));
