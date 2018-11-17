@@ -71,6 +71,8 @@ void test_improver(rl::PolicyImprover& policy_improver,
 
 } // namespace
 
+namespace sb = rl::test::suttonbarto;
+
 TEST(PolicyImprovers, policy_iterator_LONG_RUNNING) {
     rl::DeterministicImprover improver;
     test_improver(improver, rl::test::suttonbarto::Exercise4_1(), rl::RandomPolicy());
@@ -115,7 +117,7 @@ TEST(PolicyImprovers, sarsa_example_6_5) {
     rl::SarsaImprover sarsa;
     //rl::DeterministicImprover sarsa;
     using Ex6_5 = rl::test::suttonbarto::Example6_5;
-    Ex6_5::WindyGridWorld windy_grid_world;
+    sb::WindyGridWorld windy_grid_world;
     rl::util::random::reseed_generator(1);
     rl::RandomPolicy start_policy;
 

@@ -412,7 +412,7 @@ TEST_F(BlackjackEnvironmentF, test_simulate_dealer) {
  */
 TEST(WindyGridWorld, next_state) {
     // Setup
-    sb::Example6_5::WindyGridWorld windy_world;
+    sb::WindyGridWorld windy_world;
 
     // Test
     // 1. Normal behaviour when no wind.

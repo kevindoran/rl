@@ -22,8 +22,8 @@ const std::vector<grid::Position> Example6_6::OPTIMAL_ROUTE {
 };
 
 
-const std::unordered_set<int> Example6_6::optimal_actions_[Example6_6::HEIGHT *
-                                                           Example6_6::WIDTH] = {
+const std::unordered_set<int> Example6_6::optimal_actions_[CliffWorld::HEIGHT *
+                                                           CliffWorld::WIDTH] = {
 {R, D}, {R, D}, {R, D}, {R, D}, {R, D}, {R, D}, {R, D}, {R, D}, {R, D}, {R, D}, {R, D}, {  D},
 {R, D}, {R, D}, {R, D}, {R, D}, {R, D}, {R, D}, {R, D}, {R, D}, {R, D}, {R, D}, {R, D}, {  D},
 {R,  }, {R   }, {R   }, {R   }, {R   }, {R   }, {R   }, {R   }, {R   }, {R   }, {R   }, {  D},
