@@ -56,7 +56,7 @@ public:
         bool finished = false;
         while(!finished) {
             bool policy_updated = false;
-            const ValueFunction& value_fctn = evaluate(evaluator_, env, *ans);
+            const ValueTable& value_fctn = evaluate(evaluator_, env, *ans);
             for(const State& s : env.states()) {
                 // Skip the end states. They always have a value of 0, and we shouldn't have any
                 // actions associated with it.
@@ -92,7 +92,7 @@ private:
     const std::pair<const Action*, double> calculate_best_action(
             const Environment& env,
             const State& from_state,
-            const ValueFunction& value_fctn,
+            const ValueTable& value_fctn,
             const Action* current_action) const {
         std::pair<const Action*, double> ans{nullptr, 0};
         for(const Action& a : env.actions()) {
@@ -122,7 +122,7 @@ private:
     }
 
     double calculate_reward(const Environment& env, const State& from_state,
-            const Action& action, const ValueFunction& value_fctn) const {
+            const Action& action, const ValueTable& value_fctn) const {
         ResponseDistribution transitions = env.transition_list(from_state, action);
         double expect_value_sum = 0;
         for(const Response& r : transitions.responses()) {

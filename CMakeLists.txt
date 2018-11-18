@@ -34,7 +34,7 @@ add_library(reinforcement
         src/rl/Policy.h
         src/rl/DistributionTree.h
         src/rl/DeterministicPolicy.h
-        src/rl/ValueFunction.h
+        src/rl/ValueTable.h
         src/rl/IterativePolicyEvaluator.h
         src/util/DereferenceIterator.h
         src/util/RangeWrapper.h

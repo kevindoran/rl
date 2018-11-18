@@ -16,7 +16,7 @@ public:
 
     void initialize(const Environment& env, const Policy& policy) override {
         impl::PolicyEvaluator::initialize(env, policy);
-        value_function_ = ValueFunction(env.state_count());
+        value_function_ = ValueTable(env.state_count());
     }
 
     /**
@@ -86,12 +86,12 @@ public:
         steps_++;
     }
 
-    const ValueFunction& value_function() const override {
+    const ValueTable& value_function() const override {
         return value_function_;
     }
 
 private:
-    ValueFunction value_function_;
+    ValueTable value_function_;
 };
 
 } // namespace rl

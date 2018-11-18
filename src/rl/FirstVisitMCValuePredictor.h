@@ -17,7 +17,7 @@ public:
 public:
     void initialize(const Environment& env, const Policy& policy) override {
         impl::PolicyEvaluator::initialize(env, policy);
-        value_fuction_ = ValueFunction(env.state_count());
+        value_fuction_ = ValueTable(env.state_count());
         visit_count = std::vector<int>(env.state_count(), 0);
         delta = std::vector<double>(env.state_count(), std::numeric_limits<double>::max());
         // Set the value for all end states (zero).
@@ -51,7 +51,7 @@ public:
         }
     }
 
-    const ValueFunction& value_function() const override {
+    const ValueTable& value_function() const override {
         return value_fuction_;
     }
 
@@ -103,7 +103,7 @@ private:
     }
 
 private:
-    ValueFunction value_fuction_;
+    ValueTable value_fuction_;
     std::vector<int> visit_count{};
     std::vector<double> delta{};
     long min_visit_ = 0;

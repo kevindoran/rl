@@ -33,7 +33,7 @@ GridWorldTest1::GridWorldTest1() {
 
 void GridWorldTest1::check(StateBasedEvaluator& evaluator) const {
     // Test
-    const ValueFunction& value_function =
+    const ValueTable& value_function =
             evaluate(evaluator, grid_world, *p_down_up_policy);
     ASSERT_EQ(-4, value_function.value(grid_world.pos_to_state(grid::Position{0, 0})));
     ASSERT_EQ(-3, value_function.value(grid_world.pos_to_state(grid::Position{0, 1})));
@@ -64,7 +64,7 @@ void SuttonBartoExercise4_1Test::check(StateBasedEvaluator& evaluator) const {
     RandomPolicy policy;
 
     // Test
-    const ValueFunction& value_function = evaluate(evaluator, test_case.env(), policy);
+    const ValueTable& value_function = evaluate(evaluator, test_case.env(), policy);
     for (rl::ID state_id = 0; state_id < test_case.env().state_count(); state_id++) {
         ASSERT_NEAR(Ex4_1::expected_values[state_id],
                     value_function.value(test_case.env().state(state_id)),
@@ -85,7 +85,7 @@ void rl::test::ContinuousTaskTest::check(StateBasedEvaluator& evaluator) const {
         // We could be more exact here with out bounds.
         double bounds = ALLOWED_ERROR_FACTOR * correct_value;
         const State& the_only_state = *env.states().begin();
-        const ValueFunction& value_function = evaluate(evaluator, env, policy);
+        const ValueTable& value_function = evaluate(evaluator, env, policy);
         ASSERT_NEAR(correct_value, value_function.value(the_only_state), bounds);
     }
 }

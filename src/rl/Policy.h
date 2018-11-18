@@ -4,7 +4,7 @@
 #include <glog/logging.h>
 
 #include "rl/Environment.h"
-#include "rl/ValueFunction.h"
+#include "rl/ValueTable.h"
 #include "rl/DistributionList.h"
 #include "rl/ActionValueTable.h"
 
@@ -168,7 +168,7 @@ public:
     /**
      * \returns the current estimate of the policy's value function.
      */
-    virtual const ValueFunction& value_function() const = 0;
+    virtual const ValueTable& value_function() const = 0;
 
     ~StateBasedEvaluator() override = default;
 };
@@ -185,7 +185,7 @@ public:
 
 // note: Having this template method is far more convenient that having all sub-types define a:
 //      ValueType init_and_run(Environment&,Policy&)
-// method. The presence of the specific ValueType such as ValueFunction prevent the method from
+// method. The presence of the specific ValueType such as ValueTable prevent the method from
 // being declared in the PolicyEvaluator interface.
 template<typename EvaluatorT>
 // note: return value or const ref here?

@@ -6,16 +6,16 @@
 
 namespace rl {
 
-// ValueFunction could be made templated and switch to an array backing.
+// ValueTable could be made templated and switch to an array backing.
 // This would require either:
-//   * Methods that use ValueFunction to become templated.
-//   * ValueFunction be given a virtual interface, and the implementation remains templated.
+//   * Methods that use ValueTable to become templated.
+//   * ValueTable be given a virtual interface, and the implementation remains templated.
 //template<int STATE_COUNT>
 
 /**
  * Represents a state-value function.
  */
-class ValueFunction {
+class ValueTable {
 
 public:
     // Core guidelines C21:
@@ -25,13 +25,13 @@ public:
     // the evaluators to store an ActionValueTable by value. It may become useful to revert this
     // change and store via pointers to heap allocated mem. Allowing the default construction allows
     // for a somewhat invalid state to be permitted.
-    ValueFunction() = default;
-    explicit ValueFunction(ID state_count) : state_values_(state_count, 0) {}
-    ValueFunction(const ValueFunction&) = default;
-    ValueFunction& operator=(const ValueFunction&) = default;
-    ValueFunction(ValueFunction&&) = default;
-    ValueFunction& operator=(ValueFunction&&) = default;
-    ~ValueFunction() = default;
+    ValueTable() = default;
+    explicit ValueTable(ID state_count) : state_values_(state_count, 0) {}
+    ValueTable(const ValueTable&) = default;
+    ValueTable& operator=(const ValueTable&) = default;
+    ValueTable(ValueTable&&) = default;
+    ValueTable& operator=(ValueTable&&) = default;
+    ~ValueTable() = default;
 
     double value(const State& state) const {
         Expects(state.id() < static_cast<ID>(state_values_.size()));

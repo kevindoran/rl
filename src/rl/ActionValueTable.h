@@ -41,7 +41,7 @@ public:
     //     value for a valid state-action pair (due to a client not setting a value for alll valid
     //     action-value pairs).
     //   * We would require the client to manually set the value of all end states to zero.
-    //     Currently, some of the clients of ValueFunction rely on a zero default.
+    //     Currently, some of the clients of ValueTable rely on a zero default.
     double value(const State& state, const Action& action) const {
         Expects(state.id() < static_cast<ID>(values_.size()));
         Expects(action.id() < static_cast<ID>(values_.front().size()));
