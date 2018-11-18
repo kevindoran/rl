@@ -11,9 +11,9 @@ public:
     using SizeType = long;
     using Container = std::vector<T>;
 public:
-    // Copying the relevant comment from ActionValueFunction:
+    // Copying the relevant comment from ActionValueTable:
     // This was changed from deleted -> default as it is convenient for some of the evaluators to
-    // store an ActionValueFunction by value. It may become useful to revert this change and store
+    // store an ActionValueTable by value. It may become useful to revert this change and store
     // via pointers to heap allocated mem. Allowing the default construction allows for a somewhat
     // invalid state to be permitted.
     StateActionMap() = default;

@@ -28,7 +28,7 @@ public:
     void initialize(const Environment& env, const Policy& policy) override;
     void step() override;
     bool finished() const override;
-    const ActionValueFunction& value_function() const override;
+    const ActionValueTable& value_function() const override;
 
 private:
     void update_action_value_fctn(const Trace& trace);
@@ -36,7 +36,7 @@ private:
 private:
     AveragingMode averaging_mode_ = AveragingMode::WEIGHTED;
     std::unique_ptr<Policy> p_behaviour_policy;
-    ActionValueFunction value_function_;
+    ActionValueTable value_function_;
     RandomPolicy random_policy;
     StateActionMap<double> cumulative_sampling_ratios;
     StateActionMap<double> deltas;

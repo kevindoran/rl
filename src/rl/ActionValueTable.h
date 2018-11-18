@@ -9,15 +9,15 @@ namespace rl {
 /**
  * Represents an action-value function.
  */
-class ActionValueFunction {
+class ActionValueTable {
 public:
     // This was changed from deleted -> default as it is convenient for some of the evaluators to
-    // store an ActionValueFunction by value. It may become useful to revert this change and store
+    // store an ActionValueTable by value. It may become useful to revert this change and store
     // via pointers to heap allocated mem. Allowing the default construction allows for a somewhat
     // invalid state to be permitted.
-    ActionValueFunction() = default;
+    ActionValueTable() = default;
 
-    ActionValueFunction(ID state_count, ID action_count)
+    ActionValueTable(ID state_count, ID action_count)
     {
         Expects(state_count > 0);
         Expects(action_count > 0);
@@ -28,10 +28,10 @@ public:
 
     // Core guidelines C21:
     // If you define or delete any default operations, define or delete them all.
-    ActionValueFunction(const ActionValueFunction&) = default;
-    ActionValueFunction& operator=(const ActionValueFunction&) = default;
-    ActionValueFunction(ActionValueFunction&&) = default;
-    ActionValueFunction& operator=(ActionValueFunction&&) = default;
+    ActionValueTable(const ActionValueTable&) = default;
+    ActionValueTable& operator=(const ActionValueTable&) = default;
+    ActionValueTable(ActionValueTable&&) = default;
+    ActionValueTable& operator=(ActionValueTable&&) = default;
 
     // note: how should be behave when a given state-action pair isn't valid?
     // For the moment, this issue is offloaded onto the client.

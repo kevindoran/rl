@@ -49,7 +49,7 @@ add_library(reinforcement
         src/rl/Trial.h
         src/rl/impl/PolicyEvaluator.h
         src/rl/FirstVisitMCActionValuePredictor.h
-        src/rl/ActionValueFunction.h
+        src/rl/ActionValueTable.h
         src/rl/ActionValuePolicyImprover.h
         src/rl/MCEvaluator3.h
         src/rl/MCEvaluator3.cpp

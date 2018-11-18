@@ -43,7 +43,7 @@ void GridWorldTest1::check(StateBasedEvaluator& evaluator) const {
 }
 
 void GridWorldTest1::check(ActionBasedEvaluator& evaluator) const {
-    const ActionValueFunction& value_function =
+    const ActionValueTable& value_function =
             evaluate(evaluator, grid_world, *p_down_up_policy);
     for(int h = 0; h < HEIGHT; h++) {
         for(grid::Direction d : grid::directions) {
@@ -132,7 +132,7 @@ void BlackjackSpecificCase::check(ActionBasedEvaluator& evaluator) const {
     rl::util::random::reseed_generator(1);
 
     // Test
-    const rl::ActionValueFunction& value_fctn = rl::evaluate(evaluator, env, hit_then_stick);
+    const rl::ActionValueTable& value_fctn = rl::evaluate(evaluator, env, hit_then_stick);
     ASSERT_NEAR(
         expected_return,
         value_fctn.value(env.state(start_state), env.action(BlackjackEnv::BlackjackAction::HIT)),

@@ -87,7 +87,7 @@ public:
      * Create a policy that is greedy with respect to the given value function.
      */
     static StochasticPolicy create_from(const Environment& env,
-                                        const ActionValueFunction& value_function) {
+                                        const ActionValueTable& value_function) {
         // as I'm curious if it will ever become an issue.
         StochasticPolicy out(env.state_count());
         for(const State& s : env.states()) {

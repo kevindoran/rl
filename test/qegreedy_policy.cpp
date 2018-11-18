@@ -2,7 +2,7 @@
 #include "gsl/gsl_cdf.h"
 
 #include "rl/QeGreedyPolicy.h"
-#include "rl/ActionValueFunction.h"
+#include "rl/ActionValueTable.h"
 #include "rl/Environment.h"
 #include "rl/impl/Environment.h"
 
@@ -57,7 +57,7 @@ public:
 TEST(QeGreedyPolicy, action_distribution) {
     // Create our environment, a value function with 1 best action and a greedy policy.
     MiniEnv env;
-    rl::ActionValueFunction value_fuction(env.state_count(), env.action_count());
+    rl::ActionValueTable value_fuction(env.state_count(), env.action_count());
     const rl::Action& best_action = env.action(0);
     value_fuction.set_value(env.only_state(), best_action, 10);
     rl::QeGreedyPolicy greedy_policy(value_fuction);

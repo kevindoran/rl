@@ -22,7 +22,7 @@ public:
     // If you define or delete any default operations, define or delete them all.
 
     // The default constructor was changed from deleted -> default as it is convenient for some of
-    // the evaluators to store an ActionValueFunction by value. It may become useful to revert this
+    // the evaluators to store an ActionValueTable by value. It may become useful to revert this
     // change and store via pointers to heap allocated mem. Allowing the default construction allows
     // for a somewhat invalid state to be permitted.
     ValueFunction() = default;

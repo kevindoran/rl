@@ -1,7 +1,7 @@
 #pragma once
 
 #include "rl/Policy.h"
-#include "rl/ActionValueFunction.h"
+#include "rl/ActionValueTable.h"
 
 namespace rl {
 
@@ -21,10 +21,10 @@ public:
     // Our default e is quite exploratory.
     static constexpr double DEFAULT_E = 0.1;
 public:
-    explicit QeGreedyPolicy(const ActionValueFunction& value_function) :
+    explicit QeGreedyPolicy(const ActionValueTable& value_function) :
     value_function(value_function) {}
 
-    explicit QeGreedyPolicy(const ActionValueFunction& value_function, double e) :
+    explicit QeGreedyPolicy(const ActionValueTable& value_function, double e) :
     value_function(value_function),
     e_(e) {}
 
@@ -35,7 +35,7 @@ public:
     QeGreedyPolicy&& operator=(QeGreedyPolicy&&) = delete;
     ~QeGreedyPolicy() override = default;
 
-    static QeGreedyPolicy create_pure_greedy_policy(const ActionValueFunction& value_function) {
+    static QeGreedyPolicy create_pure_greedy_policy(const ActionValueTable& value_function) {
         return QeGreedyPolicy(value_function, 0);
     }
 
@@ -85,7 +85,7 @@ public:
 
 private:
     // Stored as a pointer if assignment operator or move ctr is needed.
-    const ActionValueFunction& value_function;
+    const ActionValueTable& value_function;
     double e_ = DEFAULT_E;
 };
 

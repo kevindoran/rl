@@ -18,7 +18,7 @@ public:
      * QLearningImprover doesn't use the input policy parameter.
      */
     std::unique_ptr<Policy> improve(const Environment& env, const Policy&) const override {
-        ActionValueFunction value_function(env.state_count(), env.action_count());
+        ActionValueTable value_function(env.state_count(), env.action_count());
         QeGreedyPolicy policy{QeGreedyPolicy::create_pure_greedy_policy(value_function)};
         policy.set_e(greedy_e_);
         for(int i = 0; i < iterations_; i++) {

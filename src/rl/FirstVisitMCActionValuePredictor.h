@@ -1,7 +1,7 @@
 #pragma once
 
 #include <rl/impl/PolicyEvaluator.h>
-#include "rl/ActionValueFunction.h"
+#include "rl/ActionValueTable.h"
 #include "rl/Policy.h"
 #include "rl/Trial.h"
 #include <iostream>
@@ -25,7 +25,7 @@ public:
         // Expects(std::numeric_limits<std::size_t>::max() / env.action_count() > env.state_count());
         Ensures(env.action_count() * env.state_count() > 0);
         std::size_t element_count = env.action_count() * env.state_count();
-        value_function_ = ActionValueFunction(env.state_count(), env.action_count());
+        value_function_ = ActionValueTable(env.state_count(), env.action_count());
         visit_count = std::vector<int>(element_count, 0);
         delta = std::vector<double>(element_count, 0.0);
         // Set the value for all end states (zero).
@@ -73,7 +73,7 @@ public:
         }
     }
 
-    const ActionValueFunction& value_function() const override {
+    const ActionValueTable& value_function() const override {
         return value_function_;
     }
 
@@ -137,7 +137,7 @@ private:
     }
 
 private:
-    ActionValueFunction value_function_;
+    ActionValueTable value_function_;
     std::vector<int> visit_count{};
     std::vector<double> delta{};
     long min_visit_ = 0;

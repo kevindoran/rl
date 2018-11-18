@@ -7,7 +7,7 @@ namespace rl {
 void MCEvaluator3::initialize(const Environment& env, const Policy& policy) {
     impl::PolicyEvaluator::initialize(env, policy);
     // note: these assignments might be switched to heap construction eventually.
-    value_function_ = ActionValueFunction(env.state_count(), env.action_count());
+    value_function_ = ActionValueTable(env.state_count(), env.action_count());
     deltas = StateActionMap<double>(env);
     cumulative_sampling_ratios = StateActionMap<double>(env);
     long initial_count = 0;
@@ -101,7 +101,7 @@ void MCEvaluator3::set_averaging_mode(MCEvaluator3::AveragingMode mode) {
     averaging_mode_ = mode;
 }
 
-const ActionValueFunction& MCEvaluator3::value_function() const {
+const ActionValueTable& MCEvaluator3::value_function() const {
     return value_function_;
 }
 

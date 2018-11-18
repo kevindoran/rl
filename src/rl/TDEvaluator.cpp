@@ -4,7 +4,7 @@
 
 namespace rl {
 
-const ActionValueFunction& TDEvaluator::value_function() const {
+const ActionValueTable& TDEvaluator::value_function() const {
     return value_function_;
 }
 
@@ -15,7 +15,7 @@ bool TDEvaluator::finished() const {
 void TDEvaluator::initialize(const Environment& env, const Policy& policy) {
     impl::PolicyEvaluator::initialize(env, policy);
     // note: these assignments might be switched to heap construction eventually.
-    value_function_ = ActionValueFunction(env.state_count(), env.action_count());
+    value_function_ = ActionValueTable(env.state_count(), env.action_count());
     deltas = StateActionMap<double>(env);
     long initial_count = 0;
     // End states wont be visited and they should not be considered when calculating the min visit.

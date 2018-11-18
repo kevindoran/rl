@@ -30,8 +30,8 @@ public:
      */
     std::unique_ptr<Policy> improve(const Environment& env, const Policy&) const override {
         // TODO: improvers should be broken into initialize(), step() & finished() call also.
-        ActionValueFunction value_function =
-                ActionValueFunction(env.state_count(), env.action_count());
+        ActionValueTable value_function =
+                ActionValueTable(env.state_count(), env.action_count());
         // How does the following work? no move or copy ctr...
         QeGreedyPolicy policy{QeGreedyPolicy::create_pure_greedy_policy(value_function)};
         policy.set_e(greedy_e);

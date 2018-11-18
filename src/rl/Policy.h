@@ -6,7 +6,7 @@
 #include "rl/Environment.h"
 #include "rl/ValueFunction.h"
 #include "rl/DistributionList.h"
-#include "rl/ActionValueFunction.h"
+#include "rl/ActionValueTable.h"
 
 namespace rl {
 
@@ -178,7 +178,7 @@ public:
  */
 class ActionBasedEvaluator : public virtual PolicyEvaluator {
 public:
-    virtual const ActionValueFunction& value_function() const = 0;
+    virtual const ActionValueTable& value_function() const = 0;
 
     ~ActionBasedEvaluator() override = default;
 };
@@ -234,7 +234,7 @@ public:
  */
 double calculate_state_value(
         const Environment& env,
-        const ActionValueFunction& value_function,
+        const ActionValueTable& value_function,
         const State& state,
         const Policy& policy);
 

@@ -25,7 +25,7 @@ public:
         int loop = 0;
         while(!finished) {
             bool policy_updated = false;
-            //const ActionValueFunction& value_fctn = evaluate(evaluator_, env, *ans);
+            //const ActionValueTable& value_fctn = evaluate(evaluator_, env, *ans);
             // TODO: Without loop detection, this call risks a possible infinite loop. For example,
             // in a deterministic grid world, a trial might go:
             //     (0,0), (0,1), (0,2), (0,3), (1, 3), (2, 3), (3, 3 [end]).
@@ -33,7 +33,7 @@ public:
             // might
             // 0, while another trial might pass by tile
             evaluator_.step();
-            const ActionValueFunction& value_fctn = evaluator_.value_function();
+            const ActionValueTable& value_fctn = evaluator_.value_function();
             for(const State& state : env.states()) {
                 // Skip end states, for no action can be taken from them.
                 if(env.is_end_state(state)) {

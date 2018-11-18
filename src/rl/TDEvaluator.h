@@ -22,14 +22,14 @@ public:
 public:
     void initialize(const Environment& env, const Policy& policy) override;
     void step() override;
-    const ActionValueFunction& value_function() const override;
+    const ActionValueTable& value_function() const override;
     bool finished() const override;
 
 private:
     void update_value_fctn(const Trace& trace);
 
 private:
-    ActionValueFunction value_function_;
+    ActionValueTable value_function_;
     StateActionMap<double> deltas;
     StateActionMap<long> visit_counts;
     long min_visit = 0;

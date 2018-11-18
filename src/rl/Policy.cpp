@@ -28,7 +28,7 @@ bool greater_than(double val1, double val2, double by_at_least) {
     return compare(val1, val2, by_at_least) == 1;
 }
 
-double calculate_state_value(const Environment& env, const ActionValueFunction& value_function,
+double calculate_state_value(const Environment& env, const ActionValueTable& value_function,
                              const State& state, const Policy& policy) {
     if(env.is_end_state(state)) {
         return 0;
