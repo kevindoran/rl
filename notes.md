@@ -66,4 +66,7 @@ It may be desirable to switch to using pass by value in future.
 * Implement GPI
 * Sort out a propper design for transient Rewards (specifically, deal with their ids).
 * Start to move code into cpp files, as the compile time is starting to get annoying.
+* Refactor the Environment's states() and state_count() methods to not include end states. More cases
+  than not, the end states are not desired to be returned.
+* Environment::next_state() shouldn't have to include the probabilitiy in the result.
 
