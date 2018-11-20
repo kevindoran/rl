@@ -100,6 +100,7 @@ add_executable(runTests
         test/common/suttonbarto/CarRentalEnvironment.h
         test/common/suttonbarto/CliffWorld.h
         test/common/suttonbarto/WindyGridWorld.h
+        test/common/suttonbarto/RandomWalk.h
         )
 
 target_link_libraries(runTests gtest gtest_main)

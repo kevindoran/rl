@@ -2,6 +2,7 @@
 
 #include <numeric>
 #include <suttonbarto/Example6_5.h>
+#include <suttonbarto/RandomWalk.h>
 
 #include "rl/DeterministicPolicy.h"
 #include "rl/Trial.h"
@@ -445,4 +446,84 @@ TEST(WindyGridWorld, next_state) {
     const rl::State& state_d = windy_world.pos_to_state(pos_d);
     ASSERT_EQ(state_d, windy_world.next_state(
                             state_c, windy_world.dir_to_action(grid::Direction::RIGHT)).next_state);
+}
+
+/**
+ * Tests the transition_list() method of the RandomWalk1000 environment.
+ *
+ * Tests that:
+ *   1. The transition list is correct from state 500 (the start state).
+ *   2. The transition list is correct from state 50 (state 0 will have extra weighting).
+ *   3. The transition list is correct from state 950 (state 1001 will have extra weighting).
+ */
+TEST(RandomWalk1000, transition_list) {
+    // Setup
+    sb::RandomWalk1000 env;
+    const rl::Action& dummy_action = env.action(0);
+
+    // Test
+    // 1. From the start state, all transitions should be equally likely: [400, 500) & (500, 600].
+    {
+        rl::ResponseDistribution res = env.transition_list(env.start_state(), dummy_action);
+        ASSERT_EQ(env.JUMP * 2, static_cast<int>(res.responses().size()));
+        std::vector<bool> seen(env.state_count(), false);
+        for (const rl::Response& r : res.responses()) {
+            ASSERT_FALSE(seen[r.next_state.id()]);
+            seen[r.next_state.id()] = true;
+            ASSERT_EQ(1, r.prob_weight);
+        }
+        for (rl::ID id = 400; id < 500; id++) {
+            ASSERT_TRUE(seen[id]);
+        }
+        for (rl::ID id = 501; id <= 600; id++) {
+            ASSERT_TRUE(seen[id]);
+        }
+    }
+
+    // 2. From near the left side.
+    {
+        const rl::State& s50 = env.state(50);
+        rl::ResponseDistribution res = env.transition_list(s50, dummy_action);
+        ASSERT_EQ(100 + 50, static_cast<int>(res.responses().size()));
+        std::vector<bool> seen(env.state_count(), false);
+        for (const rl::Response& r : res.responses()) {
+            ASSERT_FALSE(seen[r.next_state.id()]);
+            seen[r.next_state.id()] = true;
+            if(r.next_state == env.left_end()) {
+                ASSERT_EQ(51, r.prob_weight);
+            } else {
+                ASSERT_EQ(1, r.prob_weight);
+            }
+        }
+        for (rl::ID id = 0; id < 50; id++) {
+            ASSERT_TRUE(seen[id]);
+        }
+        for (rl::ID id = 51; id <= 150; id++) {
+            ASSERT_TRUE(seen[id]);
+        }
+    }
+
+    // 3. From near the right side.
+    {
+        const rl::State& s1950 = env.state(950);
+        rl::ResponseDistribution res = env.transition_list(s1950, dummy_action);
+        ASSERT_EQ(100 + 51, static_cast<int>(res.responses().size()));
+        std::vector<bool> seen(env.state_count(), false);
+        for (const rl::Response& r : res.responses()) {
+            SCOPED_TRACE(r.next_state.id());
+            ASSERT_FALSE(seen[r.next_state.id()]);
+            seen[r.next_state.id()] = true;
+            if(r.next_state == env.right_end()) {
+                ASSERT_EQ(50, r.prob_weight);
+            } else {
+                ASSERT_EQ(1, r.prob_weight);
+            }
+        }
+        for (rl::ID id = 850; id < 950; id++) {
+            ASSERT_TRUE(seen[id]);
+        }
+        for (rl::ID id = 951; id <= 1001; id++) {
+            ASSERT_TRUE(seen[id]);
+        }
+    }
 }
