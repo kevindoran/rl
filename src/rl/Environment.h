@@ -71,6 +71,9 @@ private:
 
 class Reward {
 public:
+    static constexpr int ANONYMOUS_ID = -1;
+public:
+
     Reward(const Reward&) = default;
     Reward& operator=(const Reward&) = default;
     Reward(Reward&&) = default;
@@ -85,6 +88,9 @@ public:
 
     Reward(const ID id, double value)
             : id_(id), value_(value)
+    {}
+
+    explicit Reward(double value) : id_(ANONYMOUS_ID), value_(value)
     {}
 
     ID id() const {return id_;}
