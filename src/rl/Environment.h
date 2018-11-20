@@ -6,6 +6,7 @@
 #include "util/DereferenceIterator.h"
 #include <gsl/gsl>
 #include "util/RangeWrapper.h"
+#include "DistributionList.h"
 
 namespace rl {
 
@@ -70,6 +71,14 @@ private:
 
 class Reward {
 public:
+    Reward(const Reward&) = default;
+    Reward& operator=(const Reward&) = default;
+    Reward(Reward&&) = default;
+    Reward& operator=(Reward&&) = default;
+    ~Reward() = default;
+    // Deleted until needed.
+    Reward() = delete;
+
     Reward(ID id, std::string name, double value)
             : id_(id), name_(std::move(name)), value_(value)
     {}
@@ -169,6 +178,8 @@ struct Response {
         return Response{t.next_state(), t.reward(), t.prob_weight()};
     }
 
+    // We lose the move ctr and move assignment operator by having this const. Alternatively, we
+    // could decide to pass around states by value.
     const State& next_state;
     // note: I made Reward be stored by-value. This allows a Reward to be given that isn't a _real_
     // reward. This is an approach used group transitions that differ only in their reward into a
@@ -186,8 +197,6 @@ struct Response {
  */
 class ResponseDistribution {
 public:
-    // It seems likely that this type should become a DistributionList so that a random response
-    // can be obtained easily from a ResponseDistribution.
     using Responses = std::vector<Response>;
 
 public:
@@ -195,17 +204,21 @@ public:
     ResponseDistribution(ResponseDistribution&&) = default;
     ResponseDistribution& operator=(ResponseDistribution&&) = default;
     ~ResponseDistribution() = default;
-    // Deleted until needed.
-    ResponseDistribution(const ResponseDistribution&) = delete;
-    ResponseDistribution& operator=(const ResponseDistribution&) = delete;
+    // The following two are currently being used by some Policies, e.g. StochasticPolicy.
+    ResponseDistribution(const ResponseDistribution&) = default;
+    ResponseDistribution& operator=(const ResponseDistribution&) = default;
 
     const Responses& responses() const {return responses_;}
-    Weight total_weight() const {return total_weight_;}
+    Weight total_weight() const {return dist.total_weight();}
 
     void add_response(Response r) {
         Expects(r.prob_weight >= 0);
-        total_weight_ += r.prob_weight;
         responses_.emplace_back(std::move(r));
+        dist.add(responses_.back().prob_weight, static_cast<int>(responses().size() - 1));
+    }
+
+    const Response& random() {
+        return responses_.at(dist.random());
     }
 
     static ResponseDistribution single_response(Response response) {
@@ -214,13 +227,13 @@ public:
 
 private:
     explicit ResponseDistribution(Response response) :
-            responses_{std::move(response)},
-            total_weight_{responses_.back().prob_weight}
-    {}
+            responses_{std::move(response)} {
+        dist.add(responses_.back().prob_weight, static_cast<int>(responses_.size() - 1));
+    }
 
 private:
     Responses responses_{};
-    Weight total_weight_ = 0;
+    DistributionList<int, Weight> dist;
 };
 
 /**

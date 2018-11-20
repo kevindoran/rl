@@ -41,7 +41,7 @@ get_test_numbers() {
  */
 TYPED_TEST(DistributionListTypeF, Entry_constructor_and_getters) {
     // Setup.
-    using EntryType = typename rl::DistributionList<DummyStruct, TypeParam>::Entry;
+    using EntryType = typename rl::DistributionList<DummyStruct*, TypeParam>::Entry;
     using NumType = TypeParam;
     // TODO: make it clear what the precision guarantees are.
     // We are getting away with using a precision = epsilon as our test code has the same
@@ -74,7 +74,7 @@ TYPED_TEST(DistributionListTypeF, Entry_constructor_and_getters) {
 TYPED_TEST(DistributionListTypeF, total_weight) {
     // Setup
     using NumType = TypeParam;
-    rl::DistributionList<DummyStruct, NumType> dist_list;
+    rl::DistributionList<DummyStruct*, NumType> dist_list;
 
     // Test
     // 2. Empty case.
@@ -100,7 +100,7 @@ TYPED_TEST(DistributionListTypeF, total_weight) {
 TYPED_TEST(DistributionListTypeF, add) {
     // Setup
     using NumType = TypeParam;
-    rl::DistributionList<DummyStruct, NumType> dist_list;
+    rl::DistributionList<DummyStruct*, NumType> dist_list;
 
     // Test
     ASSERT_ANY_THROW(dist_list.add(-1, nullptr));
@@ -157,12 +157,11 @@ TYPED_TEST(DistributionListTypeF, random) {
     const int samples_per_unit_weight = samples / total_weight;
     const double significance_level = 0.90;
     ASSERT_TRUE(samples % total_weight == 0) << "The test is broken if this fails.";
-    std::list<Counter<NumType>> counters;
+    //std::list<Counter<NumType>> counters;
     rl::DistributionList<Counter<NumType>, NumType> counter_list;
     double actual_total_weight = 0;
     for(NumType weight : get_test_weightings<NumType>()) {
-        counters.emplace_back(weight);
-        counter_list.add(weight, &counters.back());
+        counter_list.add(weight, Counter<NumType>(weight));
         actual_total_weight += weight;
     }
     ASSERT_NEAR(total_weight, actual_total_weight, 1e-8) << "The test is broken if this fails.";
@@ -170,7 +169,7 @@ TYPED_TEST(DistributionListTypeF, random) {
     rl::util::random::reseed_generator(1);
 
     for(int i = 0; i < samples; i++) {
-        Counter<NumType>& data = *CHECK_NOTNULL(counter_list.random());
+        Counter<NumType>& data = counter_list.random();
         data.increment();
     }
 
@@ -180,7 +179,8 @@ TYPED_TEST(DistributionListTypeF, random) {
     // Following steps outlined at: https://stattrek.com/chi-square-test/goodness-of-fit.aspx
     // Using the method: X^2 = ( (O-E)^2 / E )
     double X2 = 0;
-    for(auto& counter : counters) {
+    for(auto& entry : counter_list.entries()) {
+        Counter<NumType>& counter = entry.data();
         double expected = samples_per_unit_weight * counter.weight();
         double observed = counter.value();
         X2 += std::pow(observed - expected, 2) / expected;

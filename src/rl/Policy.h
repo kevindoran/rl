@@ -24,6 +24,14 @@ public:
     class ActionDistribution {
     public:
         using WeightMap = std::unordered_map<const Action*, Weight>;
+    public:
+        ActionDistribution() = default;
+        ActionDistribution(ActionDistribution&&) = default;
+        ActionDistribution& operator=(ActionDistribution&&) = default;
+        ~ActionDistribution() = default;
+        // The following two are currently being used by some Policies, e.g. StochasticPolicy.
+        ActionDistribution(const ActionDistribution&) = default;
+        ActionDistribution& operator=(const ActionDistribution&) = default;
 
         static ActionDistribution single_action(const Action& a) {
             ActionDistribution dist;
@@ -92,7 +100,7 @@ public:
         }
 
     private:
-        using ActionList = DistributionList<const Action, Weight>;
+        using ActionList = DistributionList<const Action*, Weight>;
         ActionList action_list_{};
         WeightMap weight_map_{};
     };

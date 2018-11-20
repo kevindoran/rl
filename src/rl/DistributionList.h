@@ -17,7 +17,6 @@ template<typename T, typename Weight,
         typename = std::enable_if_t<std::is_signed<Weight>::value>>
 class DistributionList {
 public:
-
     class Entry {
     public:
         Entry() = default;
@@ -26,18 +25,18 @@ public:
         Entry& operator=(const Entry&) = default;
         Entry& operator=(Entry&&) = default;
 
-        Entry(Weight cumulative_begin, Weight weight, T* data) :
+        Entry(Weight cumulative_begin, Weight weight, T data) :
             cumulative_begin_(cumulative_begin),
             weight_(weight),
-            data_(data)
+            data_(std::move(data))
         {}
 
-        const T* data() const {
+        const T& data() const {
             return data_;
         }
 
-        T* data() {
-            return const_cast<T*>(static_cast<const Entry*>(this)->data());
+        T& data() {
+            return const_cast<T&>(static_cast<const Entry*>(this)->data());
         }
 
         Weight weight() const {
@@ -55,18 +54,25 @@ public:
     private:
         Weight cumulative_begin_ = -1;
         Weight weight_ = -1;
-        T* data_ = nullptr;
+        T data_ = nullptr;
     };
-
     using Entries = std::vector<Entry>;
+public:
+    DistributionList() = default;
+    DistributionList(DistributionList&&) = default;
+    DistributionList& operator=(DistributionList&&) = default;
+    ~DistributionList() = default;
+    // The following two are currently being used by some Policies, e.g. StochasticPolicy.
+    DistributionList(const DistributionList&) = default;
+    DistributionList& operator=(const DistributionList&) = default;
 
-    void add(Weight weight, T* data) {
+    void add(Weight weight, T data) {
         Expects(weight > 0);
         Weight begin = total_weight();
-        list_.emplace_back(begin, weight, data);
+        list_.emplace_back(begin, weight, std::move(data));
     }
 
-    const T* random() const {
+    const T& random() const {
         Expects(!list_.empty());
         // Short-cut return if there is only one element.
         if(list_.size() == 1) {
@@ -93,8 +99,8 @@ public:
         return list_[lower].data();
     }
 
-    T* random() {
-        return const_cast<T*>(static_cast<const DistributionList*>(this)->random());
+    T& random() {
+        return const_cast<T&>(static_cast<const DistributionList*>(this)->random());
     }
 
     Weight total_weight() const {
@@ -106,6 +112,10 @@ public:
 
     const Entries& entries() const {
         return list_;
+    }
+
+    Entries& entries() {
+        return const_cast<Entries&>(static_cast<const DistributionList*>(this)->entries());
     }
 
 private:
