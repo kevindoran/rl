@@ -62,6 +62,7 @@ add_library(reinforcement
         src/rl/SarsaImprover.h
         src/rl/impl/PolicyImprover.h
         src/rl/QLearningImprover.h
+        src/rl/GradientMCLinear.h
         )
 target_include_directories(reinforcement
         PUBLIC

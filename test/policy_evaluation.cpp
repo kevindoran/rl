@@ -1,3 +1,5 @@
+#include <rl/GradientMCLinear.h>
+#include <suttonbarto/RandomWalk.h>
 #include "gtest/gtest.h"
 
 #include "rl/Environment.h"
@@ -138,4 +140,42 @@ TEST_F(TDEvaluator, blackjack_specific_case1) {
     evaluator.set_delta_threshold(1e-4);
     // Test
     test_case.check(evaluator);
+}
+
+//----------------------------------------------------------------------------------------------
+// On-policy Monte-Carlo gradient descent.
+//----------------------------------------------------------------------------------------------
+TEST(GradientMCLinear, random_walk_1000) {
+    // Setup
+    rl::GradientMCLinear evaluator;
+    rl::test::suttonbarto::RandomWalk1000 env;
+    rl::test::FirstValidActionPolicy policy;
+    const double max_error = 0.2;
+    const int inner_state_count = 1000; // 2 end states.
+    const int group_count = 10;
+    const int states_per_group = inner_state_count / group_count;
+    // +1 as the first state, at 0, is the left terminal state.
+    std::vector<int> state_to_group_mapping(inner_state_count + 1);
+    // Give all the inner states a group id.
+    for(int i = 0; i < inner_state_count; i++) {
+        int group = i / states_per_group;
+        rl::ID state_id = i + 1;
+        state_to_group_mapping[state_id] = group;
+    }
+    rl::StateAggregateValueFunction value_function(group_count, state_to_group_mapping);
+    // Any policy will do, as the RandomWalk environment ignores the policy.
+    // Calculate expected result via iterative DP.
+    rl::IterativePolicyEvaluator iterative_evaluator;
+    iterative_evaluator.set_delta_threshold(1e-3);
+    rl::ValueTable expected = rl::evaluate(iterative_evaluator, env, policy);
+
+    // Test
+    // Calculate the state-aggregated value function.
+    evaluator.evaluate(env, policy, value_function);
+    for(const rl::State& s : env.states()) {
+        if(env.is_end_state(s)) {
+            continue;
+        }
+        EXPECT_NEAR(expected.value(s), value_function.value(s), max_error);
+    }
 }
