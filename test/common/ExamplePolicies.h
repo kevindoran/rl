@@ -29,7 +29,7 @@ class FirstValidActionPolicy : public rl::Policy {
 public:
     const rl::Action&
     next_action(const rl::Environment& e, const rl::State& from_state) const override {
-        const Action* res;
+        const Action* res = nullptr;
         for(const rl::Action& a : e.actions()) {
             if(!e.is_action_allowed(from_state, a)) {
                 continue;
